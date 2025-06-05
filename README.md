@@ -1,52 +1,74 @@
-# react-solidity template
+## ReviveSafe
+A mordern Multisig wallet for Polkadot powered by Polkadot
+ReviveSafe is a full-stack multisignature wallet solution designed for the Polkadot ecosystem. It leverages Polkadot’s new EVM‐compatible environment (PolkaVM) and the custom pallet‐revive runtime module to run Solidity contracts natively on RISC-V. On the frontend, a React dashboard (written in TypeScript and styled with Tailwind and shadcn/ui) provides a seamless user experience: connect a PolkaVM-compatible wallet, create or register multisig wallets, view and manage owned wallets, and submit or confirm transactions—all with sub-second finality and low fees.
 
-This template sets up a combination of Solidity smart contracts and a React front-end app that interacts with these
-smart contracts.  
-This template includes
+### Key Components
+#### 1. Solidity Contracts
+##### MultiSigWallet.sol
 
-* [ethers](https://docs.ethers.org/v6/) for smart contract interaction
-* [Tailwind CSS](https://tailwindcss.com) + [Tailwind UI](https://tailwindui.com/).
-* [Vite](https://vite.dev/) for dev tooling.
+Implements a standard multisig pattern: an array of owners, a required threshold, and a dynamic list of transaction proposals.
 
-## Writing smart contracts
+Owners can call submitTransaction(destination, value, data) to propose a transfer. Each proposal is assigned a numeric ID.
 
-Currently, two ways of developing smart contracts are supported. Both are deploying to Westend Asset Hub.
+Other owners call confirmTransaction(txId) to register their approval. Once confirmations ≥ threshold, executeTransaction(txId) automatically sends funds via a low-level call{value:…}.
 
-### Remix
+Owners can revoke prior confirmations (via revokeConfirmation(txId)) before execution.
 
-1. Run `pnpm remixd` to start remixd environment.
-2. Go to https://remix.polkadot.io and activate REMIXD plugin.
-3. Start hacking! Changes performed in Remix will be synced to local file system.
-4. After deploying and pinning a smart contract, it'll be saved on your file system, run `pnpm contracts:export` to
-   export contract data.
+Read-only methods include getOwners(), required(), getTransactionCount(), getTransactionIds(), and getConfirmations().
 
-### Local development
+##### MultiSigFactory.sol
 
-1. Edit smart contracts in root directory
-2. Run `pnpm contracts:build` to compile smart contracts
-3. Run `pnpm contracts:deploy` to deploy them  
-   Required environment variables:
-  * `ACCOUNT_SEED`: seed phrase for the account that will sign the deployment.
-  * `RPC_URL`: for Westend Asset Hub, probably `https://westend-asset-hub-eth-rpc.polkadot.io`, for kitchensink, probably `http://localhost:8545`
-4. Run `pnpm contracts:export` to export contract data.
+Anyone can call createMultiSig(address[] owners, uint256 required) to deploy a new MultiSigWallet instance on-chain; the factory stores its address in an on-chain array allMultiSigs[].
 
-## Interacting with smart contracts from frontend app
+registerExistingMultisig(address multisig) allows registering any pre-deployed multisig by verifying it supports isOwner(this).
 
-1. Run `pnpm frontend:dev` to start `vite` environment
-2. You can import all exported contracts using `import { contracts } from "contracts"`
-3. You can call your contracts like this:
+getAllMultiSigs() returns every multisig ever created or registered, while getMyMultiSigs(address owner) filters that list to only those wallets where owner is among the wallet’s owners.
 
-```ts
-import { Contract, formatEther } from "ethers";
-import { contracts, ContractData } from "contracts"
+All contracts compile through the Revive toolchain: solc → YUL → resolc (Revive) → RISC-V. At runtime, PolkaVM’s RISC-V interpreter (pallet-revive) executes the bytecode under Polkadot’s weight/gas model, benefitting from sub-second finality and Polkadot’s shared security.
 
-const contractData: ContractData = contracts["1b5b93a223026219f4f75e5b90c20970ab976451"];
-const contract = new Contract(contractData.address, contractData.abi, signer);
+#### 2. Frontend Dashboard
+##### Structure
 
-const transactionResponse = await contract.retrieve(); // method on your smart contract
-```
+The React frontend (in frontend/) is organized into:
 
-More info at:
-* [contracts.polkadot.io](https://contracts.polkadot.io/): docs on smart contracts
-* [ethers docs](https://docs.ethers.org/v6/)  
+Constants & ABIs (src/constants/)
+
+factoryAddress.ts contains the deployed MultiSigFactory address on PolkaVM.
+
+MultiSigFactory.json and MultiSigWallet.json store ABIs for the factory and wallet contracts, respectively.
+
+Hooks (src/hooks/)
+
+useWalletAddress.ts detects and listens for the user’s connected PolkaVM wallet (e.g., MetaMask configured for a PolkaVM parachain).
+
+useFactory.ts returns a signer-connected ethers.Contract instance pointing at MultiSigFactory.
+
+Components (src/components/)
+
+Pages (src/pages/)
+
+
+##### PolkaVM & pallet-revive
+
+ReviveSafe’s smooth user experience relies on PolkaVM and the pallet-revive module:
+
+pallet-revive
+
+A custom Substrate pallet that accepts Ethereum-style JSON-RPC calls (e.g., eth_sendRawTransaction) via a proxy.
+Stores RISC-V code blobs under a code_hash and instantiates contract accounts on-chain.
+Charges gas in weight units (picoseconds) for RISC-V EVM execution. Unused weight is refunded, and weight exhaustion reverts the current call.
+Provides host-function tracing (runtime::revive::strace) for developers.
+PolkaVM (RISC-V Interpreter)
+Executes RISC-V instructions compiled from Solidity’s YUL output by the Revive tool (resolc).
+Offers sub-second finality, low fees, and native cross-chain messaging capabilities.
+Integrates tightly with Polkadot’s shared security model, meaning multisig funds are protected by the entire relay chain.
+By compiling the multisig contracts through solc → resolc → pallet-revive, ReviveSafe achieves full Solidity compatibility with minimal code changes. Ethers.js calls (e.g., factory.createMultiSig(...), msContract.confirmTransaction(...)) are seamlessly translated into Substrate extrinsics and executed in PolkaVM
+
+
+Why ReviveSafe Matters
+Lowering the Barrier to Polkadot: Solidity developers can reuse existing tooling (Ethers.js, MetaMask, Hardhat) without rewriting in ink!/Rust.
+Enterprise-grade Security: Each multisig wallet benefits from Polkadot’s shared security, RISC-V execution, and rapid finality.
+Composability: The on-chain factory registry (getMyMultiSigs()) allows other dApps to discover and integrate with user-owned multisigs dynamically.
+Performance & UX: Sub-second confirmations and low fees improve the user’s multisig workflow—no more long waits for confirmations as on Ethereum.
+Future-proof: As pallet-revive’s JIT evolves and PolkaVM matures, ReviveSafe will only get faster and more economical.
 
