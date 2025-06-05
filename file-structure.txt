@@ -1,0 +1,99 @@
+.
+├── contracts
+│   ├── .deploys
+│   │   └── pinned-contracts
+│   │       └── 420420421
+│   │           ├── 0x113d51409e227ef8b1bd4c4a26ac4bebae7c4e79.json
+│   │           └── 0x637305b4d1950c1852cb656ab4c1416ed421fddb.json
+│   ├── artifacts
+│   │   ├── build-info
+│   │   │   ├── 0ae92e34344f0a53f4475cb687a3cb68.json
+│   │   │   └── 7089671c5cc0a191a198c73264f96849.json
+│   │   ├── MultiSigFactory_metadata.json
+│   │   ├── MultiSigFactory.json
+│   │   ├── MultiSigWallet_metadata.json
+│   │   └── MultiSigWallet.json
+│   ├── dist
+│   │   ├── build.d.ts
+│   │   ├── build.js
+│   │   ├── contracts.d.ts
+│   │   ├── contracts.js
+│   │   ├── deploy.d.ts
+│   │   ├── deploy.js
+│   │   ├── exportContracts.d.ts
+│   │   ├── exportContracts.js
+│   │   ├── index.d.ts
+│   │   └── index.js
+│   ├── package.json
+│   ├── ReviveFactory.sol
+│   ├── ReviveMultisig.sol
+│   ├── src
+│   │   ├── build.ts
+│   │   ├── contracts.ts
+│   │   ├── deploy.ts
+│   │   ├── exportContracts.ts
+│   │   └── index.ts
+│   └── tsconfig.json
+├── file-structure.txt
+├── frontend
+│   ├── .env
+│   ├── components.json
+│   ├── eslint.config.js
+│   ├── index.html
+│   ├── package.json
+│   ├── src
+│   │   ├── App.tsx
+│   │   ├── assets
+│   │   │   └── polkadot-logo.svg
+│   │   ├── components
+│   │   │   ├── layout
+│   │   │   │   ├── dashboard.tsx
+│   │   │   │   ├── footer.tsx
+│   │   │   │   ├── header.tsx
+│   │   │   │   └── main.tsx
+│   │   │   ├── ui
+│   │   │   │   ├── button.tsx
+│   │   │   │   ├── card.tsx
+│   │   │   │   ├── input.tsx
+│   │   │   │   └── label.tsx
+│   │   │   └── wallets
+│   │   │       ├── owner-info.tsx
+│   │   │       ├── tx-form.tsx
+│   │   │       └── tx-item.tsx
+│   │   ├── config
+│   │   │   └── constants.ts
+│   │   ├── global.d.ts
+│   │   ├── hooks
+│   │   │   ├── useNetworkData.ts
+│   │   │   ├── useReviveFactory.ts
+│   │   │   ├── useReviveWallet.ts
+│   │   │   ├── useTransactionStore.ts
+│   │   │   └── useWalletAddress.ts
+│   │   ├── index.css
+│   │   ├── lib
+│   │   │   ├── router.tsx
+│   │   │   ├── utils.ts
+│   │   │   └── wagmi.ts
+│   │   ├── main.tsx
+│   │   ├── pages
+│   │   │   ├── create.tsx
+│   │   │   ├── dashboard.tsx
+│   │   │   ├── landing.tsx
+│   │   │   ├── register.tsx
+│   │   │   ├── wallet-detail.tsx
+│   │   │   └── wallets.tsx
+│   │   ├── stores
+│   │   │   └── revive.ts
+│   │   ├── types
+│   │   │   └── multisig.ts
+│   │   └── vite-env.d.ts
+│   ├── tailwind.config.js
+│   ├── tsconfig.app.json
+│   ├── tsconfig.json
+│   └── vite.config.ts
+├── package.json
+├── pnpm-lock.yaml
+├── pnpm-workspace.yaml
+└── README.md
+
+22 directories, 75 files

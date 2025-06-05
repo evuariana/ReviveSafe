@@ -1,0 +1,275 @@
+{
+	"compiler": {
+		"version": "0.8.28+commit.7893614a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "creator",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "multisig",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "address[]",
+						"name": "owners",
+						"type": "address[]"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "required",
+						"type": "uint256"
+					}
+				],
+				"name": "MultiSigCreated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "registrant",
+						"type": "address"
+					},
+					{
+						"indexed": true,
+						"internalType": "address",
+						"name": "multisig",
+						"type": "address"
+					}
+				],
+				"name": "MultiSigRegistered",
+				"type": "event"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "",
+						"type": "uint256"
+					}
+				],
+				"name": "allMultiSigs",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "",
+						"type": "address"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address[]",
+						"name": "owners",
+						"type": "address[]"
+					},
+					{
+						"internalType": "uint256",
+						"name": "required",
+						"type": "uint256"
+					}
+				],
+				"name": "createMultiSig",
+				"outputs": [
+					{
+						"internalType": "address",
+						"name": "multisig",
+						"type": "address"
+					}
+				],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "getAllMultiSigs",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "owner",
+						"type": "address"
+					}
+				],
+				"name": "getMyMultiSigs",
+				"outputs": [
+					{
+						"internalType": "address[]",
+						"name": "myMultisigs",
+						"type": "address[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "multisig",
+						"type": "address"
+					}
+				],
+				"name": "registerExistingMultisig",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"details": "Anyone can call createMultiSig; all addresses are stored in `allMultiSigs`.",
+			"events": {
+				"MultiSigCreated(address,address,address[],uint256)": {
+					"params": {
+						"creator": "The address that called createMultiSig.",
+						"multisig": "The newly deployed MultiSigWallet address.",
+						"owners": "The list of owners for this new multisig.",
+						"required": "The number of confirmations required."
+					}
+				},
+				"MultiSigRegistered(address,address)": {
+					"params": {
+						"multisig": "The multisig address being registered.",
+						"registrant": "The address that called registerExistingMultisig."
+					}
+				}
+			},
+			"kind": "dev",
+			"methods": {
+				"createMultiSig(address[],uint256)": {
+					"params": {
+						"owners": "An array of owner addresses for the multisig.",
+						"required": "The number of confirmations required (must be >0 and <= owners.length)."
+					},
+					"returns": {
+						"multisig": "The address of the newly deployed MultiSigWallet."
+					}
+				},
+				"getAllMultiSigs()": {
+					"returns": {
+						"_0": "An array of addresses for all multisigs."
+					}
+				},
+				"getMyMultiSigs(address)": {
+					"params": {
+						"owner": "The address to filter for."
+					},
+					"returns": {
+						"myMultisigs": "An array of multisig addresses for which `isOwner(owner) == true`."
+					}
+				},
+				"registerExistingMultisig(address)": {
+					"params": {
+						"multisig": "The address of the multisig to register."
+					}
+				}
+			},
+			"stateVariables": {
+				"allMultiSigs": {
+					"details": "All multisig addresses deployed by this factory."
+				}
+			},
+			"title": "MultiSigFactory",
+			"version": 1
+		},
+		"userdoc": {
+			"events": {
+				"MultiSigCreated(address,address,address[],uint256)": {
+					"notice": "Emitted when a new MultiSigWallet is created."
+				},
+				"MultiSigRegistered(address,address)": {
+					"notice": "Emitted when an existing MultiSigWallet is registered."
+				}
+			},
+			"kind": "user",
+			"methods": {
+				"createMultiSig(address[],uint256)": {
+					"notice": "Deploy a new MultiSigWallet and register its address."
+				},
+				"getAllMultiSigs()": {
+					"notice": "Returns the total list of multisig addresses ever created by this factory."
+				},
+				"getMyMultiSigs(address)": {
+					"notice": "Returns only those multisigs where `owner` is in the owners[] array."
+				},
+				"registerExistingMultisig(address)": {
+					"notice": "Register a previously deployed multisig address."
+				}
+			},
+			"notice": "A minimal factory that deploys new MultiSigWallets and keeps an on‐chain registry.",
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"ReviveFactory.sol": "MultiSigFactory"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"details": {
+				"constantOptimizer": false,
+				"cse": false,
+				"deduplicate": false,
+				"inliner": false,
+				"jumpdestRemover": false,
+				"orderLiterals": false,
+				"peephole": false,
+				"simpleCounterForLoopUncheckedIncrement": true,
+				"yul": false
+			},
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"ReviveFactory.sol": {
+			"keccak256": "0xa6859f62fb32204253503ba9df1a088f92d2776d5d85cb78799020a57b62be9d",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://6feab881d8828b3e87b43bd7e090edbdeec8aa96437e6f9e0fd816936168d0a9",
+				"dweb:/ipfs/QmUzfhaVx56FMZVeS5dyBASuWDcMP6TdcnSLCMFcaWprqw"
+			]
+		},
+		"ReviveMultisig.sol": {
+			"keccak256": "0x0c476d614863f66084f80b06e0439ae86da05a147d956ac65c765c13afb067ec",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://f115ad5b1bc6ff5a9cc95057bff1f904e67b49cd5640a01e99f0704c412ad3ed",
+				"dweb:/ipfs/QmRZ94NnU5dZmh5kf6CwzyEKfCRmLCALRtafcUtn6CK4WN"
+			]
+		}
+	},
+	"version": 1
+}
