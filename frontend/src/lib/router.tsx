@@ -7,6 +7,7 @@ import Wallets from "../pages/wallets";
 import Create from "../pages/create";
 import Register from "../pages/register";
 import WalletDetail from "../pages/wallet-detail";
+import Deploy from "../pages/deploy";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +43,10 @@ export const router = createBrowserRouter([
       {
         path: "wallet/:address",
         element: <WalletDetail />,
+      },
+      {
+        path: "deploy",
+        element: <Deploy />,
       },
     ],
   },

@@ -9,6 +9,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@parity/resolc-browser": path.resolve(
+        __dirname,
+        "./node_modules/@parity/resolc/dist/resolc.js"
+      ),
     },
   },
 });
