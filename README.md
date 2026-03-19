@@ -1,26 +1,35 @@
 # ReviveSafe
 
-ReviveSafe is a rebuilt PVM-track multisig for Polkadot Hub. It keeps the core Solidity multisig flow, but now makes the Polkadot-native story explicit:
+ReviveSafe is a rebuilt PVM-track multisig for Polkadot Asset Hub. It keeps the
+core Solidity multisig flow, but now routes the app through a Dedot and
+LunoKit-first runtime model:
 
 - Solidity contracts compile to PolkaVM bytecode with `resolc`
-- The multisig can submit `pallet-assets` transfers through the deterministic ERC-20 precompile addresses
-- The frontend uses the Hub ETH RPC for contract interaction and a RelayCode-inspired Dedot client for live asset metadata
+- The frontend signs through `pallet_revive` extrinsics, not wagmi/RainbowKit
+- The multisig can submit `pallet-assets` transfers through deterministic ERC-20 precompile addresses
+- The app uses Dedot for chain context, mapping status, runtime metadata, and revive writes
+- ETH RPC stays in place as a read-only adapter for contract state, calldata, and precompile balances
 
 ## What Changed
 
 - Added `submitAssetTransfer(uint32 assetId, address destination, uint256 amount)` to the wallet contract
 - Added deterministic asset-precompile address derivation on-chain and in the frontend
 - Switched the contract build flow from the old remote `@parity/revive` helper to local `@parity/resolc`
-- Reworked the frontend around env-driven factory configuration instead of pinned ABI/address snapshots
-- Added Dedot-powered asset metadata reads so known Hub assets show real names, symbols, and decimals
-- Updated the UI so judges can immediately see the PVM + precompile angle in the dashboard and proposal flow
+- Removed wagmi and RainbowKit from the frontend
+- Added RelayCode-style LunoKit connect and chain selection controls
+- Added a blocking `map_account` setup gate so every write path uses a mapped H160
+- Rebuilt create, register, wallet detail, and proposal flows on top of `pallet_revive.call`
+- Added a deploy console for `instantiateWithCode`, artifact upload, and post-deploy write calls
+- Replaced stale config assumptions with explicit Paseo Asset Hub and Polkadot Asset Hub envs
 
 ## Stack
 
 - Contracts: Solidity `0.8.28`, `@parity/resolc`, `ethers`
-- Frontend: React, Vite, wagmi, RainbowKit, Tailwind
-- Chain metadata: `dedot`, `@dedot/chaintypes`
-- Target network: Polkadot Hub TestNet (Paseo / PAS)
+- Frontend: React, Vite, Tailwind, `@luno-kit/react`, `@luno-kit/ui`
+- Chain metadata and revive writes: `dedot`, `@dedot/chaintypes`
+- Supported networks:
+  - Paseo Asset Hub (default)
+  - Polkadot Asset Hub
 
 ## Quick Start
 
@@ -41,6 +50,7 @@ Build everything:
 ```bash
 pnpm --filter contracts build
 pnpm --filter frontend build
+pnpm --filter frontend lint
 ```
 
 Run the frontend:
@@ -54,10 +64,12 @@ pnpm frontend:dev
 `frontend/.env` expects:
 
 - `VITE_FACTORY_ADDRESS`: deployed `MultiSigFactory` address
-- `VITE_WALLETCONNECT_PROJECT_ID`: WalletConnect project id for RainbowKit
-- `VITE_POLKADOT_RPC_URL`: optional override for Hub ETH RPC
-- `VITE_POLKADOT_WS_URL`: optional override for the Dedot WebSocket endpoint
-- `VITE_BLOCK_EXPLORER_URL`: optional override for Blockscout
+- `VITE_PASEO_ETH_RPC_URL`: optional override for Paseo Asset Hub ETH RPC
+- `VITE_PASEO_WS_URL`: optional override for Paseo Asset Hub websocket
+- `VITE_PASEO_EXPLORER_URL`: optional override for Paseo explorer
+- `VITE_POLKADOT_ASSET_HUB_ETH_RPC_URL`: optional override for Polkadot Asset Hub ETH RPC
+- `VITE_POLKADOT_ASSET_HUB_WS_URL`: optional override for Polkadot Asset Hub websocket
+- `VITE_POLKADOT_ASSET_HUB_EXPLORER_URL`: optional override for Polkadot Asset Hub explorer
 
 ## Contract Build + Deploy
 
@@ -83,10 +95,12 @@ Optional deploy args can be passed through `CONSTRUCTOR_ARGS` as a JSON array.
 
 - It is clearly a Track 2 PVM submission, not an EVM copy-paste
 - Precompile usage is now a core workflow, not a README claim
-- The app surfaces native asset balances and precompile proposals in the demo path
-- Dedot integration gives us runtime-aware metadata without falling back to stale hardcoded assumptions
+- The app surfaces mapping, revive writes, deploy flows, and precompile proposals in the demo path
+- Dedot integration gives us runtime-aware metadata instead of stale hardcoded assumptions
+- The connect button, chain selector, and input patterns now align with RelayCode instead of the old wallet stack
 
 ## Notes
 
-- The frontend wallet flow still uses the ETH RPC path for contract execution. I kept that in place so the existing contract UX stays usable while we layer in more RelayCode-style chain context.
-- The Dedot setup is intentionally lightweight and follows the same separation of concerns used in RelayCode: contract writes on one side, runtime metadata/context on the other.
+- Contract writes now go through Revive extrinsics signed by LunoKit wallets.
+- Read-only contract hydration still uses the ETH RPC path by design.
+- The deploy console can compile bundled or pasted Solidity, but the browser `resolc` chunk is large; this is expected for the hackathon operator workflow.
