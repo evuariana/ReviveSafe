@@ -1,5 +1,6 @@
 // src/pages/create.tsx
 import { useState } from "react";
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAccount } from "wagmi";
 import { motion } from "framer-motion";
@@ -53,6 +54,12 @@ export default function Create() {
   const [newOwner, setNewOwner] = useState("");
   const [required, setRequired] = useState(1);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    if (createSuccess) {
+      navigate("/wallets");
+    }
+  }, [createSuccess, navigate]);
 
   const addOwner = () => {
     if (!newOwner.trim()) {
@@ -299,7 +306,8 @@ export default function Create() {
       <div>
         <h3 className="text-lg font-semibold mb-2">Review & Deploy</h3>
         <p className="text-gray-600">
-          Review your multisig configuration before deploying to the blockchain.
+          Review your multisig configuration before deploying to Polkadot Hub
+          TestNet.
         </p>
       </div>
 
@@ -378,7 +386,8 @@ export default function Create() {
           Create Multisig Wallet
         </h1>
         <p className="text-gray-600">
-          Set up a new multisignature wallet for collaborative asset management
+          Set up a new multisignature wallet for collaborative control over PAS
+          and pallet-assets precompile transfers.
         </p>
       </div>
 

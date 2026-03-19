@@ -1,6 +1,4 @@
 import { Shield } from "lucide-react";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
@@ -16,7 +14,8 @@ export default function Footer() {
         </div>
         <div className="mt-8 md:mt-0">
           <p className="text-center text-xs leading-5 text-gray-400">
-            &copy; 2025 ReviveSafe. Built on Polkadot. Secure your future.
+            &copy; 2026 ReviveSafe. Built for Polkadot Hub PVM with native asset
+            precompiles.
           </p>
         </div>
       </div>

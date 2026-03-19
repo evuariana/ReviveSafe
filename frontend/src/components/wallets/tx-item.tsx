@@ -1,11 +1,14 @@
 // src/components/wallets/tx-item.tsx
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle, Clock } from "lucide-react";
+import { CheckCircle, Clock, Coins, Sparkles } from "lucide-react";
+import { useChainId } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { useReviveWallet } from "@/hooks/useReviveWallet";
 import { formatAddress, formatBalance } from "@/lib/utils";
-import { Address } from "viem";
+import { getCurrentChainSymbol } from "@/lib/currency";
+import { decodeAssetTransferCall } from "@/lib/precompiles";
+import { Address, Hex, formatUnits } from "viem";
 
 interface TransactionItemProps {
   txId: number;
@@ -37,6 +40,7 @@ export default function TransactionItem({
 
   const [isConfirming, setIsConfirming] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
+  const chainId = useChainId();
 
   if (!transaction) {
     return <div className="animate-pulse h-24 bg-gray-200 rounded"></div>;
@@ -46,25 +50,30 @@ export default function TransactionItem({
     (addr) => addr.toLowerCase() === userAddress?.toLowerCase()
   );
 
-  const isExecuted = transaction[3] as boolean;
-
-  console.log("Transaction data:", transaction);
+  const tx = transaction as readonly [Address, bigint, Hex, boolean];
+  const isExecuted = tx[3];
+  const decodedAssetTransfer = decodeAssetTransferCall(tx[0], tx[2]);
+  const displayValue = decodedAssetTransfer
+    ? `${formatUnits(
+        decodedAssetTransfer.amount,
+        decodedAssetTransfer.asset?.decimals ?? 0
+      )} ${decodedAssetTransfer.asset?.symbol || `Asset #${decodedAssetTransfer.assetId}`}`
+    : `${formatBalance(tx[1])} ${getCurrentChainSymbol(chainId)}`;
 
   const handleConfirm = async () => {
     try {
       setIsConfirming(true);
       await confirmTransaction(txId);
 
-      // Wait a moment for blockchain to update, then refetch
       setTimeout(async () => {
         await Promise.all([
           refetchTransaction(),
           refetchConfirmations(),
           refetchIsConfirmed(),
         ]);
-        onTransactionUpdate?.(); // Trigger parent component refresh
+        onTransactionUpdate?.();
         setIsConfirming(false);
-      }, 2000);
+      }, 1500);
     } catch (error) {
       console.error("Failed to confirm transaction:", error);
       setIsConfirming(false);
@@ -76,16 +85,15 @@ export default function TransactionItem({
       setIsExecuting(true);
       await executeTransaction(txId);
 
-      // Wait a moment for blockchain to update, then refetch
       setTimeout(async () => {
         await Promise.all([
           refetchTransaction(),
           refetchConfirmations(),
           refetchIsConfirmed(),
         ]);
-        onTransactionUpdate?.(); // Trigger parent component refresh
+        onTransactionUpdate?.();
         setIsExecuting(false);
-      }, 2000);
+      }, 1500);
     } catch (error) {
       console.error("Failed to execute transaction:", error);
       setIsExecuting(false);
@@ -102,12 +110,12 @@ export default function TransactionItem({
         <div>
           <h4 className="font-medium">Transaction #{txId}</h4>
           <p className="text-sm text-gray-600">
-            To: {formatAddress(transaction[0] as Address)}
+            To: {formatAddress(tx[0] as Address)}
           </p>
         </div>
         <div className="text-right">
           <div className="font-semibold">
-            {formatBalance(transaction[1] as bigint)} WND
+            {displayValue}
           </div>
           <div className="text-sm text-gray-600">
             {confirmations?.length || 0} confirmations
@@ -115,11 +123,27 @@ export default function TransactionItem({
         </div>
       </div>
 
-      {transaction[2] && transaction[2] !== "0x" && (
+      {decodedAssetTransfer && (
+        <div className="rounded-lg bg-blue-50 p-3 text-sm text-blue-900">
+          <div className="flex items-center gap-2 font-medium">
+            <Coins className="h-4 w-4" />
+            Asset precompile transfer
+          </div>
+          <div className="mt-1 text-xs text-blue-700">
+            Recipient: {formatAddress(decodedAssetTransfer.recipient)} | Asset ID:{" "}
+            {decodedAssetTransfer.assetId}
+          </div>
+        </div>
+      )}
+
+      {tx[2] && tx[2] !== "0x" && !decodedAssetTransfer && (
         <div className="text-sm">
-          <span className="font-medium">Data:</span>
+          <span className="font-medium flex items-center gap-1">
+            <Sparkles className="h-4 w-4" />
+            Call data
+          </span>
           <div className="font-mono text-xs bg-gray-100 p-2 rounded truncate">
-            {transaction[2] as string}
+            {tx[2] as string}
           </div>
         </div>
       )}

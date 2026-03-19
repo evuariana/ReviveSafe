@@ -1,11 +1,4 @@
-import { Eip1193Provider } from "ethers";
 import { useState, useEffect } from "react";
-
-declare global {
-  interface Window {
-    ethereum?: Eip1193Provider | undefined;
-  }
-}
 
 export function useWalletAddress(): string | null {
   const [address, setAddress] = useState<string | null>(null);
@@ -14,12 +7,16 @@ export function useWalletAddress(): string | null {
     if (!window.ethereum) return;
     window.ethereum
       .request({ method: "eth_accounts" })
-      .then((accounts: string[]) => {
-        if (accounts.length > 0) setAddress(accounts[0]);
+      .then((accounts: unknown) => {
+        const safeAccounts = Array.isArray(accounts) ? accounts : [];
+        const typedAccounts = safeAccounts.filter(
+          (account): account is string => typeof account === "string"
+        );
+        if (typedAccounts.length > 0) setAddress(typedAccounts[0]);
       })
       .catch(() => {});
     // Also listen for account changes:
-    window.ethereum.on("accountsChanged", (accounts: string[]) => {
+    window.ethereum.on?.("accountsChanged", (accounts: string[]) => {
       if (accounts.length === 0) {
         setAddress(null);
       } else {

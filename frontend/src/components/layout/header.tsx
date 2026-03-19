@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard" },
-  { name: "My Multisigs", href: "/my-multisigs" },
+  { name: "My Multisigs", href: "/wallets" },
   { name: "Create", href: "/create" },
   { name: "Register", href: "/register" },
 ];

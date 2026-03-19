@@ -5,6 +5,7 @@ import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { RouterProvider } from "react-router-dom";
 import { config } from "./lib/wagmi";
 import { router } from "./lib/router";
+import { PolkadotClientProvider } from "@/providers/polkadot-client";
 
 import "@rainbow-me/rainbowkit/styles.css";
 
@@ -14,9 +15,11 @@ function App() {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          <RouterProvider router={router} />
-        </RainbowKitProvider>
+        <PolkadotClientProvider>
+          <RainbowKitProvider>
+            <RouterProvider router={router} />
+          </RainbowKitProvider>
+        </PolkadotClientProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

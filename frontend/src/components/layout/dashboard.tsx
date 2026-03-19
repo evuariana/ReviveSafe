@@ -2,7 +2,7 @@
 import { Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { useAccount, useDisconnect } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Shield,
   LayoutDashboard,

@@ -1,51 +1,28 @@
-// src/pages/dashboard.tsx
-import { useEffect } from "react";
-import { useAccount, useBalance, useChainId } from "wagmi";
+import { useAccount, useBalance } from "wagmi";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   Shield,
-  Users,
-  Clock,
+  Coins,
+  Cuboid,
   Wallet as WalletIcon,
   ArrowUpRight,
-  TrendingUp,
-  Activity,
+  Sparkles,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useReviveFactory } from "@/hooks/useReviveFactory";
-import { useReviveStore } from "@/stores/revive";
+import { useHubAssets } from "@/hooks/useHubAssets";
 import { formatBalance } from "@/lib/utils";
+import { POLKADOT_HUB_TESTNET } from "@/config/constants";
 
 export default function Dashboard() {
   const { address } = useAccount();
-  const chainId = useChainId();
   const { useMyMultisigs } = useReviveFactory();
   const { data: myMultisigs, isLoading } = useMyMultisigs(address);
-  const { stats, setLoading } = useReviveStore();
+  const { data: hubAssets = [] } = useHubAssets();
 
-  // Get user's balance (not multisig balance)
   const { data: userBalance } = useBalance({ address });
-
-  // Get current chain info for currency symbol
-  const getCurrentChainSymbol = () => {
-    // You can expand this based on your supported chains
-    switch (chainId) {
-      case 420420421: // Your Polkadot testnet
-        return "WND";
-      case 1: // Ethereum mainnet
-        return "ETH";
-      default:
-        return "WND"; // Default fallback
-    }
-  };
-
-  const chainSymbol = getCurrentChainSymbol();
-
-  useEffect(() => {
-    setLoading(isLoading);
-  }, [isLoading, setLoading]);
 
   const myMultisigsArray = Array.isArray(myMultisigs) ? myMultisigs : [];
   const multisigCount = myMultisigsArray.length;
@@ -61,7 +38,8 @@ export default function Dashboard() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <p className="text-gray-600 mt-1">
-          Welcome back! Here's an overview of your multisig wallets.
+          Multisig control for Polkadot Hub PVM, now with pallet-assets
+          precompile proposals.
         </p>
       </div>
 
@@ -102,12 +80,12 @@ export default function Dashboard() {
               <CardTitle className="text-sm font-medium">
                 Your Balance
               </CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <WalletIcon className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {userBalance ? formatBalance(userBalance.value) : "0.00"}{" "}
-                {chainSymbol}
+                {POLKADOT_HUB_TESTNET.symbol}
               </div>
               <p className="text-xs text-gray-600">Personal wallet balance</p>
             </CardContent>
@@ -122,18 +100,14 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Pending Actions
+                Precompile Assets
               </CardTitle>
-              <Clock className="h-4 w-4 text-orange-600" />
+              <Coins className="h-4 w-4 text-orange-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {stats.pendingTransactions}
-              </div>
+              <div className="text-2xl font-bold">{hubAssets.length}</div>
               <p className="text-xs text-gray-600">
-                {stats.pendingTransactions === 0
-                  ? "All caught up"
-                  : "Require your attention"}
+                Bundled native asset presets
               </p>
             </CardContent>
           </Card>
@@ -147,13 +121,15 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Collaborators
+                Runtime
               </CardTitle>
-              <Users className="h-4 w-4 text-purple-600" />
+              <Cuboid className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stats.uniqueOwners}</div>
-              <p className="text-xs text-gray-600">Unique owners</p>
+              <div className="text-2xl font-bold">PVM</div>
+              <p className="text-xs text-gray-600">
+                ETH RPC + Dedot asset metadata
+              </p>
             </CardContent>
           </Card>
         </motion.div>
@@ -195,12 +171,13 @@ export default function Dashboard() {
               ) : multisigCount === 0 ? (
                 <div className="text-center py-8">
                   <Shield className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-sm font-medium text-gray-900 mb-2">
-                    No Multisigs Yet
-                  </h3>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Create your first multisig wallet to get started.
-                  </p>
+                <h3 className="text-sm font-medium text-gray-900 mb-2">
+                  No Multisigs Yet
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  Create your first multisig wallet, then start sending PAS and
+                  asset-precompile proposals from one place.
+                </p>
                   <Link to="/create">
                     <Button size="sm">Create Multisig</Button>
                   </Link>
@@ -256,22 +233,36 @@ export default function Dashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Activity className="h-5 w-5" />
-                Recent Transactions
+                <Sparkles className="h-5 w-5" />
+                Precompile Flow
               </CardTitle>
-              <Button variant="ghost" size="sm">
-                View All
-                <ArrowUpRight className="h-4 w-4 ml-1" />
-              </Button>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8 text-gray-500">
-                <Activity className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>No recent transactions</p>
-                <p className="text-sm">
-                  Transactions will appear here when you start using your
-                  multisigs
+              <div className="space-y-4 text-sm text-gray-600">
+                <p>
+                  Submit standard PAS transfers or target deterministic
+                  ERC-20-style asset precompiles from the same multisig queue.
                 </p>
+                <div className="rounded-lg bg-slate-50 p-4">
+                  <div className="font-medium text-gray-900">
+                    Current demo assets
+                  </div>
+                  <div className="mt-2 space-y-2">
+                    {hubAssets.map((asset) => (
+                      <div
+                        key={asset.id}
+                        className="flex items-center justify-between text-xs"
+                      >
+                        <span>
+                          {asset.symbol || asset.name} • #{asset.id}
+                        </span>
+                        <span className="font-mono text-[11px] text-gray-500">
+                          {asset.precompileAddress}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

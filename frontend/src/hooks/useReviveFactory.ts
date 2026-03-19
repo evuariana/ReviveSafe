@@ -4,30 +4,30 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi";
 import { Address } from "viem";
-import { contracts } from "contracts";
-import { FACTORY_ADDRESS } from "@/lib/wagmi";
+import { FACTORY_ADDRESS } from "@/config/constants";
+import { reviveFactoryAbi } from "@/config/contracts";
+
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
 
 export function useReviveFactory() {
-  const factoryContract = contracts[FACTORY_ADDRESS];
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const factoryAbi = factoryContract?.abi as any;
+  const factoryAddress = FACTORY_ADDRESS ?? ZERO_ADDRESS;
 
   // Get user's multisigs ONLY - secure approach
   const useMyMultisigs = (userAddress?: Address) => {
     return useReadContract({
-      address: factoryContract?.address as Address,
-      abi: factoryAbi,
+      address: factoryAddress,
+      abi: reviveFactoryAbi,
       functionName: "getMyMultiSigs",
       args: userAddress ? [userAddress] : undefined,
       query: {
-        enabled: !!factoryContract && !!factoryAbi && !!userAddress,
+        enabled: !!FACTORY_ADDRESS && !!userAddress,
+        refetchInterval: 5_000,
       },
     });
   };
 
   // Create new multisig
-  const { writeContract: createMultisig, data: createTxHash } =
+  const { writeContractAsync: createMultisig, data: createTxHash } =
     useWriteContract();
   const { isLoading: isCreating, isSuccess: createSuccess } =
     useWaitForTransactionReceipt({
@@ -35,20 +35,20 @@ export function useReviveFactory() {
     });
 
   const handleCreateMultisig = async (owners: Address[], required: number) => {
-    if (!factoryContract || !factoryAbi) {
-      throw new Error("Factory contract not available");
+    if (!FACTORY_ADDRESS) {
+      throw new Error("Set VITE_FACTORY_ADDRESS before creating a multisig");
     }
 
     return createMultisig({
-      address: factoryContract.address as Address,
-      abi: factoryAbi,
+      address: FACTORY_ADDRESS,
+      abi: reviveFactoryAbi,
       functionName: "createMultiSig",
-      args: [owners, required],
+      args: [owners, BigInt(required)],
     });
   };
 
   // Register existing multisig
-  const { writeContract: registerMultisig, data: registerTxHash } =
+  const { writeContractAsync: registerMultisig, data: registerTxHash } =
     useWriteContract();
   const { isLoading: isRegistering, isSuccess: registerSuccess } =
     useWaitForTransactionReceipt({
@@ -56,13 +56,13 @@ export function useReviveFactory() {
     });
 
   const handleRegisterMultisig = async (multisigAddress: Address) => {
-    if (!factoryContract || !factoryAbi) {
-      throw new Error("Factory contract not available");
+    if (!FACTORY_ADDRESS) {
+      throw new Error("Set VITE_FACTORY_ADDRESS before registering a multisig");
     }
 
     return registerMultisig({
-      address: factoryContract.address as Address,
-      abi: factoryAbi,
+      address: FACTORY_ADDRESS,
+      abi: reviveFactoryAbi,
       functionName: "registerExistingMultisig",
       args: [multisigAddress],
     });
@@ -76,6 +76,6 @@ export function useReviveFactory() {
     registerMultisig: handleRegisterMultisig,
     isRegistering,
     registerSuccess,
-    isFactoryAvailable: !!factoryContract,
+    isFactoryAvailable: !!FACTORY_ADDRESS,
   };
 }

@@ -2,60 +2,39 @@
 import {
   useReadContract,
   useWriteContract,
-  useWaitForTransactionReceipt,
   useBalance,
 } from "wagmi";
-import { Address } from "viem";
-import { contracts } from "contracts";
+import { type Address } from "viem";
+import { reviveWalletAbi } from "@/config/contracts";
+
+const REFRESH_INTERVAL = 5_000;
 
 export function useReviveWallet(address: Address) {
-  // Get contract data - try direct lookup first
-  let contractData = contracts[address.toLowerCase()];
-
-  // If not found, find any MultisigWallet contract to use its ABI
-  if (!contractData) {
-    const multisigContract = Object.values(contracts).find(
-      (contract) =>
-        contract.name === "MultiSigWallet" || contract.name === "MultisigWallet"
-    );
-
-    if (multisigContract) {
-      contractData = {
-        name: "MultiSigWallet",
-        address: address,
-        abi: multisigContract.abi,
-      };
-    }
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const abi = contractData?.abi as any;
-
   // Basic multisig info
   const { data: owners } = useReadContract({
     address,
-    abi,
+    abi: reviveWalletAbi,
     functionName: "getOwners",
     query: {
-      enabled: !!abi,
+      refetchInterval: REFRESH_INTERVAL,
     },
   });
 
   const { data: required } = useReadContract({
     address,
-    abi,
+    abi: reviveWalletAbi,
     functionName: "required",
     query: {
-      enabled: !!abi,
+      refetchInterval: REFRESH_INTERVAL,
     },
   });
 
   const { data: transactionCount } = useReadContract({
     address,
-    abi,
+    abi: reviveWalletAbi,
     functionName: "transactionCount",
     query: {
-      enabled: !!abi,
+      refetchInterval: REFRESH_INTERVAL,
     },
   });
 
@@ -65,11 +44,11 @@ export function useReviveWallet(address: Address) {
   // Pending transactions count
   const { data: pendingCount } = useReadContract({
     address,
-    abi,
+    abi: reviveWalletAbi,
     functionName: "getTransactionCount",
     args: [true, false], // pending = true, executed = false
     query: {
-      enabled: !!abi,
+      refetchInterval: REFRESH_INTERVAL,
     },
   });
 
@@ -78,50 +57,62 @@ export function useReviveWallet(address: Address) {
   // Get pending transaction IDs
   const { data: pendingTxIds } = useReadContract({
     address,
-    abi,
+    abi: reviveWalletAbi,
     functionName: "getTransactionIds",
-    args: [0, pendingCountNumber, true, false],
+    args: [0n, BigInt(pendingCountNumber), true, false],
     query: {
-      enabled: !!abi && pendingCountNumber > 0,
+      enabled: pendingCountNumber > 0,
+      refetchInterval: REFRESH_INTERVAL,
     },
   });
 
   // Transaction operations
-  const { writeContract: submitTransaction } = useWriteContract();
-  const { writeContract: confirmTransaction } = useWriteContract();
-  const { writeContract: executeTransaction } = useWriteContract();
+  const { writeContractAsync: submitTransaction } = useWriteContract();
+  const { writeContractAsync: submitAssetTransfer } = useWriteContract();
+  const { writeContractAsync: confirmTransaction } = useWriteContract();
+  const { writeContractAsync: executeTransaction } = useWriteContract();
 
   const handleSubmitTransaction = async (
     destination: Address,
     value: bigint,
     data: `0x${string}` = "0x"
   ) => {
-    if (!abi) return;
     return submitTransaction({
       address,
-      abi,
+      abi: reviveWalletAbi,
       functionName: "submitTransaction",
       args: [destination, value, data],
     });
   };
 
+  const handleSubmitAssetTransfer = async (
+    assetId: number,
+    destination: Address,
+    amount: bigint
+  ) => {
+    return submitAssetTransfer({
+      address,
+      abi: reviveWalletAbi,
+      functionName: "submitAssetTransfer",
+      args: [assetId, destination, amount],
+    });
+  };
+
   const handleConfirmTransaction = async (txId: number) => {
-    if (!abi) return;
     return confirmTransaction({
       address,
-      abi,
+      abi: reviveWalletAbi,
       functionName: "confirmTransaction",
-      args: [txId],
+      args: [BigInt(txId)],
     });
   };
 
   const handleExecuteTransaction = async (txId: number) => {
-    if (!abi) return;
     return executeTransaction({
       address,
-      abi,
+      abi: reviveWalletAbi,
       functionName: "executeTransaction",
-      args: [txId],
+      args: [BigInt(txId)],
     });
   };
 
@@ -129,11 +120,12 @@ export function useReviveWallet(address: Address) {
   const useTransaction = (txId: number) => {
     return useReadContract({
       address,
-      abi,
+      abi: reviveWalletAbi,
       functionName: "transactions",
-      args: [txId],
+      args: [BigInt(txId)],
       query: {
-        enabled: !!abi && txId >= 0,
+        enabled: txId >= 0,
+        refetchInterval: REFRESH_INTERVAL,
       },
     });
   };
@@ -141,11 +133,12 @@ export function useReviveWallet(address: Address) {
   const useTransactionConfirmations = (txId: number) => {
     return useReadContract({
       address,
-      abi,
+      abi: reviveWalletAbi,
       functionName: "getConfirmations",
-      args: [txId],
+      args: [BigInt(txId)],
       query: {
-        enabled: !!abi && txId >= 0,
+        enabled: txId >= 0,
+        refetchInterval: REFRESH_INTERVAL,
       },
     });
   };
@@ -153,11 +146,12 @@ export function useReviveWallet(address: Address) {
   const useIsTransactionConfirmed = (txId: number) => {
     return useReadContract({
       address,
-      abi,
+      abi: reviveWalletAbi,
       functionName: "isConfirmed",
-      args: [txId],
+      args: [BigInt(txId)],
       query: {
-        enabled: !!abi && txId >= 0,
+        enabled: txId >= 0,
+        refetchInterval: REFRESH_INTERVAL,
       },
     });
   };
@@ -165,24 +159,27 @@ export function useReviveWallet(address: Address) {
   const useIsOwner = (userAddress?: Address) => {
     return useReadContract({
       address,
-      abi,
+      abi: reviveWalletAbi,
       functionName: "isOwner",
       args: userAddress ? [userAddress] : undefined,
       query: {
-        enabled: !!abi && !!userAddress,
+        enabled: !!userAddress,
+        refetchInterval: REFRESH_INTERVAL,
       },
     });
   };
 
   return {
-    contractData,
     owners: owners as Address[] | undefined,
-    required: required as number | undefined,
+    required: required ? Number(required) : undefined,
     balance,
-    transactionCount: transactionCount as number | undefined,
+    transactionCount: transactionCount ? Number(transactionCount) : undefined,
     pendingCount: pendingCountNumber,
-    pendingTxIds: pendingTxIds as number[] | undefined,
+    pendingTxIds: (pendingTxIds as bigint[] | undefined)?.map((id) =>
+      Number(id)
+    ),
     submitTransaction: handleSubmitTransaction,
+    submitAssetTransfer: handleSubmitAssetTransfer,
     confirmTransaction: handleConfirmTransaction,
     executeTransaction: handleExecuteTransaction,
     useTransaction,

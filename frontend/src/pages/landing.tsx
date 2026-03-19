@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import {
   Shield,
   Users,
-  Lock,
-  CheckCircle,
   ArrowRight,
   Zap,
   Globe,

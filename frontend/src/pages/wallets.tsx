@@ -1,5 +1,5 @@
 // src/pages/wallets.tsx
-import { useAccount, useBalance, useChainId } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Shield, Plus, ArrowRight, Search, Filter } from "lucide-react";
@@ -15,13 +15,10 @@ import { Address } from "viem";
 
 function MultisigCard({ address, index }: { address: string; index: number }) {
   const chainId = useChainId();
-  const { address: userAddress } = useAccount();
   const chainSymbol = getCurrentChainSymbol(chainId);
-  const { owners, required, pendingCount, contractData } = useReviveWallet(
+  const { owners, required, pendingCount, balance } = useReviveWallet(
     address as Address
   );
-
-  const { data: userBalance } = useBalance({ address: userAddress as Address });
 
   return (
     <motion.div
@@ -37,7 +34,7 @@ function MultisigCard({ address, index }: { address: string; index: number }) {
                 {formatAddress(address as Address, 6)}
               </CardTitle>
               <p className="text-sm text-gray-600 mt-1">
-                {contractData?.name || "Multisig Wallet"}
+                PVM multisig with native asset precompile support
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -54,7 +51,7 @@ function MultisigCard({ address, index }: { address: string; index: number }) {
             <div>
               <p className="text-sm font-medium text-gray-900">Balance</p>
               <p className="text-lg font-semibold text-blue-600">
-                {userBalance ? formatBalance(userBalance.value) : "0.00"}{" "}
+                {balance ? formatBalance(balance.value) : "0.00"}{" "}
                 {chainSymbol}
               </p>
             </div>
