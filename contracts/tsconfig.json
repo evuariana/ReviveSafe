@@ -11,6 +11,9 @@
     "skipLibCheck": true,
     "declaration": true,
     "moduleResolution": "nodenext",
+    "types": [
+      "node"
+    ],
     "isolatedModules": true,
     "moduleDetection": "force",
     "noEmit": false,

@@ -11,9 +11,10 @@
   "main": "dist/index.js",
   "devDependencies": {
     "ethers": "^6.13.4",
-    "@parity/revive": "^0.0.7",
+    "@parity/resolc": "^1.0.0",
     "@polkadot-labs/hdkd-helpers": "^0.0.10",
     "@polkadot-labs/hdkd": "^0.0.10",
+    "@types/node": "^24.3.0",
     "micro-sr25519": "^0.1.0",
     "@scure/bip32": "^1.6.1",
     "@scure/bip39": "^1.5.1"

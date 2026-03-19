@@ -21,6 +21,7 @@ contract MultiSigFactory {
 
     /// @dev All multisig addresses deployed by this factory.
     address[] public allMultiSigs;
+    mapping(address => bool) public isRegistered;
 
     /// @notice Emitted when an existing MultiSigWallet is registered.
     /// @param registrant The address that called registerExistingMultisig.
@@ -41,7 +42,7 @@ contract MultiSigFactory {
         multisig = address(wallet);
 
         // Register it on‐chain
-        allMultiSigs.push(multisig);
+        _registerMultisig(multisig);
 
         // Emit for indexing/logs
         emit MultiSigCreated(msg.sender, multisig, owners, required);
@@ -60,7 +61,7 @@ contract MultiSigFactory {
             success = false;
         }
         require(success, "Not a valid MultiSigWallet");
-        allMultiSigs.push(multisig);
+        _registerMultisig(multisig);
         emit MultiSigRegistered(msg.sender, multisig);
     }
 
@@ -100,5 +101,11 @@ contract MultiSigFactory {
             }
         }
         return myMultisigs;
+    }
+
+    function _registerMultisig(address multisig) internal {
+        require(!isRegistered[multisig], "Already registered");
+        isRegistered[multisig] = true;
+        allMultiSigs.push(multisig);
     }
 }

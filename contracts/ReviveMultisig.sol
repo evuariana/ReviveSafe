@@ -4,6 +4,7 @@ pragma solidity ^0.8.28;
 /// @title Multisignature wallet - Allows multiple parties to agree on transactions before execution.
 /// @author Stefan George - <stefan.george@consensys.net>
 contract MultiSigWallet {
+    uint160 private constant ERC20_PRECOMPILE_SUFFIX = 0x01200000;
 
     /*
      *  Events
@@ -17,6 +18,13 @@ contract MultiSigWallet {
     event OwnerAddition(address indexed owner);
     event OwnerRemoval(address indexed owner);
     event RequirementChange(uint required);
+    event AssetTransferSubmission(
+        uint indexed transactionId,
+        uint32 indexed assetId,
+        address indexed assetPrecompile,
+        address destination,
+        uint256 amount
+    );
 
     /*
      *  Constants
@@ -185,10 +193,65 @@ contract MultiSigWallet {
     /// @return transactionId Returns transaction ID.
     function submitTransaction(address destination, uint value, bytes memory data)
         public
+        ownerExists(msg.sender)
         returns (uint transactionId)
     {
         transactionId = addTransaction(destination, value, data);
         confirmTransaction(transactionId);
+    }
+
+    /// @notice Returns the ERC-20 precompile address for a Polkadot Hub asset ID.
+    function getAssetPrecompileAddress(uint32 assetId)
+        public
+        pure
+        returns (address assetPrecompile)
+    {
+        assetPrecompile = address(
+            uint160((uint160(assetId) << 128) | ERC20_PRECOMPILE_SUFFIX)
+        );
+    }
+
+    /// @notice Encodes a pallet-assets transfer via the ERC-20 precompile.
+    function encodeAssetTransfer(
+        uint32 assetId,
+        address destination,
+        uint256 amount
+    )
+        public
+        pure
+        returns (address assetPrecompile, bytes memory data)
+    {
+        assetPrecompile = getAssetPrecompileAddress(assetId);
+        data = abi.encodeWithSignature(
+            "transfer(address,uint256)",
+            destination,
+            amount
+        );
+    }
+
+    /// @notice Submit a pallet-assets transfer through the deterministic ERC-20 precompile.
+    function submitAssetTransfer(
+        uint32 assetId,
+        address destination,
+        uint256 amount
+    )
+        public
+        returns (uint transactionId)
+    {
+        (address assetPrecompile, bytes memory data) = encodeAssetTransfer(
+            assetId,
+            destination,
+            amount
+        );
+
+        transactionId = submitTransaction(assetPrecompile, 0, data);
+        emit AssetTransferSubmission(
+            transactionId,
+            assetId,
+            assetPrecompile,
+            destination,
+            amount
+        );
     }
 
     /// @dev Allows an owner to confirm a transaction.

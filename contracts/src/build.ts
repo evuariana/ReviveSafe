@@ -1,6 +1,19 @@
-import { compile } from "@parity/revive";
+import { createRequire } from "module";
 import { readFileSync, writeFileSync, readdirSync, rmSync, mkdirSync } from "fs";
 import path from "path";
+
+type ResolcCompiledContract = {
+  abi: unknown;
+  evm: {
+    bytecode: {
+      object: string;
+    };
+  };
+};
+
+type ResolcCompileOutput = {
+  contracts: Record<string, Record<string, ResolcCompiledContract>>;
+};
 
 // based on https://github.com/paritytech/contracts-boilerplate/tree/e86ffe91f7117faf21378395686665856c605132/ethers/tools
 
@@ -8,30 +21,50 @@ const buildDir = ".build";
 const contractsOutDir = path.join(buildDir, "contracts");
 rmSync(contractsOutDir, { recursive: true, force: true });
 mkdirSync(contractsOutDir, { recursive: true });
+const require = createRequire(import.meta.url);
+const resolcEntrypoint = require.resolve("@parity/resolc");
+const { resolc } = require(
+  path.join(path.dirname(resolcEntrypoint), "resolc.js")
+) as {
+  resolc: (input: string) => ResolcCompileOutput;
+};
 
-const contracts = readdirSync(process.cwd()).filter((f) => f.endsWith(".sol"));
+const contracts = readdirSync(process.cwd()).filter((f: string) =>
+  f.endsWith(".sol")
+);
 
 console.log("Compiling contracts...");
 
 (async () => {
-  for (const file of contracts) {
-    console.log(`Compiling ${file}`);
-    const name = path.basename(file, ".sol");
+  const input = JSON.stringify({
+    language: "Solidity",
+    sources: Object.fromEntries(
+      contracts.map((file: string) => [
+        `./${file}`,
+        { content: readFileSync(file, "utf8") },
+      ])
+    ),
+    settings: {
+      optimizer: { mode: "z", enabled: true, runs: 200 },
+      outputSelection: { "*": { "*": ["abi", "evm.bytecode"] } },
+    },
+  });
 
-    const input = {
-      [name]: { content: readFileSync(file, "utf8") }
-    };
+  const out = resolc(input);
 
-    const out = await compile(input);
-
-    for (const contracts of Object.values(out.contracts)) {
-      for (const [name, contract] of Object.entries(contracts)) {
-        console.log(`Writing contract ${name}...`);
-        writeFileSync(
-          path.join(contractsOutDir, `${name}.json`),
-          JSON.stringify({ abi: contract.abi, bytecode: `0x${contract.evm.bytecode.object}` }, null, 2)
-        );
-      }
+  for (const compiledContracts of Object.values(out.contracts)) {
+    for (const [name, contract] of Object.entries(
+      compiledContracts as Record<string, ResolcCompiledContract>
+    )) {
+      console.log(`Writing contract ${name}...`);
+      writeFileSync(
+        path.join(contractsOutDir, `${name}.json`),
+        JSON.stringify(
+          { abi: contract.abi, bytecode: `0x${contract.evm.bytecode.object}` },
+          null,
+          2
+        )
+      );
     }
   }
 })().catch(err => {
