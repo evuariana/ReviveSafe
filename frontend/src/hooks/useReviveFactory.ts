@@ -1,81 +1,93 @@
-import {
-  useReadContract,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-} from "wagmi";
-import { Address } from "viem";
-import { FACTORY_ADDRESS } from "@/config/constants";
-import { reviveFactoryAbi } from "@/config/contracts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Address } from "viem";
 
-const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000" as const;
+import { reviveFactoryAbi } from "@/config/contracts";
+import { useContractAdapter } from "@/hooks/useContractAdapter";
+import { useFactoryAddress } from "@/hooks/useFactoryAddress";
+import { useMappedAccount } from "@/hooks/useMappedAccount";
+import { encodeContractCall, useReviveActions } from "@/hooks/useReviveActions";
 
 export function useReviveFactory() {
-  const factoryAddress = FACTORY_ADDRESS ?? ZERO_ADDRESS;
+  const adapter = useContractAdapter();
+  const queryClient = useQueryClient();
+  const factoryAddress = useFactoryAddress((state) => state.factoryAddress);
+  const { mappedAccount } = useMappedAccount();
+  const { callContract, isSubmitting, error } = useReviveActions();
 
-  // Get user's multisigs ONLY - secure approach
-  const useMyMultisigs = (userAddress?: Address) => {
-    return useReadContract({
-      address: factoryAddress,
-      abi: reviveFactoryAbi,
-      functionName: "getMyMultiSigs",
-      args: userAddress ? [userAddress] : undefined,
-      query: {
-        enabled: !!FACTORY_ADDRESS && !!userAddress,
-        refetchInterval: 5_000,
-      },
-    });
-  };
+  const myMultisigsQuery = useQuery({
+    queryKey: ["factory", "my-multisigs", factoryAddress, mappedAccount?.mappedH160],
+    enabled: !!factoryAddress && !!mappedAccount?.mappedH160,
+    refetchInterval: 10_000,
+    queryFn: () =>
+      adapter.read<readonly Address[]>({
+        address: factoryAddress as Address,
+        abi: reviveFactoryAbi,
+        functionName: "getMyMultiSigs",
+        args: [mappedAccount?.mappedH160 as Address],
+      }),
+  });
 
-  // Create new multisig
-  const { writeContractAsync: createMultisig, data: createTxHash } =
-    useWriteContract();
-  const { isLoading: isCreating, isSuccess: createSuccess } =
-    useWaitForTransactionReceipt({
-      hash: createTxHash,
-    });
+  const invalidateFactoryQueries = () =>
+    queryClient.invalidateQueries({ queryKey: ["factory", "my-multisigs"] });
 
-  const handleCreateMultisig = async (owners: Address[], required: number) => {
-    if (!FACTORY_ADDRESS) {
-      throw new Error("Set VITE_FACTORY_ADDRESS before creating a multisig");
-    }
+  const createMutation = useMutation({
+    mutationFn: async ({
+      owners,
+      required,
+    }: {
+      owners: Address[];
+      required: number;
+    }) => {
+      if (!factoryAddress) {
+        throw new Error("Set or deploy a factory address before creating a multisig");
+      }
 
-    return createMultisig({
-      address: FACTORY_ADDRESS,
-      abi: reviveFactoryAbi,
-      functionName: "createMultiSig",
-      args: [owners, BigInt(required)],
-    });
-  };
+      return callContract({
+        address: factoryAddress,
+        data: encodeContractCall({
+          abi: reviveFactoryAbi,
+          functionName: "createMultiSig",
+          args: [owners, BigInt(required)],
+        }),
+      });
+    },
+    onSuccess: invalidateFactoryQueries,
+  });
 
-  // Register existing multisig
-  const { writeContractAsync: registerMultisig, data: registerTxHash } =
-    useWriteContract();
-  const { isLoading: isRegistering, isSuccess: registerSuccess } =
-    useWaitForTransactionReceipt({
-      hash: registerTxHash,
-    });
+  const registerMutation = useMutation({
+    mutationFn: async (multisigAddress: Address) => {
+      if (!factoryAddress) {
+        throw new Error("Set or deploy a factory address before registering a multisig");
+      }
 
-  const handleRegisterMultisig = async (multisigAddress: Address) => {
-    if (!FACTORY_ADDRESS) {
-      throw new Error("Set VITE_FACTORY_ADDRESS before registering a multisig");
-    }
-
-    return registerMultisig({
-      address: FACTORY_ADDRESS,
-      abi: reviveFactoryAbi,
-      functionName: "registerExistingMultisig",
-      args: [multisigAddress],
-    });
-  };
+      return callContract({
+        address: factoryAddress,
+        data: encodeContractCall({
+          abi: reviveFactoryAbi,
+          functionName: "registerExistingMultisig",
+          args: [multisigAddress],
+        }),
+      });
+    },
+    onSuccess: invalidateFactoryQueries,
+  });
 
   return {
-    useMyMultisigs,
-    createMultisig: handleCreateMultisig,
-    isCreating,
-    createSuccess,
-    registerMultisig: handleRegisterMultisig,
-    isRegistering,
-    registerSuccess,
-    isFactoryAvailable: !!FACTORY_ADDRESS,
+    factoryAddress,
+    myMultisigs: Array.isArray(myMultisigsQuery.data)
+      ? [...myMultisigsQuery.data]
+      : [],
+    myMultisigsQuery,
+    createMultisig: createMutation.mutateAsync,
+    isCreating: isSubmitting || createMutation.isPending,
+    createSuccess: createMutation.isSuccess,
+    registerMultisig: registerMutation.mutateAsync,
+    isRegistering: isSubmitting || registerMutation.isPending,
+    registerSuccess: registerMutation.isSuccess,
+    isFactoryAvailable: !!factoryAddress,
+    error:
+      (createMutation.error instanceof Error && createMutation.error.message) ||
+      (registerMutation.error instanceof Error && registerMutation.error.message) ||
+      error,
   };
 }

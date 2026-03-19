@@ -1,7 +1,7 @@
 // src/lib/utils.ts
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { formatEther, Address } from "viem";
+import { formatUnits, type Address } from "viem";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -11,15 +11,29 @@ export function formatAddress(address: Address, chars = 4): string {
   return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`;
 }
 
-export function formatBalance(balance: bigint, decimals = 4): string {
-  const formatted = formatEther(balance);
-  const num = parseFloat(formatted);
-  return num.toFixed(decimals);
+export function formatBalance(
+  balance: bigint,
+  tokenDecimals = 10,
+  precision = 4
+): string {
+  const formatted = formatUnits(balance, tokenDecimals);
+  const parsed = Number.parseFloat(formatted);
+
+  if (!Number.isFinite(parsed)) {
+    return "0";
+  }
+
+  return parsed.toLocaleString(undefined, {
+    maximumFractionDigits: precision,
+  });
 }
 
-export function formatTransactionValue(value: bigint): string {
+export function formatTransactionValue(
+  value: bigint,
+  tokenDecimals = 10
+): string {
   if (value === 0n) return "0";
-  return formatEther(value);
+  return formatUnits(value, tokenDecimals);
 }
 
 export function isValidAddress(address: string): boolean {

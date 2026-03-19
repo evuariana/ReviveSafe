@@ -1,35 +1,18 @@
-import { useChainId } from "wagmi";
+import { formatUnits } from "viem";
 
-export function useCurrentChainSymbol() {
-  const chainId = useChainId();
+export function formatTokenBalance(
+  balance: bigint,
+  decimals: number,
+  precision = 4
+): string {
+  const formatted = formatUnits(balance, decimals);
+  const parsed = Number.parseFloat(formatted);
 
-  switch (chainId) {
-    case 420420417:
-      return "PAS";
-    case 1: // Ethereum mainnet
-      return "ETH";
-    case 11155111: // Sepolia testnet
-      return "ETH";
-    case 137: // Polygon
-      return "MATIC";
-    default:
-      return "WND"; // Default fallback
+  if (!Number.isFinite(parsed)) {
+    return "0";
   }
-}
 
-export function getCurrentChainSymbol(chainId?: number): string {
-  if (!chainId) return "PAS";
-
-  switch (chainId) {
-    case 420420417:
-      return "PAS";
-    case 1: // Ethereum mainnet
-      return "ETH";
-    case 11155111: // Sepolia testnet
-      return "ETH";
-    case 137: // Polygon
-      return "MATIC";
-    default:
-      return "PAS";
-  }
+  return parsed.toLocaleString(undefined, {
+    maximumFractionDigits: precision,
+  });
 }

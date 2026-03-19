@@ -1,108 +1,107 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { isAddress, type Address } from "viem";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, CheckCircle2, AlertCircle } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useReviveFactory } from "@/hooks/useReviveFactory";
 
 export default function RegisterMultisig() {
-  const { registerMultisig, isRegistering, registerSuccess, isFactoryAvailable } =
+  const { registerMultisig, isRegistering, registerSuccess, isFactoryAvailable, error } =
     useReviveFactory();
   const [multisigAddress, setMultisigAddress] = useState("");
-  const [error, setError] = useState("");
+  const [submitError, setSubmitError] = useState<string>();
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
-    if (!isAddress(multisigAddress)) {
-      setError("Enter a valid deployed multisig address");
+  const submit = async () => {
+    if (!isFactoryAvailable) {
+      setSubmitError("Deploy or set a factory address before registering a wallet.");
       return;
     }
 
-    setError("");
+    if (!isAddress(multisigAddress)) {
+      setSubmitError("Enter a valid H160 contract address.");
+      return;
+    }
 
     try {
+      setSubmitError(undefined);
       await registerMultisig(multisigAddress as Address);
       setMultisigAddress("");
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? submitError.message
+    } catch (registerError) {
+      setSubmitError(
+        registerError instanceof Error
+          ? registerError.message
           : "Failed to register multisig"
       );
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="max-w-2xl mx-auto space-y-8"
-    >
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Register Existing Multisig
+    <div className="mx-auto max-w-2xl space-y-6">
+      <div>
+        <div className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
+          Register multisig
+        </div>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
+          Add an existing ReviveSafe wallet
         </h1>
-        <p className="text-gray-600 mt-2">
-          Import a deployed ReviveSafe wallet so it appears in your dashboard
+        <p className="mt-2 text-sm leading-7 text-slate-600">
+          Registration now calls the factory contract through `pallet_revive.call`
+          using your mapped account identity.
         </p>
       </div>
 
-      <Card>
+      <Card className="rounded-[24px] border-slate-200 shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="h-5 w-5" />
-            Register Multisig
-          </CardTitle>
+          <CardTitle>Wallet address</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           {!isFactoryAvailable && (
-            <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-              Set `VITE_FACTORY_ADDRESS` to the deployed factory before using
-              registration.
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+              No active factory is configured yet.
+              <div className="mt-3">
+                <Link to="/deploy">
+                  <Button variant="outline" className="rounded-xl border-amber-300">
+                    Open deploy console
+                  </Button>
+                </Link>
+              </div>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="multisig-address">Multisig Address</Label>
-              <Input
-                id="multisig-address"
-                value={multisigAddress}
-                onChange={(event) => setMultisigAddress(event.target.value)}
-                className="font-mono"
-                placeholder="0x..."
-              />
+          <div className="space-y-2">
+            <Label>Multisig contract address</Label>
+            <Input
+              className="font-mono"
+              placeholder="0x..."
+              value={multisigAddress}
+              onChange={(event) => setMultisigAddress(event.target.value)}
+            />
+          </div>
+
+          {(submitError || error) && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+              {submitError || error}
             </div>
+          )}
 
-            {error && (
-              <div className="flex items-center gap-2 text-sm text-red-600">
-                <AlertCircle className="h-4 w-4" />
-                {error}
-              </div>
-            )}
+          {registerSuccess && (
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
+              Multisig registered successfully.
+            </div>
+          )}
 
-            {registerSuccess && (
-              <div className="flex items-center gap-2 text-sm text-green-600">
-                <CheckCircle2 className="h-4 w-4" />
-                Multisig registered successfully.
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              disabled={!isFactoryAvailable || isRegistering}
-              className="w-full"
-            >
-              {isRegistering ? "Registering..." : "Register Multisig"}
-            </Button>
-          </form>
+          <Button
+            className="rounded-xl"
+            disabled={!isFactoryAvailable || isRegistering}
+            onClick={() => void submit()}
+          >
+            {isRegistering ? "Registering..." : "Register multisig"}
+          </Button>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }

@@ -1,27 +1,30 @@
-// src/App.tsx
-import { WagmiProvider } from "wagmi";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
-import { config } from "./lib/wagmi";
-import { router } from "./lib/router";
+
+import { router } from "@/lib/router";
+import { useFactoryAddress } from "@/hooks/useFactoryAddress";
 import { PolkadotClientProvider } from "@/providers/polkadot-client";
+import { WalletProvider } from "@/providers/wallet-provider";
 
-import "@rainbow-me/rainbowkit/styles.css";
+function AppRouter() {
+  const hydrateFactoryAddress = useFactoryAddress((state) => state.hydrate);
 
-const queryClient = new QueryClient();
+  useEffect(() => {
+    hydrateFactoryAddress();
+  }, [hydrateFactoryAddress]);
+
+  return (
+    <PolkadotClientProvider>
+      <RouterProvider router={router} />
+    </PolkadotClientProvider>
+  );
+}
 
 function App() {
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <PolkadotClientProvider>
-          <RainbowKitProvider>
-            <RouterProvider router={router} />
-          </RainbowKitProvider>
-        </PolkadotClientProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <WalletProvider>
+      <AppRouter />
+    </WalletProvider>
   );
 }
 

@@ -1,201 +1,163 @@
-import { useParams, Link } from "react-router-dom";
-import { useAccount, useChainId } from "wagmi";
-import { motion } from "framer-motion";
-import {
-  ArrowLeft,
-  Clock,
-  Copy,
-  Coins,
-  ExternalLink,
-  AlertCircle,
-} from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useReviveWallet } from "@/hooks/useReviveWallet";
-import { formatBalance } from "@/lib/utils";
-import { Address, formatUnits } from "viem";
+import { Link, useParams } from "react-router-dom";
+import { Copy, ExternalLink, Wallet2 } from "lucide-react";
+import { formatUnits, isAddress, type Address } from "viem";
 
-import OwnersList from "@/components/wallets/owner-info";
-import TransactionItem from "@/components/wallets/tx-item";
+import OwnersInfo from "@/components/wallets/owner-info";
 import NewTransactionForm from "@/components/wallets/tx-form";
-import { useCallback, useState } from "react";
-import { getCurrentChainSymbol } from "@/lib/currency";
+import TransactionItem from "@/components/wallets/tx-item";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useChainToken } from "@/hooks/useChainToken";
 import { useHubAssetBalances } from "@/hooks/useHubAssetBalances";
-import { POLKADOT_HUB_TESTNET } from "@/config/constants";
+import { useHubAssets } from "@/hooks/useHubAssets";
+import { useMappedAccount } from "@/hooks/useMappedAccount";
+import { usePolkadotClient } from "@/hooks/usePolkadotClient";
+import { useReviveWallet, useReviveWalletOwner } from "@/hooks/useReviveWallet";
+import { formatTokenBalance } from "@/lib/currency";
 
 export default function WalletDetail() {
-  const { address: walletAddress } = useParams<{ address: string }>();
-  const { address: userAddress } = useAccount();
-
-  const chainId = useChainId();
-  const chainSymbol = getCurrentChainSymbol(chainId);
-  const [refreshKey, setRefreshKey] = useState(0);
-
-  const {
-    owners,
-    required,
-    balance,
-    transactionCount,
-    pendingCount,
-    pendingTxIds,
-    useIsOwner,
-  } = useReviveWallet(walletAddress as Address);
-  const { balances: assetBalances } = useHubAssetBalances(
-    walletAddress as Address
-  );
-
-  const { data: isOwner } = useIsOwner(userAddress);
-
-  const handleTransactionUpdate = useCallback(() => {
-    setRefreshKey((prev) => prev + 1);
-  }, []);
+  const { address } = useParams<{ address: string }>();
+  const { chain } = usePolkadotClient();
+  const token = useChainToken();
+  const { mappedAccount } = useMappedAccount();
+  const walletAddress = isAddress(address ?? "") ? (address as Address) : undefined;
+  const wallet = useReviveWallet(walletAddress);
+  const { balances: assetBalances } = useHubAssetBalances(walletAddress);
+  const { data: assets = [] } = useHubAssets();
+  const ownerQuery = useReviveWalletOwner(walletAddress, mappedAccount?.mappedH160);
 
   if (!walletAddress) {
-    return <div>Invalid wallet address</div>;
+    return <div className="text-sm text-rose-600">Invalid wallet address.</div>;
   }
+  const visibleAssetBalances = assetBalances.filter((asset) => asset.balance > 0n);
 
   return (
-    <motion.div
-      key={refreshKey}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="space-y-6"
-    >
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link to="/wallets">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-        </Link>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900">Multisig Wallet</h1>
-          <div className="flex items-center gap-2 mt-1">
-            <p className="text-gray-600 font-mono text-sm">{walletAddress}</p>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigator.clipboard.writeText(walletAddress)}
-            >
-              <Copy className="h-4 w-4" />
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="space-y-3">
+          <Link to="/wallets">
+            <Button variant="outline" className="rounded-xl">
+              Back to wallets
             </Button>
-            <a
-              href={`${POLKADOT_HUB_TESTNET.explorerUrl}/address/${walletAddress}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button variant="ghost" size="sm">
-                <ExternalLink className="h-4 w-4" />
+          </Link>
+          <div>
+            <div className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
+              Wallet detail
+            </div>
+            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
+              Revive multisig
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+              <span className="font-mono">{walletAddress}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigator.clipboard.writeText(walletAddress)}
+              >
+                <Copy className="h-4 w-4" />
               </Button>
-            </a>
+              <a href={`${chain.explorerUrl}/account/${walletAddress}`} target="_blank" rel="noreferrer">
+                <Button variant="ghost" size="sm">
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </a>
+            </div>
           </div>
+        </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          {ownerQuery.data
+            ? "You can submit and approve proposals from this wallet."
+            : "You have read-only access unless your mapped H160 is an owner."}
         </div>
       </div>
 
-      {/* Wallet Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Balance</CardTitle>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Native balance</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {balance ? formatBalance(balance.value) : "0.00"}{" "}
-              {chainSymbol}
+            <div className="text-2xl font-semibold text-slate-950">
+              {formatTokenBalance(wallet.balance ?? 0n, token.decimals)} {token.symbol}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Total Transactions</CardTitle>
+        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Transactions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{transactionCount || 0}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Pending Actions</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
-              {pendingCount || 0}
+            <div className="text-2xl font-semibold text-slate-950">
+              {wallet.transactionCount ?? 0}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Precompile Assets</CardTitle>
+        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Pending actions</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-600">
-              {assetBalances.filter((asset) => asset.balance > 0n).length}
+            <div className="text-2xl font-semibold text-slate-950">
+              {wallet.pendingCount}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Asset precompiles</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-semibold text-slate-950">
+              {visibleAssetBalances.length}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Access Control Warning */}
-      {!isOwner && userAddress && (
-        <Card className="border-orange-200 bg-orange-50">
-          <CardContent className="p-4">
-            <div className="flex items-center gap-2 text-orange-700">
-              <AlertCircle className="h-5 w-5" />
-              <span className="font-medium">Read-only access</span>
-            </div>
-            <p className="text-sm text-orange-600 mt-1">
-              You are not an owner of this multisig wallet. You can view but
-              cannot perform transactions.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Owners List Component */}
-        <OwnersList
-          owners={owners}
-          required={required}
-          userAddress={userAddress}
+      <div className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
+        <OwnersInfo
+          owners={wallet.owners}
+          required={wallet.required}
+          userAddress={mappedAccount?.mappedH160}
         />
 
-        <Card>
+        <Card className="rounded-[24px] border-slate-200 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Coins className="h-5 w-5" />
-              Asset Balances
+              <Wallet2 className="h-5 w-5" />
+              Precompile balances
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {assetBalances.length === 0 ? (
-              <p className="text-sm text-gray-500">
-                Loading asset metadata from Dedot.
-              </p>
+            {visibleAssetBalances.length === 0 ? (
+              <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
+                No balances detected in the currently loaded asset-precompile set.
+              </div>
             ) : (
-              assetBalances.map((asset) => (
+              visibleAssetBalances.map((asset) => (
                 <div
                   key={asset.id}
-                  className="rounded-lg border border-gray-200 p-3"
+                  className="rounded-2xl border border-slate-200 p-3"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="font-medium text-sm">{asset.name}</div>
-                      <div className="text-xs text-gray-500">
-                        #{asset.id} • {asset.precompileAddress}
+                      <div className="text-sm font-semibold text-slate-900">
+                        {asset.symbol || asset.name}
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        {asset.name} • #{asset.id}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-semibold">
-                        {formatUnits(asset.balance, asset.decimals)}{" "}
-                        {asset.symbol}
+                      <div className="text-sm font-semibold text-slate-900">
+                        {formatUnits(asset.balance, asset.decimals)} {asset.symbol}
                       </div>
-                      <div className="text-xs text-gray-500">
-                        ERC-20 precompile
+                      <div className="font-mono text-[11px] text-slate-500">
+                        {asset.precompileAddress}
                       </div>
                     </div>
                   </div>
@@ -204,46 +166,36 @@ export default function WalletDetail() {
             )}
           </CardContent>
         </Card>
-
-        {/* New Transaction Form Component (only for owners) */}
-        {isOwner && (
-          <NewTransactionForm
-            walletAddress={walletAddress as Address}
-            onTransactionSubmitted={handleTransactionUpdate}
-          />
-        )}
       </div>
 
-      {/* Pending Transactions */}
-      <Card>
+      {ownerQuery.data && (
+        <NewTransactionForm walletAddress={walletAddress} onTransactionSubmitted={wallet.refresh} />
+      )}
+
+      <Card className="rounded-[24px] border-slate-200 shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Pending Transactions
-          </CardTitle>
+          <CardTitle>Pending transactions</CardTitle>
         </CardHeader>
-        <CardContent>
-          {!pendingTxIds || pendingTxIds.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              <Clock className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>No pending transactions</p>
-              <p className="text-sm">All transactions have been executed</p>
+        <CardContent className="space-y-4">
+          {wallet.pendingTransactions.length === 0 ? (
+            <div className="rounded-2xl bg-slate-50 p-6 text-sm text-slate-500">
+              No pending transactions right now.
             </div>
           ) : (
-            <div className="space-y-4">
-              {pendingTxIds.map((txId) => (
-                <TransactionItem
-                  key={txId}
-                  txId={txId}
-                  walletAddress={walletAddress as Address}
-                  userAddress={userAddress}
-                  onTransactionUpdate={handleTransactionUpdate}
-                />
-              ))}
-            </div>
+            wallet.pendingTransactions.map((transaction) => (
+              <TransactionItem
+                key={transaction.id}
+                tx={transaction}
+                assets={assets}
+                currentOwner={mappedAccount?.mappedH160}
+                token={token}
+                onConfirm={wallet.confirmTransaction}
+                onExecute={wallet.executeTransaction}
+              />
+            ))
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 }

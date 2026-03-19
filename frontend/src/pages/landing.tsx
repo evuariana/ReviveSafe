@@ -1,254 +1,123 @@
-// src/pages/Landing.tsx
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
-import {
-  Shield,
-  Users,
-  ArrowRight,
-  Zap,
-  Globe,
-  Eye,
-} from "lucide-react";
+import { Boxes, ShieldCheck, Waypoints, Wrench } from "lucide-react";
+import { useAccount } from "@luno-kit/react";
+
 import { Button } from "@/components/ui/button";
+import { ConnectButton } from "@/components/wallet/connect-button";
 
-const features = [
+const pillars = [
   {
-    name: "Multi-Signature Security",
-    description:
-      "Require multiple signatures before executing any transaction, eliminating single points of failure.",
-    icon: Shield,
+    title: "Mapped identity first",
+    body:
+      "Every contract action now starts from the SS58 account, resolves its mapped H160, and submits through `pallet_revive` instead of an EVM wallet shim.",
+    icon: Waypoints,
   },
   {
-    name: "Collaborative Control",
-    description:
-      "Perfect for teams, DAOs, and organizations that need shared custody of digital assets.",
-    icon: Users,
+    title: "PVM multisig flow",
+    body:
+      "ReviveSafe keeps the familiar multisig dashboard, but proposal creation, confirmation, and execution now ride on the Asset Hub revive runtime.",
+    icon: ShieldCheck,
   },
   {
-    name: "Transparent Governance",
-    description:
-      "All proposals and confirmations are recorded on-chain for complete transparency.",
-    icon: Eye,
-  },
-  {
-    name: "Polkadot Native",
-    description:
-      "Built specifically for the Polkadot ecosystem with Solidity on polkaVM.",
-    icon: Globe,
-  },
-];
-
-const steps = [
-  {
-    name: "Connect Wallet",
-    description: "Connect your Polkadot-compatible wallet to get started.",
-  },
-  {
-    name: "Create Multisig",
-    description:
-      "Set up your multisig wallet with owners and signature threshold.",
-  },
-  {
-    name: "Manage Transactions",
-    description: "Submit, review, and execute transactions with your team.",
+    title: "Hackathon deploy console",
+    body:
+      "Compile with `resolc`, instantiate with code, and keep a write panel ready for live demos without leaving the app.",
+    icon: Wrench,
   },
 ];
 
 export default function Landing() {
+  const { account } = useAccount();
+
   return (
-    <div className="relative">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50">
-        <div
-          className={`absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%236366f1" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]`}
-        />
-        <div className="relative mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="mx-auto max-w-3xl text-center"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.6 }}
-              className="mb-8 inline-flex items-center rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700"
-            >
-              <Zap className="mr-2 h-4 w-4" />
-              Powered by Polkadot & PolkaVM
-            </motion.div>
-
-            <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl">
-              <span className="block">Secure</span>
-              <span className="block leading-20 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                Multi-Signature
-              </span>
-              <span className="block">Wallets</span>
+    <div className="relative overflow-hidden">
+      <section className="mx-auto max-w-7xl px-6 pb-16 pt-20 lg:px-8 lg:pt-28">
+        <div className="grid gap-10 lg:grid-cols-[1.2fr,0.8fr] lg:items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-rose-600 shadow-sm backdrop-blur">
+              <Boxes className="h-3.5 w-3.5" />
+              Polkadot Asset Hub PVM track
+            </div>
+            <h1 className="mt-6 max-w-4xl text-5xl font-bold tracking-tight text-slate-950 sm:text-6xl">
+              ReviveSafe is now a{" "}
+              <span className="bg-gradient-to-r from-rose-500 via-pink-500 to-amber-400 bg-clip-text text-transparent">
+                Dedot-first
+              </span>{" "}
+              multisig control room.
             </h1>
-
-            <p className="mt-6 text-lg leading-8 text-gray-600 sm:text-xl">
-              ReviveSafe brings enterprise-grade multisig security to the
-              Polkadot ecosystem. Manage your digital assets with confidence
-              through collaborative governance and transparent execution.
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+              Built for the 2026 Polkadot Solidity Hackathon, this rewrite keeps
+              the team multisig UX but moves every critical path onto
+              `pallet_revive`, mapped H160 accounts, and asset precompile-aware
+              proposal flows.
             </p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="mt-10 flex items-center justify-center gap-x-6"
-            >
-              <Link to="/dashboard">
-                <Button
-                  size="lg"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg"
-                >
-                  Get Started
-                  <ArrowRight className="ml-2 h-5 w-5" />
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              {account ? (
+                <Link to="/dashboard">
+                  <Button className="h-11 rounded-xl px-5 text-sm">
+                    Open dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <div className="w-fit">
+                  <ConnectButton />
+                </div>
+              )}
+              <Link to="/deploy">
+                <Button variant="outline" className="h-11 rounded-xl px-5 text-sm">
+                  Open deploy console
                 </Button>
               </Link>
-              <Link to="#features">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="px-8 py-4 text-lg"
-                >
-                  Learn More
-                </Button>
-              </Link>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-24 sm:py-32 bg-white">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="mx-auto max-w-2xl text-center"
-          >
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              Why Choose ReviveSafe?
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-gray-600">
-              Built for teams, organizations, and individuals who value security
-              and collaboration
-            </p>
-          </motion.div>
-
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-            <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-4">
-              {features.map((feature, index) => (
-                <motion.div
-                  key={feature.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1, duration: 0.6 }}
-                  viewport={{ once: true }}
-                  className="flex flex-col"
-                >
-                  <dt className="flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-900">
-                    <feature.icon
-                      className="h-5 w-5 flex-none text-blue-600"
-                      aria-hidden="true"
-                    />
-                    {feature.name}
-                  </dt>
-                  <dd className="mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600">
-                    <p className="flex-auto">{feature.description}</p>
-                  </dd>
-                </motion.div>
-              ))}
-            </dl>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* How it works Section */}
-      <section className="py-24 sm:py-32 bg-gray-50">
-        <div className="mx-auto max-w-7xl px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="mx-auto max-w-2xl text-center"
-          >
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-              How It Works
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-gray-600">
-              Get started with ReviveSafe in three simple steps
-            </p>
-          </motion.div>
-
-          <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl">
-            <div className="grid grid-cols-1 gap-y-16 lg:grid-cols-3 lg:gap-x-8">
-              {steps.map((step, index) => (
-                <motion.div
-                  key={step.name}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.2, duration: 0.6 }}
-                  viewport={{ once: true }}
-                  className="relative"
-                >
-                  <div className="flex items-center">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600">
-                      <span className="text-white font-semibold">
-                        {index + 1}
-                      </span>
+          <div className="rounded-[32px] border border-white/70 bg-white/80 p-6 shadow-2xl shadow-rose-200/30 backdrop-blur">
+            <div className="rounded-[28px] bg-slate-950 p-6 text-white">
+              <div className="text-xs uppercase tracking-[0.2em] text-slate-400">
+                Live flow
+              </div>
+              <div className="mt-4 space-y-4">
+                {[
+                  "Connect with LunoKit",
+                  "Map SS58 to H160 with `map_account`",
+                  "Create or register a multisig",
+                  "Submit native or asset-precompile proposals",
+                  "Deploy fresh contracts through Revive",
+                ].map((step, index) => (
+                  <div
+                    key={step}
+                    className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/5 p-3"
+                  >
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-950">
+                      {index + 1}
                     </div>
-                    <h3 className="ml-4 text-lg font-semibold text-gray-900">
-                      {step.name}
-                    </h3>
+                    <div className="text-sm text-slate-200">{step}</div>
                   </div>
-                  <p className="mt-4 text-base text-gray-600">
-                    {step.description}
-                  </p>
-                  {index < steps.length - 1 && (
-                    <div className="hidden lg:block absolute top-5 left-full w-full h-0.5 bg-gray-200 -ml-8 mr-8" />
-                  )}
-                </motion.div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600">
-        <div className="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="mx-auto max-w-2xl text-center"
-          >
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
-              Ready to secure your assets?
-            </h2>
-            <p className="mx-auto mt-6 max-w-xl text-lg leading-8 text-blue-100">
-              Join the future of collaborative asset management on Polkadot.
-              Create your first multisig wallet today.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-x-6">
-              <Link to="/dashboard">
-                <Button
-                  size="lg"
-                  className="bg-white text-blue-600 hover:bg-gray-50 px-8 py-4 text-lg font-semibold"
-                >
-                  Get Started Now
-                </Button>
-              </Link>
+      <section className="mx-auto max-w-7xl px-6 pb-24 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-3">
+          {pillars.map((pillar) => (
+            <div
+              key={pillar.title}
+              className="rounded-[28px] border border-white/60 bg-white/78 p-6 shadow-lg shadow-slate-200/50 backdrop-blur"
+            >
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 via-pink-500 to-amber-400 text-white">
+                <pillar.icon className="h-6 w-6" />
+              </div>
+              <h2 className="mt-5 text-xl font-semibold text-slate-950">
+                {pillar.title}
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                {pillar.body}
+              </p>
             </div>
-          </motion.div>
+          ))}
         </div>
       </section>
     </div>

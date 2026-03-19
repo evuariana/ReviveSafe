@@ -6,7 +6,9 @@ import {
 } from "react";
 import { DedotClient, WsProvider } from "dedot";
 import type { PolkadotApi } from "@dedot/chaintypes";
-import { POLKADOT_HUB_TESTNET } from "@/config/constants";
+import { useChain } from "@luno-kit/react";
+
+import { DEFAULT_HUB_CHAIN, getHubChainByName } from "@/config/hubs";
 import { PolkadotClientContext } from "@/providers/polkadot-client-context";
 
 export function PolkadotClientProvider({
@@ -17,16 +19,25 @@ export function PolkadotClientProvider({
   const [client, setClient] = useState<DedotClient<PolkadotApi> | null>(null);
   const [loading, setLoading] = useState(true);
   const clientRef = useRef<DedotClient<PolkadotApi> | null>(null);
+  const { chain: activeChain } = useChain();
+  const chain = getHubChainByName(activeChain?.name ?? DEFAULT_HUB_CHAIN.name);
 
   useEffect(() => {
     let cancelled = false;
+    const previousClient = clientRef.current;
+    clientRef.current = null;
 
     const connect = async () => {
       setLoading(true);
+      setClient(null);
 
       try {
+        if (previousClient) {
+          previousClient.disconnect().catch(() => undefined);
+        }
+
         const nextClient = await DedotClient.new<PolkadotApi>(
-          new WsProvider(POLKADOT_HUB_TESTNET.wsUrl)
+          new WsProvider(chain.wsUrl)
         );
 
         if (cancelled) {
@@ -56,10 +67,10 @@ export function PolkadotClientProvider({
         activeClient.disconnect().catch(() => undefined);
       }
     };
-  }, []);
+  }, [chain.wsUrl]);
 
   return (
-    <PolkadotClientContext.Provider value={{ client, loading }}>
+    <PolkadotClientContext.Provider value={{ client, loading, chain }}>
       {children}
     </PolkadotClientContext.Provider>
   );
