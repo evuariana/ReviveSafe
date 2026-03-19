@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import type { DedotClient } from "dedot";
+import type { PolkadotApi } from "@dedot/chaintypes";
 
 import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import { assetIdToPrecompileAddress } from "@/lib/precompiles";
@@ -16,23 +18,38 @@ function bytesToText(bytes: number[] | Uint8Array | undefined): string {
   }
 }
 
-async function fetchHubAssets(
-  client: {
-    query?: {
-      assets?: {
-        metadata?: {
-          entries?: () => Promise<[unknown, unknown][]>;
-        };
+function hasAssetsMetadata(
+  client: DedotClient<PolkadotApi> | null
+): client is DedotClient<PolkadotApi> & {
+  query: {
+    assets: {
+      metadata: {
+        entries: () => Promise<[unknown, unknown][]>;
       };
     };
-  } | null
+  };
+} {
+  const metadata = client?.query?.assets?.metadata as unknown as
+    | {
+        entries?: () => Promise<[unknown, unknown][]>;
+      }
+    | undefined;
+
+  return typeof metadata?.entries === "function";
+}
+
+async function fetchHubAssets(
+  client: DedotClient<PolkadotApi> | null
 ): Promise<HubAsset[]> {
-  if (!client?.query?.assets?.metadata) {
+  if (!hasAssetsMetadata(client)) {
     return [];
   }
 
   try {
-    const entries = (await client.query.assets.metadata.entries()) as [
+    const metadata = client.query.assets.metadata as unknown as {
+      entries: () => Promise<[unknown, unknown][]>;
+    };
+    const entries = (await metadata.entries()) as [
       unknown,
       unknown,
     ][];

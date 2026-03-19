@@ -1,14 +1,10 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
+import { createContext, useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { LunoKitProvider } from "@luno-kit/ui";
 
 import { walletConfig } from "@/config/wallet";
 
 const LunoKitAvailableContext = createContext(false);
-
-export function useLunoKitAvailable(): boolean {
-  return useContext(LunoKitAvailableContext);
-}
 
 const lunoTheme = {
   autoMode: true,
@@ -81,4 +77,3 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     </QueryClientProvider>
   );
 }
-
