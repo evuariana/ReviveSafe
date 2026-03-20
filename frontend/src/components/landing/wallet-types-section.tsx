@@ -18,7 +18,7 @@ export function WalletTypesSection() {
     <section id="wallet-types" className="scroll-mt-28 mx-auto mb-40 max-w-7xl px-6">
       <div className="mb-16">
         <h2 className="text-3xl font-display font-medium tracking-tight text-zinc-950 md:text-5xl dark:text-zinc-100">
-          Two wallet types. One product.
+          Choose the wallet type that fits your team.
         </h2>
         <p className="mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
           Start with the wallet type that fits your team today. Stay native when

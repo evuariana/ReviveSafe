@@ -39,7 +39,7 @@ export function HeroSection() {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-zinc-500 opacity-20 dark:bg-zinc-400" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-zinc-600 dark:bg-zinc-300" />
             </span>
-            One product. Two wallet types.
+            Built for the new Polkadot Hub
           </motion.div>
 
           <motion.h1
