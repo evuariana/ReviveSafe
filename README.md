@@ -33,6 +33,14 @@ LunoKit-first runtime model:
 
 ## Quick Start
 
+Toolchain:
+
+- Node `24.14.0`
+- pnpm `10.30.3`
+
+The workspace now pins both through `package.json` and `pnpm-workspace.yaml`, so
+contributors can use `pnpm` directly or `nvm use` with the repo root version.
+
 Install dependencies:
 
 ```bash
@@ -44,6 +52,10 @@ Create frontend env values:
 ```bash
 cp frontend/.env.example frontend/.env
 ```
+
+Leave `VITE_FACTORY_ADDRESS` blank until you deploy or register a
+`MultiSigFactory`. The dashboard and deploy page both handle a missing factory
+cleanly.
 
 Build everything:
 
@@ -59,11 +71,18 @@ Run the frontend:
 pnpm frontend:dev
 ```
 
+Run the frontend preview:
+
+```bash
+pnpm frontend:build
+pnpm frontend:preview
+```
+
 ## Frontend Env
 
 `frontend/.env` expects:
 
-- `VITE_FACTORY_ADDRESS`: deployed `MultiSigFactory` address
+- `VITE_FACTORY_ADDRESS`: optional deployed `MultiSigFactory` address
 - `VITE_PASEO_ETH_RPC_URL`: optional override for Paseo Asset Hub ETH RPC
 - `VITE_PASEO_WS_URL`: optional override for Paseo Asset Hub websocket
 - `VITE_PASEO_EXPLORER_URL`: optional override for Paseo explorer
@@ -104,3 +123,7 @@ Optional deploy args can be passed through `CONSTRUCTOR_ARGS` as a JSON array.
 - Contract writes now go through Revive extrinsics signed by LunoKit wallets.
 - Read-only contract hydration still uses the ETH RPC path by design.
 - The deploy console can compile bundled or pasted Solidity, but the browser `resolc` chunk is large; this is expected for the hackathon operator workflow.
+
+## Writing
+
+- Blog post: [`docs/how-revivesafe-used-relaycode-components.md`](docs/how-revivesafe-used-relaycode-components.md)
