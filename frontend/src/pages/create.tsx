@@ -73,28 +73,27 @@ export default function Create() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <div className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
-          Create multisig
+        <div className="text-sm font-semibold uppercase tracking-[0.22em] text-zinc-500">
+          Create wallet
         </div>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
-          Build a mapped-owner ReviveSafe wallet
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+          Set up a new shared wallet
         </h1>
-        <p className="mt-2 text-sm leading-7 text-slate-600">
-          Owners are stored as H160 contract identities, not raw SS58 strings.
-          That keeps the contract layer aligned with your mapped Revive runtime
-          account model.
+        <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-400">
+          Add the people or contract addresses that should control this wallet,
+          then choose how many approvals every action needs before execution.
         </p>
       </div>
 
       {!isFactoryAvailable && (
         <Card className="rounded-[24px] border-amber-200 bg-amber-50 shadow-none">
           <CardContent className="p-5 text-sm text-amber-900">
-            No factory is active yet. Deploy one from the deploy console or set a
-            factory address there before creating a wallet.
+            A wallet factory is not connected yet. Open contract tools to deploy
+            one or connect an existing factory before creating a wallet.
             <div className="mt-3">
               <Link to="/deploy">
                 <Button variant="outline" className="rounded-xl border-amber-300">
-                  Open deploy console
+                  Open contract tools
                 </Button>
               </Link>
             </div>
@@ -102,18 +101,25 @@ export default function Create() {
         </Card>
       )}
 
-      <Card className="rounded-[24px] border-slate-200 shadow-sm">
+      <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
         <CardHeader>
-          <CardTitle>Owners</CardTitle>
+          <CardTitle className="text-zinc-950 dark:text-white">1. Add owners</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {mappedAccount?.mappedH160 && (
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+              Your connected account is added as the first owner by default
+              using its contract address.
+            </div>
+          )}
+
           {owners.map((owner, index) => (
             <div
               key={`${owner ?? "empty"}-${index}`}
-              className="rounded-2xl border border-slate-200 p-4"
+              className="rounded-2xl border border-zinc-200 p-4 dark:border-white/10"
             >
               <div className="mb-3 flex items-center justify-between">
-                <div className="text-sm font-semibold text-slate-900">
+                <div className="text-sm font-semibold text-zinc-950 dark:text-white">
                   Owner #{index + 1}
                 </div>
                 {owners.length > 1 && (
@@ -132,7 +138,7 @@ export default function Create() {
                 )}
               </div>
               <MappedAccountInput
-                label="Mapped owner address"
+                label="Owner contract address"
                 value={owner}
                 onChange={(nextOwner) =>
                   setOwners((currentOwners) =>
@@ -141,7 +147,7 @@ export default function Create() {
                     )
                   )
                 }
-                description="RelayCode account-input pattern adapted to output H160 values only."
+                description="Choose a connected account or paste the contract address that should be allowed to approve."
               />
             </div>
           ))}
@@ -149,7 +155,7 @@ export default function Create() {
           <Button
             type="button"
             variant="outline"
-            className="rounded-xl"
+            className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
             onClick={() => setOwners((currentOwners) => [...currentOwners, undefined])}
           >
             <Plus className="h-4 w-4" />
@@ -158,16 +164,18 @@ export default function Create() {
         </CardContent>
       </Card>
 
-      <Card className="rounded-[24px] border-slate-200 shadow-sm">
+      <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
         <CardHeader>
-          <CardTitle>Threshold</CardTitle>
+          <CardTitle className="text-zinc-950 dark:text-white">
+            2. Choose the approval rule
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <AmountInput
-            label="Required confirmations"
+            label="Approvals required"
             value={required}
             onChange={(value) => setRequired(value ?? "1")}
-            description={`Choose how many approvals are needed out of ${Math.max(
+            description={`For this wallet, choose how many approvals are needed out of ${Math.max(
               validOwners.length,
               1
             )} valid owners.`}
@@ -184,11 +192,18 @@ export default function Create() {
       )}
 
       <div className="flex flex-wrap gap-3">
-        <Button className="rounded-xl px-5" disabled={isCreating} onClick={() => void submit()}>
-          {isCreating ? "Creating..." : "Create multisig"}
+        <Button
+          className="rounded-full px-5"
+          disabled={isCreating}
+          onClick={() => void submit()}
+        >
+          {isCreating ? "Creating..." : "Create shared wallet"}
         </Button>
         <Link to="/wallets">
-          <Button variant="outline" className="rounded-xl px-5">
+          <Button
+            variant="outline"
+            className="rounded-full border-zinc-200 bg-white px-5 text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
+          >
             Cancel
           </Button>
         </Link>

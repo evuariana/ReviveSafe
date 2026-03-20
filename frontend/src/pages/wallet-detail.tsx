@@ -36,18 +36,21 @@ export default function WalletDetail() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-3">
           <Link to="/wallets">
-            <Button variant="outline" className="rounded-xl">
+            <Button
+              variant="outline"
+              className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
+            >
               Back to wallets
             </Button>
           </Link>
           <div>
-            <div className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
+            <div className="text-sm font-semibold uppercase tracking-[0.22em] text-zinc-500">
               Wallet detail
             </div>
-            <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
-              Revive multisig
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+              Wallet overview
             </h1>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-500">
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
               <span className="font-mono">{walletAddress}</span>
               <Button
                 variant="ghost"
@@ -65,98 +68,106 @@ export default function WalletDetail() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
           {ownerQuery.data
-            ? "You can submit and approve proposals from this wallet."
-            : "You have read-only access unless your mapped H160 is an owner."}
+            ? "You are an owner on this wallet. You can create, approve, and execute proposals here."
+            : "You are viewing this wallet in read-only mode. Only owners can create or approve proposals."}
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Native balance</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Native balance
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-slate-950">
+            <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
               {formatTokenBalance(wallet.balance ?? 0n, token.decimals)} {token.symbol}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Transactions</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Total proposals
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-slate-950">
+            <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
               {wallet.transactionCount ?? 0}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Pending actions</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Pending actions
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-slate-950">
+            <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
               {wallet.pendingCount}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Asset precompiles</CardTitle>
+            <CardTitle className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+              Asset balances
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-semibold text-slate-950">
+            <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
               {visibleAssetBalances.length}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[0.95fr,1.05fr]">
+      <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <OwnersInfo
           owners={wallet.owners}
           required={wallet.required}
           userAddress={mappedAccount?.mappedH160}
         />
 
-        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-zinc-950 dark:text-white">
               <Wallet2 className="h-5 w-5" />
-              Precompile balances
+              Asset balances
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {visibleAssetBalances.length === 0 ? (
-              <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-500">
-                No balances detected in the currently loaded asset-precompile set.
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+                No supported asset balances were detected for this wallet yet.
               </div>
             ) : (
               visibleAssetBalances.map((asset) => (
                 <div
                   key={asset.id}
-                  className="rounded-2xl border border-slate-200 p-3"
+                  className="rounded-2xl border border-zinc-200 p-3 dark:border-white/10"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-sm font-semibold text-slate-900">
+                      <div className="text-sm font-semibold text-zinc-950 dark:text-white">
                         {asset.symbol || asset.name}
                       </div>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
                         {asset.name} • #{asset.id}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm font-semibold text-slate-900">
+                      <div className="text-sm font-semibold text-zinc-950 dark:text-white">
                         {formatUnits(asset.balance, asset.decimals)} {asset.symbol}
                       </div>
-                      <div className="font-mono text-[11px] text-slate-500">
+                      <div className="font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
                         {asset.precompileAddress}
                       </div>
                     </div>
@@ -172,14 +183,14 @@ export default function WalletDetail() {
         <NewTransactionForm walletAddress={walletAddress} onTransactionSubmitted={wallet.refresh} />
       )}
 
-      <Card className="rounded-[24px] border-slate-200 shadow-sm">
+      <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
         <CardHeader>
-          <CardTitle>Pending transactions</CardTitle>
+          <CardTitle className="text-zinc-950 dark:text-white">Proposal queue</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {wallet.pendingTransactions.length === 0 ? (
-            <div className="rounded-2xl bg-slate-50 p-6 text-sm text-slate-500">
-              No pending transactions right now.
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+              No proposals are waiting right now.
             </div>
           ) : (
             wallet.pendingTransactions.map((transaction) => (

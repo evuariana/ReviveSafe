@@ -59,20 +59,22 @@ export default function TransactionItem({
     : `${formatUnits(tx.value, token.decimals)} ${token.symbol}`;
 
   return (
-    <div className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-[28px] border border-zinc-200 bg-white p-4 shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-sm font-semibold text-slate-950">
-            Transaction #{tx.id}
+          <div className="text-sm font-semibold text-zinc-950 dark:text-white">
+            Proposal #{tx.id}
           </div>
-          <div className="mt-1 text-sm text-slate-500">
+          <div className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             To {formatAddress(tx.destination, 6)}
           </div>
         </div>
         <div className="text-left sm:text-right">
-          <div className="text-base font-semibold text-slate-950">{displayValue}</div>
-          <div className="text-xs text-slate-500">
-            {tx.confirmations.length} confirmations
+          <div className="text-base font-semibold text-zinc-950 dark:text-white">
+            {displayValue}
+          </div>
+          <div className="text-xs text-zinc-500 dark:text-zinc-400">
+            {tx.confirmations.length} approvals so far
           </div>
         </div>
       </div>
@@ -81,7 +83,7 @@ export default function TransactionItem({
         <div className="mt-4 rounded-2xl bg-amber-50 p-3 text-sm text-amber-900">
           <div className="flex items-center gap-2 font-semibold">
             <Coins className="h-4 w-4" />
-            Asset precompile transfer
+            Asset Hub token transfer
           </div>
           <div className="mt-1 text-xs text-amber-800">
             Recipient: {formatAddress(decodedAssetTransfer.recipient, 6)} | Asset
@@ -91,12 +93,12 @@ export default function TransactionItem({
       )}
 
       {tx.data !== "0x" && !decodedAssetTransfer && (
-        <div className="mt-4 rounded-2xl bg-slate-50 p-3">
-          <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+        <div className="mt-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950 dark:text-white">
             <Sparkles className="h-4 w-4" />
-            Call data
+            Custom calldata
           </div>
-          <div className="mt-2 break-all font-mono text-xs text-slate-600">
+          <div className="mt-2 break-all font-mono text-xs text-zinc-600 dark:text-zinc-400">
             {tx.data}
           </div>
         </div>
@@ -117,7 +119,7 @@ export default function TransactionItem({
           ) : (
             <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
               <Clock className="h-3.5 w-3.5" />
-              Pending approvals
+              Awaiting approvals
             </div>
           )}
         </div>
@@ -127,7 +129,7 @@ export default function TransactionItem({
             <Button
               variant="outline"
               size="sm"
-              className="rounded-xl"
+              className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
               disabled={isConfirming}
               onClick={async () => {
                 setIsConfirming(true);
@@ -138,14 +140,14 @@ export default function TransactionItem({
                 }
               }}
             >
-              {isConfirming ? "Confirming..." : "Confirm"}
+              {isConfirming ? "Approving..." : "Approve"}
             </Button>
           )}
 
           {tx.isConfirmed && !tx.executed && (
             <Button
               size="sm"
-              className="rounded-xl"
+              className="rounded-full"
               disabled={isExecuting}
               onClick={async () => {
                 setIsExecuting(true);

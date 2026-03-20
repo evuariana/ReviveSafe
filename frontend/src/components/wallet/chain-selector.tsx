@@ -25,7 +25,7 @@ export function ChainSelector() {
       <Button
         variant="outline"
         size="sm"
-        className="h-10 min-w-[172px] justify-between rounded-xl border-slate-200 bg-white/80 px-3 text-xs font-medium shadow-sm backdrop-blur hover:bg-white"
+        className="h-11 min-w-[172px] justify-between rounded-full border-zinc-200 bg-white/90 px-4 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-200 dark:hover:bg-white/[0.08]"
         onClick={() => setOpen((value) => !value)}
       >
         <span className="flex items-center gap-2">
@@ -42,8 +42,8 @@ export function ChainSelector() {
       </Button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
-          <div className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+        <div className="absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-zinc-200 bg-white p-2 shadow-2xl dark:border-white/10 dark:bg-[#0b0b0b]">
+          <div className="px-2 pb-2 pt-1 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             Switch network
           </div>
           <div className="space-y-1">
@@ -55,7 +55,7 @@ export function ChainSelector() {
                 <button
                   key={chain.genesisHash}
                   type="button"
-                  className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors hover:bg-slate-100"
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-white/[0.06]"
                   onClick={() => {
                     switchChain({ chainId: chain.genesisHash });
                     setOpen(false);
@@ -69,14 +69,14 @@ export function ChainSelector() {
                         className="h-4 w-4 rounded-full"
                       />
                     )}
-                    <span>{chain.name}</span>
-                    {chain.testnet && (
-                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700">
+                  <span>{chain.name}</span>
+                  {chain.testnet && (
+                      <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
                         testnet
                       </span>
                     )}
                   </span>
-                  {isActive && <Check className="h-4 w-4 text-slate-900" />}
+                  {isActive && <Check className="h-4 w-4 text-zinc-900 dark:text-white" />}
                 </button>
               );
             })}
@@ -86,4 +86,3 @@ export function ChainSelector() {
     </div>
   );
 }
-

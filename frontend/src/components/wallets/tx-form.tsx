@@ -59,7 +59,7 @@ export default function NewTransactionForm({
 
   const submit = async () => {
     if (!destination || !isAddress(destination)) {
-      setError("Enter a valid mapped H160 destination");
+      setError("Enter a valid recipient address.");
       return;
     }
 
@@ -98,11 +98,11 @@ export default function NewTransactionForm({
 
   if (!isOpen) {
     return (
-      <Card className="rounded-[24px] border-slate-200 shadow-sm">
+      <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
         <CardContent className="p-6">
-          <Button className="w-full rounded-xl" onClick={() => setIsOpen(true)}>
+          <Button className="w-full rounded-full" onClick={() => setIsOpen(true)}>
             <Plus className="h-4 w-4" />
-            New transaction
+            Create proposal
           </Button>
         </CardContent>
       </Card>
@@ -110,9 +110,9 @@ export default function NewTransactionForm({
   }
 
   return (
-    <Card className="rounded-[24px] border-slate-200 shadow-sm">
+    <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
       <CardHeader>
-        <CardTitle>Submit a new proposal</CardTitle>
+        <CardTitle className="text-zinc-950 dark:text-white">Create a proposal</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -120,8 +120,8 @@ export default function NewTransactionForm({
             type="button"
             className={`rounded-2xl border px-4 py-4 text-left transition-colors ${
               mode === "native"
-                ? "border-slate-900 bg-slate-950 text-white"
-                : "border-slate-200 bg-white text-slate-700"
+                ? "border-zinc-950 bg-zinc-950 text-white dark:border-white dark:bg-white dark:text-black"
+                : "border-zinc-200 bg-white text-zinc-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300"
             }`}
             onClick={() => setMode("native")}
           >
@@ -130,7 +130,7 @@ export default function NewTransactionForm({
               Native transfer
             </div>
             <p className="mt-2 text-xs opacity-80">
-              Submit a PAS or DOT transfer with optional calldata.
+              Send the chain token, with optional calldata if this action needs it.
             </p>
           </button>
 
@@ -138,26 +138,26 @@ export default function NewTransactionForm({
             type="button"
             className={`rounded-2xl border px-4 py-4 text-left transition-colors ${
               mode === "asset"
-                ? "border-slate-900 bg-slate-950 text-white"
-                : "border-slate-200 bg-white text-slate-700"
+                ? "border-zinc-950 bg-zinc-950 text-white dark:border-white dark:bg-white dark:text-black"
+                : "border-zinc-200 bg-white text-zinc-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300"
             }`}
             onClick={() => setMode("asset")}
           >
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Coins className="h-4 w-4" />
-              Asset precompile
+              Asset transfer
             </div>
             <p className="mt-2 text-xs opacity-80">
-              Route an ERC-20 style transfer through the pallet-assets precompile.
+              Move an Asset Hub token through its deterministic precompile.
             </p>
           </button>
         </div>
 
         <MappedAccountInput
-          label="Destination"
+          label="Recipient"
           value={destination}
           onChange={setDestination}
-          description="Use a mapped H160 address or paste any valid destination."
+          description="Choose a connected address or paste any valid H160 recipient."
         />
 
         {mode === "native" ? (
@@ -169,21 +169,21 @@ export default function NewTransactionForm({
               symbol={token.symbol}
               decimals={token.decimals}
               maxPlanck={wallet.balance}
-              description="RelayCode-style balance input for `pallet_revive.call` value."
+              description="Amount to send from the wallet's native balance."
             />
             <BytesInput
-              label="Calldata"
+              label="Optional calldata"
               value={data}
               onChange={setData}
-              description="Optional bytes payload for the downstream destination call."
+              description="Provide bytes only when the recipient contract expects extra call data."
             />
           </>
         ) : (
           <>
             <div className="space-y-2">
-              <Label>Asset precompile</Label>
+              <Label className="text-zinc-700 dark:text-zinc-300">Asset</Label>
               <select
-                className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm shadow-sm"
+                className="flex h-11 w-full rounded-2xl border border-zinc-200 bg-white px-3 text-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                 value={selectedAssetId}
                 onChange={(event) => setSelectedAssetId(event.target.value)}
               >
@@ -195,8 +195,8 @@ export default function NewTransactionForm({
                 ))}
               </select>
               {selectedAsset && (
-                <p className="text-xs text-slate-500">
-                  {selectedAsset.name} via {selectedAsset.precompileAddress}
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {selectedAsset.name} will use precompile {selectedAsset.precompileAddress}
                 </p>
               )}
             </div>
@@ -219,16 +219,16 @@ export default function NewTransactionForm({
 
         <div className="flex gap-2">
           <Button
-            className="flex-1 rounded-xl"
+            className="flex-1 rounded-full"
             disabled={wallet.isSubmitting}
             onClick={() => void submit()}
           >
-            {wallet.isSubmitting ? "Submitting..." : "Submit proposal"}
+            {wallet.isSubmitting ? "Submitting..." : "Submit for approval"}
           </Button>
           <Button
             type="button"
             variant="outline"
-            className="rounded-xl"
+            className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
             onClick={() => {
               reset();
               setIsOpen(false);

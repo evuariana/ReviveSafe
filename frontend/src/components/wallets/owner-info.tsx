@@ -17,22 +17,22 @@ export default function OwnersInfo({
   userAddress,
 }: OwnersInfoProps) {
   return (
-    <Card className="rounded-[24px] border-slate-200 shadow-sm">
+    <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
+        <CardTitle className="flex items-center gap-2 text-lg text-zinc-950 dark:text-white">
           <Users className="h-5 w-5" />
           Owners
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
-          <div className="flex items-center gap-2 font-semibold text-slate-900">
+        <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300">
+          <div className="flex items-center gap-2 font-semibold text-zinc-950 dark:text-white">
             <Shield className="h-4 w-4" />
             {required ?? "..."} of {owners?.length ?? "..."} approvals required
           </div>
-          <p className="mt-2 text-xs text-slate-500">
-            Every owner is stored as a mapped H160 identity, so the contract and
-            the Revive runtime agree on who can propose, confirm, and execute.
+          <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            Owners are stored as the contract addresses ReviveSafe uses for
+            approvals and execution on Asset Hub.
           </p>
         </div>
 
@@ -43,14 +43,14 @@ export default function OwnersInfo({
             return (
               <div
                 key={owner}
-                className="flex items-center justify-between rounded-2xl border border-slate-200 p-3"
+                className="flex items-center justify-between rounded-2xl border border-zinc-200 p-3 dark:border-white/10"
               >
                 <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-sm font-semibold text-slate-700">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 text-sm font-semibold text-zinc-700 dark:bg-white/[0.06] dark:text-zinc-200">
                     {index + 1}
                   </div>
                   <div>
-                    <div className="font-mono text-sm text-slate-900">
+                    <div className="font-mono text-sm text-zinc-950 dark:text-white">
                       {formatAddress(owner, 6)}
                     </div>
                     {isCurrentOwner && (
