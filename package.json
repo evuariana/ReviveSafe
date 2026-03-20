@@ -3,8 +3,13 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@10.30.3",
+  "engines": {
+    "node": "24.14.0",
+    "pnpm": "10.30.3"
+  },
   "scripts": {
-    "remixd": "npx remixd -s ./contracts -u https://remix.polkadot.io",
+    "remixd": "remixd -s ./contracts -u https://remix.polkadot.io",
     "contracts:export": "pnpm --filter=contracts export",
     "contracts:build": "pnpm --filter=contracts build",
     "contracts:deploy": "pnpm --filter=contracts deploy-contracts",
@@ -14,7 +19,6 @@
     "frontend:lint:fix": "pnpm --filter=frontend lint:fix",
     "frontend:preview": "pnpm --filter=frontend preview"
   },
-  "dependencies": {},
   "devDependencies": {
     "@remix-project/remixd": "^0.6.40",
     "typescript": "~5.6.2"

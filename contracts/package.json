@@ -4,9 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "export": "npx tsc && node dist/exportContracts.js",
-    "build": "npx tsc && node dist/build.js",
-    "deploy-contracts": "npx tsc && node dist/deploy.js"
+    "export": "tsc && node dist/exportContracts.js",
+    "build": "tsc && node dist/build.js",
+    "deploy-contracts": "tsc && node dist/deploy.js"
   },
   "main": "dist/index.js",
   "devDependencies": {

@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npx vite",
-    "build": "npx tsc -b && npx vite build",
-    "lint": "npx eslint .",
-    "lint:fix": "npx eslint . --fix",
-    "preview": "npx vite preview"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "preview": "vite preview"
   },
   "dependencies": {
     "@dedot/chaintypes": "^0.218.0",
