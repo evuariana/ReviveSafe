@@ -10,11 +10,19 @@ import {
 import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import type { MappingStatus } from "@/types/revive";
 
+function delay(ms: number) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
 export function useMappedAccount() {
   const { client } = usePolkadotClient();
   const queryClient = useQueryClient();
   const { account } = useAccount();
-  const { sendTransactionAsync, isPending } = useSendTransaction();
+  const { sendTransactionAsync, isPending } = useSendTransaction({
+    waitFor: "inBlock",
+  });
 
   const derivedStatus = useMemo<MappingStatus | null>(() => {
     if (!account?.address) {
@@ -62,11 +70,28 @@ export function useMappedAccount() {
       }
 
       const extrinsic = client.tx.revive.mapAccount();
-      return sendTransactionAsync({ extrinsic });
+      const receipt = await sendTransactionAsync({ extrinsic });
+
+      if (receipt.status === "failed") {
+        throw new Error(
+          receipt.errorMessage ?? "Account activation failed on-chain."
+        );
+      }
+
+      return receipt;
     },
     onSuccess: async () => {
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        const refreshed = await mappingQuery.refetch();
+        if (refreshed.data?.isMapped) {
+          return;
+        }
+
+        await delay(800);
+      }
+
       await queryClient.invalidateQueries({
-        queryKey: ["mapping-status", derivedStatus?.ss58Address],
+        queryKey: ["mapping-status"],
       });
     },
   });
@@ -104,4 +129,3 @@ export function useConnectedAccounts() {
     [accounts]
   );
 }
-

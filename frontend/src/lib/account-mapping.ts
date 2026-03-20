@@ -18,6 +18,10 @@ function toHex32(bytes: Uint8Array): Hex {
 }
 
 export function decodeAccountId32(address: string): Uint8Array {
+  if (isAddress(address)) {
+    return hexToBytes(h160ToFallbackAccountId32(getAddress(address)));
+  }
+
   return Uint8Array.from(decodeAddress(address));
 }
 
@@ -108,4 +112,3 @@ export function deriveMappingStatus(address: string): MappingStatus {
 export function isH160Address(value: string): value is Address {
   return isAddress(value);
 }
-

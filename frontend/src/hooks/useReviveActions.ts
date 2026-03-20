@@ -79,7 +79,9 @@ function extractReceipt(result: unknown): DeployedContractResult {
 
 export function useReviveActions() {
   const { client } = usePolkadotClient();
-  const { sendTransactionAsync, isPending } = useSendTransaction();
+  const { sendTransactionAsync, isPending } = useSendTransaction({
+    waitFor: "inBlock",
+  });
 
   const writeMutation = useMutation({
     mutationFn: async (request: ReviveWriteRequest) => {
@@ -95,7 +97,13 @@ export function useReviveActions() {
         toHexBytes(request.data)
       );
 
-      return extractReceipt(await sendTransactionAsync({ extrinsic }));
+      const receipt = await sendTransactionAsync({ extrinsic });
+
+      if (receipt.status === "failed") {
+        throw new Error(receipt.errorMessage ?? "Contract call failed on-chain.");
+      }
+
+      return extractReceipt(receipt);
     },
   });
 
@@ -114,7 +122,13 @@ export function useReviveActions() {
         request.salt ? toHexBytes(request.salt) : undefined
       );
 
-      return extractReceipt(await sendTransactionAsync({ extrinsic }));
+      const receipt = await sendTransactionAsync({ extrinsic });
+
+      if (receipt.status === "failed") {
+        throw new Error(receipt.errorMessage ?? "Contract deployment failed on-chain.");
+      }
+
+      return extractReceipt(receipt);
     },
   });
 

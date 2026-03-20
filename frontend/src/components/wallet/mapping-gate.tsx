@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
-import { Loader2, Shield, Waypoints } from "lucide-react";
+import { Copy, Loader2, Waypoints } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMappedAccount } from "@/hooks/useMappedAccount";
 
 export function MappingGate({ children }: { children: ReactNode }) {
@@ -15,8 +14,11 @@ export function MappingGate({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <Loader2 className="h-5 w-5 animate-spin text-slate-500" />
+      <div className="flex min-h-[40vh] flex-col items-center justify-center gap-3">
+        <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Checking wallet activation...
+        </p>
       </div>
     );
   }
@@ -25,76 +27,138 @@ export function MappingGate({ children }: { children: ReactNode }) {
     return <>{children}</>;
   }
 
+  const copyValue = (value: string) => {
+    void navigator.clipboard.writeText(value);
+  };
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-12">
-      <Card className="border-slate-200 shadow-xl shadow-slate-200/50">
-        <CardHeader className="space-y-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 via-pink-500 to-amber-400 text-white shadow-lg">
-            <Waypoints className="h-7 w-7" />
-          </div>
-          <div className="space-y-2">
-            <CardTitle className="text-2xl">Map your contract account</CardTitle>
-            <p className="text-sm text-slate-600">
-              ReviveSafe now signs through `pallet_revive`, so your connected
-              SS58 account needs its mapped H160 before any factory or multisig
-              action can run.
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm sm:grid-cols-2">
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Connected SS58
-              </div>
-              <div className="mt-2 break-all font-mono text-slate-900">
-                {mappedAccount.ss58Address}
-              </div>
-            </div>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
-                Derived H160
-              </div>
-              <div className="mt-2 break-all font-mono text-slate-900">
-                {mappedAccount.mappedH160}
-              </div>
-            </div>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+        <div className="max-w-2xl space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300">
+            <Waypoints className="h-3.5 w-3.5" />
+            Activation required
           </div>
 
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-            <div className="flex items-center gap-2 font-semibold">
-              <Shield className="h-4 w-4" />
-              Mapping is required once per account
-            </div>
-            <p className="mt-2 text-amber-800">
-              After this on-chain setup succeeds, ReviveSafe can create
-              multisigs, submit proposals, and deploy contracts using the same
-              mapped identity everywhere in the app.
+          <div className="space-y-3">
+            <h2 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+              Activate your ReviveSafe address
+            </h2>
+            <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
+              Before this account can create wallets, approve proposals, or run
+              contract actions, Asset Hub needs one activation transaction.
+              ReviveSafe will use the mapped H160 address below for every
+              wallet action.
             </p>
           </div>
 
-          {mappingError && (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-              {mappingError}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-3">
+            {[
+              "Create wallets",
+              "Approve proposals",
+              "Run contract actions",
+            ].map((label) => (
+              <div
+                key={label}
+                className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300"
+              >
+                {label}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="w-full max-w-sm rounded-[28px] border border-zinc-200 bg-zinc-50 p-5 dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            One step left
+          </div>
+          <div className="mt-3 text-xl font-semibold text-zinc-950 dark:text-white">
+            Submit `revive.map_account()`
+          </div>
+          <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-400">
+            Confirm one transaction in your wallet. This runs once per account
+            and unlocks the rest of the workspace.
+          </p>
 
           <Button
-            className="h-11 rounded-xl px-5"
+            className="mt-5 h-11 rounded-full bg-zinc-950 px-5 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             onClick={() => void mapAccount()}
             disabled={isMapping}
           >
             {isMapping ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Mapping account...
+                Activating wallet...
               </>
             ) : (
-              "Run map_account"
+              "Activate wallet"
             )}
           </Button>
-        </CardContent>
-      </Card>
+
+          <p className="mt-3 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
+            No funds move here. This only prepares the on-chain identity
+            ReviveSafe uses for shared wallet actions.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div className="rounded-[24px] border border-zinc-200 bg-zinc-50 p-5 dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                Connected SS58
+              </div>
+              <div className="mt-2 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+                Your extension account
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full text-zinc-500 hover:bg-zinc-200 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/[0.08] dark:hover:text-white"
+              onClick={() => copyValue(mappedAccount.ss58Address)}
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="mt-4 break-all font-mono text-sm leading-7 text-zinc-950 dark:text-white">
+            {mappedAccount.ss58Address}
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-zinc-200 bg-zinc-50 p-5 dark:border-white/10 dark:bg-white/[0.03]">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                ReviveSafe address
+              </div>
+              <div className="mt-2 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+                The H160 address used across the app
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full text-zinc-500 hover:bg-zinc-200 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/[0.08] dark:hover:text-white"
+              onClick={() => copyValue(mappedAccount.mappedH160)}
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+          </div>
+          <div className="mt-4 break-all font-mono text-sm leading-7 text-zinc-950 dark:text-white">
+            {mappedAccount.mappedH160}
+          </div>
+        </div>
+      </div>
+
+      {mappingError && (
+        <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-200">
+          {mappingError}
+        </div>
+      )}
     </div>
   );
 }

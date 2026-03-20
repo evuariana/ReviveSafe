@@ -284,37 +284,40 @@ export default function Deploy() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-500">
-          Deploy console
+        <div className="text-sm font-semibold uppercase tracking-[0.22em] text-zinc-500">
+          Contract tools
         </div>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
-          Compile, instantiate, and call through Revive
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
+          Compile, deploy, and call contracts
         </h1>
-        <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-600">
-          This console stays focused on the hackathon workflows we actually
-          need: compile bundled ReviveSafe contracts or pasted Solidity,
-          instantiate with `pallet_revive.instantiateWithCode`, then issue
-          follow-up write calls through `pallet_revive.call`.
+        <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-400">
+          Use one flow to prepare an artifact, deploy it through Revive, and
+          send follow-up write calls. This is where teams handle wallet setup,
+          factory deployment, and contract operations.
         </p>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.08fr,0.92fr]">
-        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+      <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
           <CardHeader>
-            <CardTitle>1. Prepare an artifact</CardTitle>
+            <CardTitle className="text-zinc-950 dark:text-white">
+              1. Choose a contract source
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-5">
-            <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-xs font-semibold">
+            <div className="inline-flex rounded-full border border-zinc-200 bg-zinc-50 p-1 text-xs font-semibold dark:border-white/10 dark:bg-white/[0.03]">
               {([
-                ["bundled", "Bundled"],
-                ["source", "Paste Source"],
-                ["artifact", "Upload Artifact"],
+                ["bundled", "ReviveSafe"],
+                ["source", "Source Code"],
+                ["artifact", "Artifact"],
               ] as const).map(([nextMode, label]) => (
                 <button
                   key={nextMode}
                   type="button"
                   className={`rounded-full px-3 py-1.5 ${
-                    mode === nextMode ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"
+                    mode === nextMode
+                      ? "bg-white text-zinc-950 shadow-sm dark:bg-white dark:text-black"
+                      : "text-zinc-500 dark:text-zinc-400"
                   }`}
                   onClick={() => setMode(nextMode)}
                 >
@@ -326,18 +329,22 @@ export default function Deploy() {
             {mode === "bundled" && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <Label>Bundled contract</Label>
+                  <Label className="text-zinc-700 dark:text-zinc-300">Built-in contract</Label>
                   <select
-                    className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm shadow-sm"
+                    className="flex h-11 w-full rounded-2xl border border-zinc-200 bg-white px-3 text-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                     value={bundledContractName}
                     onChange={(event) => setBundledContractName(event.target.value)}
                   >
                     <option value="MultiSigFactory">MultiSigFactory</option>
                     <option value="MultiSigWallet">MultiSigWallet</option>
                   </select>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Start with the factory or wallet contract already bundled in
+                    ReviveSafe.
+                  </p>
                 </div>
-                <Button className="rounded-xl" onClick={() => void compileBundledContract()}>
-                  Compile bundled contracts
+                <Button className="rounded-full px-5" onClick={() => void compileBundledContract()}>
+                  Compile selected contract
                 </Button>
               </div>
             )}
@@ -346,29 +353,33 @@ export default function Deploy() {
               <div className="space-y-4">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>File name</Label>
+                    <Label className="text-zinc-700 dark:text-zinc-300">File name</Label>
                     <Input
+                      className="h-11 rounded-2xl border-zinc-200 bg-white dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
+                      placeholder="Contract.sol"
                       value={sourceFileName}
                       onChange={(event) => setSourceFileName(event.target.value)}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Contract name</Label>
+                    <Label className="text-zinc-700 dark:text-zinc-300">Contract name</Label>
                     <Input
+                      className="h-11 rounded-2xl border-zinc-200 bg-white dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
+                      placeholder="Counter"
                       value={sourceContractName}
                       onChange={(event) => setSourceContractName(event.target.value)}
                     />
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Solidity source</Label>
+                  <Label className="text-zinc-700 dark:text-zinc-300">Solidity source</Label>
                   <Textarea
-                    className="min-h-[240px] font-mono text-xs"
+                    className="min-h-[240px] rounded-2xl border-zinc-200 bg-white font-mono text-xs dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                     value={sourceCode}
                     onChange={(event) => setSourceCode(event.target.value)}
                   />
                 </div>
-                <Button className="rounded-xl" onClick={() => void compileCustomSource()}>
+                <Button className="rounded-full px-5" onClick={() => void compileCustomSource()}>
                   Compile source
                 </Button>
               </div>
@@ -383,9 +394,9 @@ export default function Deploy() {
                   description="Paste or upload the compiled contract bytecode."
                 />
                 <div className="space-y-2">
-                  <Label>ABI JSON</Label>
+                  <Label className="text-zinc-700 dark:text-zinc-300">ABI JSON</Label>
                   <Textarea
-                    className="min-h-[220px] font-mono text-xs"
+                    className="min-h-[220px] rounded-2xl border-zinc-200 bg-white font-mono text-xs dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                     value={artifactAbiText}
                     onChange={(event) => setArtifactAbiText(event.target.value)}
                   />
@@ -394,25 +405,27 @@ export default function Deploy() {
             )}
 
             {compileOutput && (
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 whitespace-pre-wrap">
+              <div className="whitespace-pre-wrap rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300">
                 {compileOutput}
               </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="rounded-[24px] border-slate-200 shadow-sm">
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
           <CardHeader>
-            <CardTitle>2. Instantiate via Revive</CardTitle>
+            <CardTitle className="text-zinc-950 dark:text-white">
+              2. Deploy through Revive
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <BalanceInput
-              label="Instantiation value"
+              label="Deployment value"
               value={deployValue}
               onChange={(value) => setDeployValue(value ?? "0")}
               symbol={token.symbol}
               decimals={token.decimals}
-              description="RelayCode-style balance input for `instantiateWithCode.value`."
+              description="Native value sent with the deployment."
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -432,7 +445,7 @@ export default function Deploy() {
 
             <OptionInput
               label="Storage deposit limit"
-              description="Optional revive storage deposit limit."
+              description="Optional cap for storage deposit during deployment."
               valueEnabled={storageDepositEnabled}
               onToggle={(enabled) => {
                 setStorageDepositEnabled(enabled);
@@ -452,7 +465,7 @@ export default function Deploy() {
 
             <OptionInput
               label="Salt"
-              description="Optional `Option<[u8; 32]>` salt using the RelayCode-style bytes input."
+              description="Optional salt when you need deterministic deployment."
               valueEnabled={saltEnabled}
               onToggle={(enabled) => {
                 setSaltEnabled(enabled);
@@ -465,40 +478,43 @@ export default function Deploy() {
                 label="Salt bytes"
                 value={salt}
                 onChange={setSalt}
-                description="Provide 32 bytes when you need deterministic CREATE2-style deployment."
+                description="Provide 32 bytes only if you need a deterministic deployment salt."
               />
             </OptionInput>
 
             <div className="space-y-2">
-              <Label>Constructor args JSON</Label>
+              <Label className="text-zinc-700 dark:text-zinc-300">Constructor args JSON</Label>
               <Textarea
-                className="min-h-[92px] font-mono text-xs"
+                className="min-h-[92px] rounded-2xl border-zinc-200 bg-white font-mono text-xs dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                 value={constructorArgsText}
                 onChange={(event) => setConstructorArgsText(event.target.value)}
               />
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Enter a JSON array in the same order as the constructor inputs.
+              </p>
             </div>
 
             {(deployStatus || error) && (
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 whitespace-pre-wrap">
+              <div className="whitespace-pre-wrap rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300">
                 {deployStatus || error}
               </div>
             )}
 
             <div className="flex flex-wrap gap-3">
               <Button
-                className="rounded-xl"
+                className="rounded-full px-5"
                 disabled={isSubmitting || !resolvedArtifact}
                 onClick={() => void deploy()}
               >
-                {isSubmitting ? "Submitting..." : "Instantiate with code"}
+                {isSubmitting ? "Submitting..." : "Deploy contract"}
               </Button>
               {isAddress(callAddress) && (
                 <Button
                   variant="outline"
-                  className="rounded-xl"
+                  className="rounded-full border-zinc-200 bg-white px-5 text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
                   onClick={() => setFactoryAddress(callAddress)}
                 >
-                  Set active factory
+                  Use as active factory
                 </Button>
               )}
             </div>
@@ -506,24 +522,27 @@ export default function Deploy() {
         </Card>
       </div>
 
-      <Card className="rounded-[24px] border-slate-200 shadow-sm">
+      <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
         <CardHeader>
-          <CardTitle>3. Post-deploy write call</CardTitle>
+          <CardTitle className="text-zinc-950 dark:text-white">
+            3. Send a write call
+          </CardTitle>
         </CardHeader>
-        <CardContent className="grid gap-4 xl:grid-cols-[0.8fr,1.2fr]">
+        <CardContent className="grid gap-4 xl:grid-cols-[0.8fr_1.2fr]">
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Contract address</Label>
+              <Label className="text-zinc-700 dark:text-zinc-300">Contract address</Label>
               <Input
-                className="font-mono"
+                className="h-11 rounded-2xl border-zinc-200 bg-white font-mono dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
+                placeholder="0x..."
                 value={callAddress}
                 onChange={(event) => setCallAddress(event.target.value)}
               />
             </div>
             <div className="space-y-2">
-              <Label>ABI JSON</Label>
+              <Label className="text-zinc-700 dark:text-zinc-300">ABI JSON</Label>
               <Textarea
-                className="min-h-[220px] font-mono text-xs"
+                className="min-h-[220px] rounded-2xl border-zinc-200 bg-white font-mono text-xs dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                 value={callAbiText}
                 onChange={(event) => setCallAbiText(event.target.value)}
               />
@@ -532,9 +551,9 @@ export default function Deploy() {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Writable function</Label>
+              <Label className="text-zinc-700 dark:text-zinc-300">Writable function</Label>
               <select
-                className="flex h-10 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm shadow-sm"
+                className="flex h-11 w-full rounded-2xl border border-zinc-200 bg-white px-3 text-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                 value={callFunction}
                 onChange={(event) => setCallFunction(event.target.value)}
               >
@@ -548,12 +567,15 @@ export default function Deploy() {
             </div>
 
             <div className="space-y-2">
-              <Label>Args JSON array</Label>
+              <Label className="text-zinc-700 dark:text-zinc-300">Args JSON array</Label>
               <Textarea
-                className="min-h-[120px] font-mono text-xs"
+                className="min-h-[120px] rounded-2xl border-zinc-200 bg-white font-mono text-xs dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                 value={callArgsText}
                 onChange={(event) => setCallArgsText(event.target.value)}
               />
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                Enter the function arguments as a JSON array in ABI order.
+              </p>
             </div>
 
             <BalanceInput
@@ -562,24 +584,25 @@ export default function Deploy() {
               onChange={(value) => setCallValue(value ?? "0")}
               symbol={token.symbol}
               decimals={token.decimals}
+              description="Native value to send alongside this write call."
             />
 
             {callStatus && (
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300">
                 {callStatus}
               </div>
             )}
 
             <div className="flex flex-wrap gap-3">
               <Button
-                className="rounded-xl"
+                className="rounded-full px-5"
                 disabled={isSubmitting || !callFunction}
                 onClick={() => void submitWriteCall()}
               >
-                {isSubmitting ? "Submitting..." : "Submit write call"}
+                {isSubmitting ? "Submitting..." : "Send write call"}
               </Button>
               {factoryAddress && (
-                <div className="rounded-full bg-slate-100 px-3 py-2 text-xs font-mono text-slate-600">
+                <div className="rounded-full bg-zinc-100 px-3 py-2 text-xs font-mono text-zinc-600 dark:bg-white/[0.06] dark:text-zinc-300">
                   Active factory: {factoryAddress}
                 </div>
               )}
