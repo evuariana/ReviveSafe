@@ -2,15 +2,14 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, Moon, Shield, Sun, X } from "lucide-react";
 
-import { ChainSelector } from "@/components/wallet/chain-selector";
 import { ConnectButton } from "@/components/wallet/connect-button";
 import { useTheme } from "@/hooks/useTheme";
 
 const navigation = [
   { name: "Overview", href: "#overview" },
-  { name: "Features", href: "#features" },
-  { name: "Contracts", href: "#contracts" },
+  { name: "Wallet Types", href: "#wallet-types" },
   { name: "How It Works", href: "#flow" },
+  { name: "FAQ", href: "#faq" },
 ];
 
 export default function Header() {
@@ -42,9 +41,6 @@ export default function Header() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:block">
-            <ChainSelector />
-          </div>
           <button
             type="button"
             className="rounded-full border border-zinc-200 bg-white p-2 text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-300 dark:hover:bg-white/[0.08] dark:hover:text-white"
@@ -66,9 +62,6 @@ export default function Header() {
 
       {mobileMenuOpen && (
         <div className="border-t border-zinc-200 bg-white px-6 py-5 dark:border-white/8 dark:bg-[#050505] lg:hidden">
-          <div className="mb-4">
-            <ChainSelector />
-          </div>
           <div className="space-y-2">
             {navigation.map((item) => (
               <a
@@ -80,13 +73,6 @@ export default function Header() {
                 {item.name}
               </a>
             ))}
-            <Link
-              to="/deploy"
-              className="block rounded-xl px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-white/5 dark:hover:text-white"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Open contract tools
-            </Link>
           </div>
         </div>
       )}

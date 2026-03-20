@@ -13,26 +13,33 @@ export default function Footer() {
             <div className="text-lg font-bold text-zinc-950 transition-colors duration-500 dark:text-white">
               ReviveSafe
             </div>
+            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+              Shared wallets, approvals, and wallet operations for Polkadot teams.
+            </p>
           </div>
         </div>
         <div className="mt-8 flex flex-col gap-4 md:mt-0 md:items-end">
           <div className="flex flex-wrap justify-center gap-5 text-sm text-zinc-500 dark:text-zinc-400">
-            <a href="#features" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
-              Features
+            <a href="#overview" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
+              Overview
             </a>
-            <a href="#contracts" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
-              Contract tools
+            <a href="#wallet-types" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
+              Wallet Types
             </a>
             <a href="#flow" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
-              How it works
+              How It Works
             </a>
-            <Link to="/deploy" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
+            <a href="#faq" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
+              FAQ
+            </a>
+            <Link to="/dashboard" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
               Open app
             </Link>
           </div>
           <p className="text-center text-xs leading-5 text-zinc-500 md:text-right">
-            &copy; 2026 ReviveSafe. Shared wallets, asset-precompile transfers,
-            and contract tools for Polkadot Asset Hub and PVM.
+            &copy; 2026 ReviveSafe. One place for shared approvals, wallet
+            operations, and clear proposal history across native and programmable
+            wallets.
           </p>
         </div>
       </div>
