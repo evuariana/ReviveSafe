@@ -4,17 +4,17 @@ import { Menu, Moon, Sun, X } from "lucide-react";
 
 import { ReviveSafeBrand } from "@/components/brand/revivesafe-brand";
 import { ConnectButton } from "@/components/wallet/connect-button";
+import { releaseDocs } from "@/config/release";
 import { useTheme } from "@/hooks/useTheme";
-
-const navigation = [
-  { name: "Features", href: "#features" },
-  { name: "FAQ", href: "#faq" },
-  { name: "Docs", href: null, disabled: true },
-];
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDark, toggleTheme } = useTheme();
+  const navigation = [
+    { name: "Features", href: "#features" },
+    { name: "FAQ", href: "#faq" },
+    { name: "Docs", href: releaseDocs.readinessUrl, external: true },
+  ];
 
   return (
     <header className="sticky top-4 z-40 px-4 sm:px-6 lg:px-8">
@@ -36,13 +36,16 @@ export default function Header() {
 
           <div className="flex items-center gap-1 pr-1">
             {navigation.map((item) =>
-              item.disabled ? (
-                <span
+              item.external ? (
+                <a
                   key={item.name}
-                  className="inline-flex h-10 cursor-not-allowed items-center rounded-full px-4 text-sm font-medium text-zinc-400 dark:text-zinc-500"
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-10 items-center rounded-full px-4 text-sm font-medium text-zinc-500 transition-colors hover:bg-black/[0.04] hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-white/[0.05] dark:hover:text-white"
                 >
                   {item.name}
-                </span>
+                </a>
               ) : (
                 <a
                   key={item.name}
@@ -97,15 +100,19 @@ export default function Header() {
           <div className="rounded-[28px] border border-black/6 bg-white/80 p-4 shadow-[0_18px_48px_rgba(15,23,42,0.1)] backdrop-blur-xl dark:border-white/10 dark:bg-[#080808]/82 dark:shadow-[0_18px_48px_rgba(0,0,0,0.45)]">
             <div className="space-y-2">
               {navigation.map((item) =>
-                item.disabled ? (
-                  <span
-                    key={item.name}
-                    className="block rounded-2xl px-3 py-2 text-sm font-medium text-zinc-400 dark:text-zinc-500"
-                  >
-                    {item.name}
-                  </span>
-                ) : (
-                  <a
+              item.external ? (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="block rounded-2xl px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-black/[0.04] hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-white/[0.05] dark:hover:text-white"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {item.name}
+                </a>
+              ) : (
+                <a
                     key={item.name}
                     href={item.href ?? undefined}
                     className="block rounded-2xl px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-black/[0.04] hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-white/[0.05] dark:hover:text-white"

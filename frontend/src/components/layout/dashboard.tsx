@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 
 import { ReviveSafeBrand } from "@/components/brand/revivesafe-brand";
+import { BetaSupportCard } from "@/components/layout/beta-support-card";
 import { ChainConnectionBanner } from "@/components/layout/chain-connection-banner";
 import { MappingGate } from "@/components/wallet/mapping-gate";
 import { Button } from "@/components/ui/button";
@@ -104,6 +105,8 @@ export default function DashboardLayout() {
                 </p>
               )}
             </div>
+
+            <BetaSupportCard />
 
             <div className="mt-6 grid gap-3">
               <Link to="/create">

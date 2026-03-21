@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import type { ChainTokenInfo } from "@/types/revive";
 import { usePolkadotClient } from "@/hooks/usePolkadotClient";
+import { reportOperationalEvent } from "@/lib/observability";
 
 const DEFAULT_CHAIN_TOKEN: Omit<ChainTokenInfo, "loading"> = {
   symbol: "UNIT",
@@ -50,6 +51,17 @@ export function useChainToken(): ChainTokenInfo {
         }
       } catch (error) {
         console.error("Failed to load chain token info", error);
+        reportOperationalEvent({
+          type: "runtime.chain-token.error",
+          level: "error",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to load chain token info.",
+          details: {
+            chain: chain.name,
+          },
+        });
         if (!cancelled) {
           setTokenInfo((previous) => ({
             ...previous,
@@ -68,11 +80,10 @@ export function useChainToken(): ChainTokenInfo {
     return () => {
       cancelled = true;
     };
-  }, [chain.symbol, client, clientLoading]);
+  }, [chain.name, chain.symbol, client, clientLoading]);
 
   return {
     ...tokenInfo,
     loading,
   };
 }
-

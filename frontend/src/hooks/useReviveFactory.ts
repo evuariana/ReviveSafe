@@ -31,6 +31,7 @@ export function useReviveFactory() {
     queryClient.invalidateQueries({ queryKey: ["factory", "my-multisigs"] });
 
   const createMutation = useMutation({
+    mutationKey: ["factory", factoryAddress ?? "missing", "create-wallet"],
     mutationFn: async ({
       owners,
       required,
@@ -39,7 +40,7 @@ export function useReviveFactory() {
       required: number;
     }) => {
       if (!factoryAddress) {
-        throw new Error("Set or deploy a factory address before creating a multisig");
+        throw new Error("Set or deploy a factory address before creating a wallet.");
       }
 
       return callContract({
@@ -55,9 +56,10 @@ export function useReviveFactory() {
   });
 
   const registerMutation = useMutation({
+    mutationKey: ["factory", factoryAddress ?? "missing", "register-wallet"],
     mutationFn: async (multisigAddress: Address) => {
       if (!factoryAddress) {
-        throw new Error("Set or deploy a factory address before registering a multisig");
+        throw new Error("Set or deploy a factory address before adding a contract wallet.");
       }
 
       return callContract({

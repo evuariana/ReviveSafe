@@ -84,6 +84,7 @@ export function useReviveActions() {
   });
 
   const writeMutation = useMutation({
+    mutationKey: ["revive", "call-contract"],
     mutationFn: async (request: ReviveWriteRequest) => {
       if (!client) {
         throw new Error("Dedot client is not ready yet");
@@ -108,6 +109,7 @@ export function useReviveActions() {
   });
 
   const instantiateMutation = useMutation({
+    mutationKey: ["revive", "instantiate-with-code"],
     mutationFn: async (request: InstantiateRequest) => {
       if (!client) {
         throw new Error("Dedot client is not ready yet");

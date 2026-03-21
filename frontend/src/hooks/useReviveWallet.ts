@@ -228,6 +228,7 @@ export function useReviveWallet(address?: Address, currentOwner?: Address) {
   };
 
   const submitTransactionMutation = useMutation({
+    mutationKey: ["wallet", walletAddress, "submit-transaction"],
     mutationFn: async ({
       destination,
       value,
@@ -249,6 +250,7 @@ export function useReviveWallet(address?: Address, currentOwner?: Address) {
   });
 
   const submitAssetTransferMutation = useMutation({
+    mutationKey: ["wallet", walletAddress, "submit-asset-transfer"],
     mutationFn: async ({
       assetId,
       destination,
@@ -270,6 +272,7 @@ export function useReviveWallet(address?: Address, currentOwner?: Address) {
   });
 
   const confirmTransactionMutation = useMutation({
+    mutationKey: ["wallet", walletAddress, "confirm-transaction"],
     mutationFn: async (transactionId: number) =>
       callContract({
         address: walletAddress,
@@ -283,6 +286,7 @@ export function useReviveWallet(address?: Address, currentOwner?: Address) {
   });
 
   const executeTransactionMutation = useMutation({
+    mutationKey: ["wallet", walletAddress, "execute-transaction"],
     mutationFn: async (transactionId: number) =>
       callContract({
         address: walletAddress,

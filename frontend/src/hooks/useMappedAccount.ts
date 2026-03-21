@@ -60,6 +60,7 @@ export function useMappedAccount() {
   });
 
   const mapAccountMutation = useMutation({
+    mutationKey: ["revive", "map-account", derivedStatus?.mappedH160 ?? "unknown"],
     mutationFn: async () => {
       if (!client) {
         throw new Error("Dedot client is not ready yet");

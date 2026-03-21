@@ -9,6 +9,7 @@ import type { PolkadotApi } from "@dedot/chaintypes";
 import { useChain } from "@luno-kit/react";
 
 import { DEFAULT_HUB_CHAIN, getHubChainByName } from "@/config/hubs";
+import { reportOperationalEvent } from "@/lib/observability";
 import { PolkadotClientContext } from "@/providers/polkadot-client-context";
 
 export function PolkadotClientProvider({
@@ -51,6 +52,18 @@ export function PolkadotClientProvider({
         setClient(nextClient);
       } catch (error) {
         console.error("Failed to connect to Polkadot Hub WebSocket", error);
+        reportOperationalEvent({
+          type: "runtime.connection.error",
+          level: "error",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Failed to connect to the active runtime.",
+          details: {
+            chain: chain.name,
+            wsUrl: chain.wsUrl,
+          },
+        });
         setClient(null);
         setError(
           error instanceof Error
@@ -74,7 +87,7 @@ export function PolkadotClientProvider({
         activeClient.disconnect().catch(() => undefined);
       }
     };
-  }, [chain.wsUrl]);
+  }, [chain.name, chain.wsUrl]);
 
   return (
     <PolkadotClientContext.Provider value={{ client, loading, error, chain }}>

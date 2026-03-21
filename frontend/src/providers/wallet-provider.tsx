@@ -1,8 +1,14 @@
 import { createContext, useState, type ReactNode } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from "@tanstack/react-query";
 import { LunoKitProvider } from "@luno-kit/ui";
 
 import { walletConfig } from "@/config/wallet";
+import { describeError, reportOperationalEvent } from "@/lib/observability";
 
 const LunoKitAvailableContext = createContext(false);
 
@@ -58,6 +64,34 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
+        queryCache: new QueryCache({
+          onError: (error, query) => {
+            reportOperationalEvent({
+              type: "query.error",
+              level: "error",
+              message: describeError(error),
+              fingerprint: `query:${query.queryHash}:${describeError(error)}`,
+              details: {
+                queryKey: query.queryKey,
+              },
+            });
+          },
+        }),
+        mutationCache: new MutationCache({
+          onError: (error, _variables, _context, mutation) => {
+            reportOperationalEvent({
+              type: "mutation.error",
+              level: "error",
+              message: describeError(error),
+              fingerprint: `mutation:${JSON.stringify(
+                mutation.options.mutationKey ?? ["unknown"]
+              )}:${describeError(error)}`,
+              details: {
+                mutationKey: mutation.options.mutationKey ?? ["unknown"],
+              },
+            });
+          },
+        }),
         defaultOptions: {
           queries: {
             staleTime: 30_000,

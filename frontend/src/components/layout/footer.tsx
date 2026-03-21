@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { ReviveSafeBrand } from "@/components/brand/revivesafe-brand";
+import { releaseDocs, supportLabel, supportUrl } from "@/config/release";
 
 export default function Footer() {
   return (
@@ -14,7 +15,8 @@ export default function Footer() {
               labelClassName="text-lg font-semibold"
             />
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Shared wallets, approvals, and wallet operations for Polkadot teams.
+              Programmable contract-wallet beta for approvals, transfers, and
+              execution on Asset Hub.
             </p>
           </div>
         </div>
@@ -26,17 +28,30 @@ export default function Footer() {
             <a href="#faq" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
               FAQ
             </a>
-            <span className="cursor-not-allowed text-zinc-400 dark:text-zinc-500">
+            <a
+              href={releaseDocs.readinessUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="transition-colors hover:text-zinc-950 dark:hover:text-white"
+            >
               Docs
-            </span>
+            </a>
+            <a
+              href={supportUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="transition-colors hover:text-zinc-950 dark:hover:text-white"
+            >
+              {supportLabel}
+            </a>
             <Link to="/dashboard" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
               Open app
             </Link>
           </div>
           <p className="text-center text-xs leading-5 text-zinc-500 md:text-right">
-            &copy; 2026 ReviveSafe. One place for shared approvals, wallet
-            operations, and clear proposal history across native and programmable
-            wallets.
+            &copy; 2026 ReviveSafe. Current beta scope: programmable contract
+            wallets on Asset Hub with explicit submit, approve, ready, and
+            execute lifecycle.
           </p>
         </div>
       </div>
