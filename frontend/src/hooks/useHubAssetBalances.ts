@@ -5,6 +5,8 @@ import { erc20PrecompileAbi } from "@/config/contracts";
 import { useContractAdapter } from "@/hooks/useContractAdapter";
 import { useHubAssets } from "@/hooks/useHubAssets";
 
+const HUB_ASSET_BALANCE_REFRESH_INTERVAL = 30_000;
+
 export function useHubAssetBalances(owner?: Address) {
   const adapter = useContractAdapter();
   const { data: assets = [] } = useHubAssets();
@@ -16,7 +18,7 @@ export function useHubAssetBalances(owner?: Address) {
       assets.map((asset) => asset.id).join(","),
     ],
     enabled: !!owner && assets.length > 0,
-    refetchInterval: 10_000,
+    refetchInterval: HUB_ASSET_BALANCE_REFRESH_INTERVAL,
     queryFn: () =>
       adapter.readMany<bigint>(
         assets.map((asset) => ({

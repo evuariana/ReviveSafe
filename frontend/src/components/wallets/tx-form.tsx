@@ -15,6 +15,7 @@ import { useHubAssets } from "@/hooks/useHubAssets";
 import { useReviveWallet } from "@/hooks/useReviveWallet";
 
 type ProposalMode = "native" | "asset";
+const EMPTY_ASSETS = [] as const;
 
 interface NewTransactionFormProps {
   walletAddress: Address;
@@ -27,8 +28,10 @@ export default function NewTransactionForm({
 }: NewTransactionFormProps) {
   const wallet = useReviveWallet(walletAddress);
   const token = useChainToken();
-  const { data: assets = [] } = useHubAssets();
-  const { balances: assetBalances } = useHubAssetBalances(walletAddress);
+  const assetsQuery = useHubAssets();
+  const assets = assetsQuery.data ?? EMPTY_ASSETS;
+  const assetBalancesQuery = useHubAssetBalances(walletAddress);
+  const assetBalances = assetBalancesQuery.balances;
 
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<ProposalMode>("native");
@@ -47,6 +50,7 @@ export default function NewTransactionForm({
     () => assetBalances.find((asset) => asset.id === Number(selectedAssetId)),
     [assetBalances, selectedAssetId]
   );
+  const assetModeBlocked = mode === "asset" && (assetsQuery.isLoading || !!assetsQuery.error);
 
   const reset = () => {
     setDestination(undefined);
@@ -67,20 +71,40 @@ export default function NewTransactionForm({
       setError(undefined);
 
       if (mode === "native") {
+        const amount = BigInt(nativeAmount ?? "0");
+        const hasCallData = !!data && data !== "0x";
+
+        if (amount <= 0n && !hasCallData) {
+          throw new Error("Enter an amount or provide calldata for this proposal.");
+        }
+
         await wallet.submitTransaction({
           destination,
-          value: BigInt(nativeAmount ?? "0"),
+          value: amount,
           data: data ?? "0x",
         });
       } else {
+        if (assetsQuery.error) {
+          throw new Error("Asset metadata could not be loaded from the active network.");
+        }
+
+        if (assetsQuery.isLoading) {
+          throw new Error("Asset metadata is still loading from the active network.");
+        }
+
         if (!selectedAsset) {
           throw new Error("Select an asset precompile first");
+        }
+
+        const amount = BigInt(assetAmount ?? "0");
+        if (amount <= 0n) {
+          throw new Error("Enter an asset amount greater than zero.");
         }
 
         await wallet.submitAssetTransfer({
           assetId: selectedAsset.id,
           destination,
-          amount: BigInt(assetAmount ?? "0"),
+          amount,
         });
       }
 
@@ -185,18 +209,44 @@ export default function NewTransactionForm({
               <select
                 className="flex h-11 w-full rounded-2xl border border-zinc-200 bg-white px-3 text-sm shadow-sm dark:border-white/10 dark:bg-white/[0.03] dark:text-white"
                 value={selectedAssetId}
+                disabled={assetsQuery.isLoading || !!assetsQuery.error}
                 onChange={(event) => setSelectedAssetId(event.target.value)}
               >
-                <option value="">Select an asset</option>
+                <option value="">
+                  {assetsQuery.isLoading
+                    ? "Loading assets..."
+                    : assetsQuery.error
+                      ? "Asset metadata unavailable"
+                      : "Select an asset"}
+                </option>
                 {assets.map((asset) => (
                   <option key={asset.id} value={asset.id}>
                     {asset.symbol || asset.name} (#{asset.id})
                   </option>
                 ))}
               </select>
-              {selectedAsset && (
+              {assetsQuery.error ? (
+                <p className="text-xs text-rose-600 dark:text-rose-400">
+                  {assetsQuery.error instanceof Error
+                    ? assetsQuery.error.message
+                    : "Asset metadata could not be loaded from the active network."}
+                </p>
+              ) : assetsQuery.isLoading ? (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  Loading Asset Hub metadata before token transfers can be proposed.
+                </p>
+              ) : selectedAsset ? (
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   {selectedAsset.name} will use precompile {selectedAsset.precompileAddress}
+                </p>
+              ) : assets.length === 0 ? (
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  No Asset Hub metadata is available on the active network yet.
+                </p>
+              ) : null}
+              {assetBalancesQuery.error && !assetsQuery.error && (
+                <p className="text-xs text-amber-700 dark:text-amber-400">
+                  Asset balances could not be refreshed, but you can still prepare a transfer proposal.
                 </p>
               )}
             </div>
@@ -205,6 +255,7 @@ export default function NewTransactionForm({
               asset={selectedAsset}
               value={assetAmount}
               onChange={setAssetAmount}
+              disabled={assetsQuery.isLoading || !!assetsQuery.error}
               maxBalance={selectedAssetBalance?.balance}
             />
           </>
@@ -220,10 +271,14 @@ export default function NewTransactionForm({
         <div className="flex gap-2">
           <Button
             className="flex-1 rounded-full"
-            disabled={wallet.isSubmitting}
+            disabled={wallet.isSubmitting || assetModeBlocked}
             onClick={() => void submit()}
           >
-            {wallet.isSubmitting ? "Submitting..." : "Submit for approval"}
+            {wallet.isSubmitting
+              ? "Submitting..."
+              : assetModeBlocked
+                ? "Asset metadata required"
+                : "Submit for approval"}
           </Button>
           <Button
             type="button"

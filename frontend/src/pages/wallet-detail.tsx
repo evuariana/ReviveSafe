@@ -21,14 +21,33 @@ export default function WalletDetail() {
   const token = useChainToken();
   const { mappedAccount } = useMappedAccount();
   const walletAddress = isAddress(address ?? "") ? (address as Address) : undefined;
-  const wallet = useReviveWallet(walletAddress);
-  const { balances: assetBalances } = useHubAssetBalances(walletAddress);
-  const { data: assets = [] } = useHubAssets();
+  const wallet = useReviveWallet(walletAddress, mappedAccount?.mappedH160);
+  const assetBalancesQuery = useHubAssetBalances(walletAddress);
+  const assetsQuery = useHubAssets();
+  const assets = assetsQuery.data ?? [];
+  const assetBalances = assetBalancesQuery.balances;
   const ownerQuery = useReviveWalletOwner(walletAddress, mappedAccount?.mappedH160);
 
   if (!walletAddress) {
     return <div className="text-sm text-rose-600">Invalid wallet address.</div>;
   }
+
+  if (wallet.isLoading && !wallet.owners && !wallet.loadError) {
+    return (
+      <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+        Loading wallet state from the active network...
+      </div>
+    );
+  }
+
+  if (wallet.loadError && !wallet.owners) {
+    return (
+      <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700">
+        {wallet.loadError}
+      </div>
+    );
+  }
+
   const visibleAssetBalances = assetBalances.filter((asset) => asset.balance > 0n);
 
   return (
@@ -69,11 +88,21 @@ export default function WalletDetail() {
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
-          {ownerQuery.data
+          {ownerQuery.isLoading
+            ? "Checking whether this account can act on this wallet."
+            : ownerQuery.data
             ? "You are an owner on this wallet. You can create, approve, and execute proposals here."
-            : "You are viewing this wallet in read-only mode. Only owners can create or approve proposals."}
+            : "You are viewing this wallet in read-only mode. Only owners can create, approve, or execute proposals."}
         </div>
       </div>
+
+      {wallet.loadError && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Some wallet data could not be refreshed from the active network.
+          ReviveSafe is showing the last successful reads where available.
+          <div className="mt-2">{wallet.loadError}</div>
+        </div>
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
@@ -84,7 +113,9 @@ export default function WalletDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
-              {formatTokenBalance(wallet.balance ?? 0n, token.decimals)} {token.symbol}
+              {wallet.balance === undefined
+                ? "Loading..."
+                : `${formatTokenBalance(wallet.balance, token.decimals)} ${token.symbol}`}
             </div>
           </CardContent>
         </Card>
@@ -97,7 +128,7 @@ export default function WalletDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
-              {wallet.transactionCount ?? 0}
+              {wallet.transactionCount ?? "—"}
             </div>
           </CardContent>
         </Card>
@@ -123,7 +154,9 @@ export default function WalletDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
-              {visibleAssetBalances.length}
+              {assetBalancesQuery.isLoading || assetsQuery.isLoading
+                ? "Loading..."
+                : visibleAssetBalances.length}
             </div>
           </CardContent>
         </Card>
@@ -144,7 +177,15 @@ export default function WalletDetail() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {visibleAssetBalances.length === 0 ? (
+            {assetBalancesQuery.error || assetsQuery.error ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                Failed to load wallet asset balances from the active network.
+              </div>
+            ) : assetBalancesQuery.isLoading || assetsQuery.isLoading ? (
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+                Loading supported asset balances...
+              </div>
+            ) : visibleAssetBalances.length === 0 ? (
               <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
                 No supported asset balances were detected for this wallet yet.
               </div>
@@ -183,30 +224,67 @@ export default function WalletDetail() {
         <NewTransactionForm walletAddress={walletAddress} onTransactionSubmitted={wallet.refresh} />
       )}
 
-      <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
-        <CardHeader>
-          <CardTitle className="text-zinc-950 dark:text-white">Proposal queue</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {wallet.pendingTransactions.length === 0 ? (
-            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
-              No proposals are waiting right now.
-            </div>
-          ) : (
-            wallet.pendingTransactions.map((transaction) => (
-              <TransactionItem
-                key={transaction.id}
-                tx={transaction}
-                assets={assets}
-                currentOwner={mappedAccount?.mappedH160}
-                token={token}
-                onConfirm={wallet.confirmTransaction}
-                onExecute={wallet.executeTransaction}
-              />
-            ))
-          )}
-        </CardContent>
-      </Card>
+      <div className="grid gap-6 xl:grid-cols-2">
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
+          <CardHeader>
+            <CardTitle className="text-zinc-950 dark:text-white">Proposal queue</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {wallet.isLoading && wallet.pendingTransactions.length === 0 ? (
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+                Loading pending proposals...
+              </div>
+            ) : wallet.loadError && wallet.pendingTransactions.length === 0 ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700">
+                Failed to load the current proposal queue.
+              </div>
+            ) : wallet.pendingTransactions.length === 0 ? (
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+                No proposals are waiting right now.
+              </div>
+            ) : (
+              wallet.pendingTransactions.map((transaction) => (
+                <TransactionItem
+                  key={transaction.id}
+                  tx={transaction}
+                  assets={assets}
+                  token={token}
+                  onConfirm={wallet.confirmTransaction}
+                  onExecute={wallet.executeTransaction}
+                />
+              ))
+            )}
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
+          <CardHeader>
+            <CardTitle className="text-zinc-950 dark:text-white">Recent activity</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {wallet.isLoading && wallet.executedTransactions.length === 0 ? (
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+                Loading executed proposals...
+              </div>
+            ) : wallet.executedTransactions.length === 0 ? (
+              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
+                No executed proposals have been detected for this wallet yet.
+              </div>
+            ) : (
+              wallet.executedTransactions.map((transaction) => (
+                <TransactionItem
+                  key={`executed-${transaction.id}`}
+                  tx={transaction}
+                  assets={assets}
+                  token={token}
+                  onConfirm={wallet.confirmTransaction}
+                  onExecute={wallet.executeTransaction}
+                />
+              ))
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

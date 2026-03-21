@@ -16,9 +16,10 @@ interface TransactionItemProps {
     executed: boolean;
     confirmations: Address[];
     isConfirmed: boolean;
+    canConfirm: boolean;
+    canExecute: boolean;
   };
   assets: HubAsset[];
-  currentOwner?: Address;
   token: ChainTokenInfo;
   onConfirm: (transactionId: number) => Promise<unknown>;
   onExecute: (transactionId: number) => Promise<unknown>;
@@ -27,13 +28,13 @@ interface TransactionItemProps {
 export default function TransactionItem({
   tx,
   assets,
-  currentOwner,
   token,
   onConfirm,
   onExecute,
 }: TransactionItemProps) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [actionError, setActionError] = useState<string>();
 
   const decodedAssetTransfer = useMemo(() => {
     const decoded = decodeAssetTransferCall(tx.destination, tx.data);
@@ -46,10 +47,6 @@ export default function TransactionItem({
       asset: findHubAssetById(assets, decoded.assetId),
     };
   }, [assets, tx.data, tx.destination]);
-
-  const hasConfirmed = tx.confirmations.some(
-    (confirmation) => confirmation.toLowerCase() === currentOwner?.toLowerCase()
-  );
 
   const displayValue = decodedAssetTransfer
     ? `${formatUnits(
@@ -124,43 +121,65 @@ export default function TransactionItem({
           )}
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {!hasConfirmed && !tx.executed && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
-              disabled={isConfirming}
-              onClick={async () => {
-                setIsConfirming(true);
-                try {
-                  await onConfirm(tx.id);
-                } finally {
-                  setIsConfirming(false);
-                }
-              }}
-            >
-              {isConfirming ? "Approving..." : "Approve"}
-            </Button>
+        <div className="space-y-2">
+          {actionError && (
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+              {actionError}
+            </div>
           )}
 
-          {tx.isConfirmed && !tx.executed && (
-            <Button
-              size="sm"
-              className="rounded-full"
-              disabled={isExecuting}
-              onClick={async () => {
-                setIsExecuting(true);
-                try {
-                  await onExecute(tx.id);
-                } finally {
-                  setIsExecuting(false);
-                }
-              }}
-            >
-              {isExecuting ? "Executing..." : "Execute"}
-            </Button>
-          )}
+          <div className="flex flex-wrap gap-2">
+            {tx.canConfirm && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
+                disabled={isConfirming}
+                onClick={async () => {
+                  setActionError(undefined);
+                  setIsConfirming(true);
+                  try {
+                    await onConfirm(tx.id);
+                  } catch (confirmError) {
+                    setActionError(
+                      confirmError instanceof Error
+                        ? confirmError.message
+                        : "Approval failed."
+                    );
+                  } finally {
+                    setIsConfirming(false);
+                  }
+                }}
+              >
+                {isConfirming ? "Approving..." : "Approve"}
+              </Button>
+            )}
+
+            {tx.canExecute && (
+              <Button
+                size="sm"
+                className="rounded-full"
+                disabled={isExecuting}
+                onClick={async () => {
+                  setActionError(undefined);
+                  setIsExecuting(true);
+                  try {
+                    await onExecute(tx.id);
+                  } catch (executeError) {
+                    setActionError(
+                      executeError instanceof Error
+                        ? executeError.message
+                        : "Execution failed."
+                    );
+                  } finally {
+                    setIsExecuting(false);
+                  }
+                }}
+              >
+                {isExecuting ? "Executing..." : "Execute"}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     </div>
