@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { useLandingActions } from "@/components/landing/cta-buttons";
+import { useLandingActions } from "@/components/landing/use-landing-actions";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },

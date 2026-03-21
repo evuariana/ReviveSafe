@@ -1,8 +1,6 @@
 import { ArrowRight } from "lucide-react";
-import { useAccount } from "@luno-kit/react";
-import { useConnectModal } from "@luno-kit/ui";
-import { useNavigate } from "react-router-dom";
 
+import { useLandingActions } from "@/components/landing/use-landing-actions";
 import { Button } from "@/components/ui/button";
 
 function getButtonClasses(emphasis: "primary" | "secondary") {
@@ -11,27 +9,6 @@ function getButtonClasses(emphasis: "primary" | "secondary") {
   }
 
   return "h-12 rounded-full border-zinc-200 bg-white px-8 text-sm font-medium text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.04] dark:hover:text-white";
-}
-
-export function useLandingActions() {
-  const navigate = useNavigate();
-  const { account } = useAccount();
-  const { open: openConnectModal } = useConnectModal();
-
-  const goTo = (path: string) => {
-    if (!account) {
-      openConnectModal?.();
-      return;
-    }
-
-    navigate(path);
-  };
-
-  return {
-    handleCreate: () => goTo("/create"),
-    handleImport: () => goTo("/register"),
-    isConnected: !!account,
-  };
 }
 
 export function LandingCtaButtons() {
