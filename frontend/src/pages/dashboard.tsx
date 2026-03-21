@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useChainToken } from "@/hooks/useChainToken";
@@ -137,7 +138,7 @@ function ProposalQueueSection({
 export default function Dashboard() {
   const { account } = useAccount();
   const token = useChainToken();
-  const { client, chain } = usePolkadotClient();
+  const { client, chain, error: clientError, loading: clientLoading } = usePolkadotClient();
   const { mappedAccount } = useMappedAccount();
   const { myMultisigs, myMultisigsQuery, factoryAddress } = useReviveFactory();
   const defaultFactoryAddress = useFactoryAddress(
@@ -171,6 +172,8 @@ export default function Dashboard() {
           Asset Hub.
         </p>
       </div>
+
+      <PublicBetaNotice compact />
 
       <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
         <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
@@ -251,12 +254,16 @@ export default function Dashboard() {
                 <Coins className="h-4 w-4 text-zinc-400" />
               </div>
               <div className="mt-3 text-2xl font-semibold text-zinc-950 dark:text-white">
-                {accountBalanceQuery.isLoading
+                {clientError && !clientLoading
+                  ? "Unavailable"
+                  : accountBalanceQuery.isLoading
                   ? "Loading..."
                   : `${formatTokenBalance(accountBalanceQuery.data ?? 0n, token.decimals)} ${token.symbol}`}
               </div>
               <div className="mt-2 text-xs text-zinc-500">
-                Native runtime balance on {chain.name}.
+                {clientError && !clientLoading
+                  ? "Reconnect to the active runtime to refresh the native balance."
+                  : `Native runtime balance on ${chain.name}.`}
               </div>
             </div>
           </CardContent>
@@ -273,7 +280,12 @@ export default function Dashboard() {
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
-            {assetsQuery.error ? (
+            {clientError && !clientLoading ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                Asset metadata is unavailable until ReviveSafe reconnects to the
+                active runtime.
+              </div>
+            ) : assetsQuery.error ? (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
                 Asset metadata could not be loaded from the active network.
               </div>

@@ -4,6 +4,7 @@ import { Abi, AbiFunction, type Address, type Hex, isAddress } from "viem";
 import bundledFactorySource from "../../../contracts/ReviveFactory.sol?raw";
 import bundledWalletSource from "../../../contracts/ReviveMultisig.sol?raw";
 
+import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
 import { AmountInput } from "@/components/inputs/amount-input";
 import { BalanceInput } from "@/components/inputs/balance-input";
 import { BytesInput } from "@/components/inputs/bytes-input";
@@ -15,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useChainToken } from "@/hooks/useChainToken";
 import { useFactoryAddress } from "@/hooks/useFactoryAddress";
+import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import {
   DEFAULT_DEPLOY_WEIGHT,
   encodeContractCall,
@@ -96,6 +98,7 @@ async function compileSources(
 
 export default function Deploy() {
   const token = useChainToken();
+  const { client, loading: clientLoading, error: clientError } = usePolkadotClient();
   const { instantiateWithCode, callContract, isSubmitting, error } =
     useReviveActions();
   const factoryAddress = useFactoryAddress((state) => state.factoryAddress);
@@ -288,14 +291,22 @@ export default function Deploy() {
           Contract tools
         </div>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-          Compile, deploy, and call contracts
+          Operator setup and contract tools
         </h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-400">
           Use one flow to prepare an artifact, deploy it through Revive, and
-          send follow-up write calls. This is where teams handle wallet setup,
-          factory deployment, and contract operations.
+          send follow-up write calls. Most beta users should not need this page
+          once a factory is already configured.
         </p>
       </div>
+
+      <PublicBetaNotice compact />
+      {clientError && (
+        <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Contract deployments and write calls are unavailable until ReviveSafe
+          reconnects to the active network runtime.
+        </div>
+      )}
 
       <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
         <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
@@ -503,10 +514,18 @@ export default function Deploy() {
             <div className="flex flex-wrap gap-3">
               <Button
                 className="rounded-full px-5"
-                disabled={isSubmitting || !resolvedArtifact}
+                disabled={
+                  isSubmitting || !resolvedArtifact || clientLoading || !client || !!clientError
+                }
                 onClick={() => void deploy()}
               >
-                {isSubmitting ? "Submitting..." : "Deploy contract"}
+                {isSubmitting
+                  ? "Submitting..."
+                  : clientLoading
+                    ? "Waiting for network..."
+                    : clientError || !client
+                      ? "Network connection required"
+                      : "Deploy contract"}
               </Button>
               {isAddress(callAddress) && (
                 <Button
@@ -596,10 +615,18 @@ export default function Deploy() {
             <div className="flex flex-wrap gap-3">
               <Button
                 className="rounded-full px-5"
-                disabled={isSubmitting || !callFunction}
+                disabled={
+                  isSubmitting || !callFunction || clientLoading || !client || !!clientError
+                }
                 onClick={() => void submitWriteCall()}
               >
-                {isSubmitting ? "Submitting..." : "Send write call"}
+                {isSubmitting
+                  ? "Submitting..."
+                  : clientLoading
+                    ? "Waiting for network..."
+                    : clientError || !client
+                      ? "Network connection required"
+                      : "Send write call"}
               </Button>
               {factoryAddress && (
                 <div className="rounded-full bg-zinc-100 px-3 py-2 text-xs font-mono text-zinc-600 dark:bg-white/[0.06] dark:text-zinc-300">

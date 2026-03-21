@@ -18,6 +18,7 @@ export function PolkadotClientProvider({
 }) {
   const [client, setClient] = useState<DedotClient<PolkadotApi> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>();
   const clientRef = useRef<DedotClient<PolkadotApi> | null>(null);
   const { chain: activeChain } = useChain();
   const chain = getHubChainByName(activeChain?.name ?? DEFAULT_HUB_CHAIN.name);
@@ -30,6 +31,7 @@ export function PolkadotClientProvider({
     const connect = async () => {
       setLoading(true);
       setClient(null);
+      setError(undefined);
 
       try {
         if (previousClient) {
@@ -50,6 +52,11 @@ export function PolkadotClientProvider({
       } catch (error) {
         console.error("Failed to connect to Polkadot Hub WebSocket", error);
         setClient(null);
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Failed to connect to the active runtime."
+        );
       } finally {
         if (!cancelled) {
           setLoading(false);
@@ -70,7 +77,7 @@ export function PolkadotClientProvider({
   }, [chain.wsUrl]);
 
   return (
-    <PolkadotClientContext.Provider value={{ client, loading, chain }}>
+    <PolkadotClientContext.Provider value={{ client, loading, error, chain }}>
       {children}
     </PolkadotClientContext.Provider>
   );

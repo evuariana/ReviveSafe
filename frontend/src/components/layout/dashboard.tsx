@@ -12,10 +12,12 @@ import {
 } from "lucide-react";
 
 import { ReviveSafeBrand } from "@/components/brand/revivesafe-brand";
+import { ChainConnectionBanner } from "@/components/layout/chain-connection-banner";
 import { MappingGate } from "@/components/wallet/mapping-gate";
 import { Button } from "@/components/ui/button";
 import { ChainSelector } from "@/components/wallet/chain-selector";
 import { ConnectButton } from "@/components/wallet/connect-button";
+import { useFactoryAddress } from "@/hooks/useFactoryAddress";
 import { useTheme } from "@/hooks/useTheme";
 
 const navigation = [
@@ -23,15 +25,25 @@ const navigation = [
   { name: "Wallets", href: "/wallets", icon: Wallet },
   { name: "Create", href: "/create", icon: Shield },
   { name: "Add Contract Wallet", href: "/register", icon: UserPlus },
-  { name: "Contracts", href: "/deploy", icon: Upload },
+  { name: "Operator tools", href: "/deploy", icon: Upload },
 ];
+
+function resolveNavigationPath(pathname: string) {
+  if (pathname.startsWith("/wallet/")) {
+    return "/wallets";
+  }
+
+  return pathname;
+}
 
 export default function DashboardLayout() {
   const { account } = useAccount();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
+  const factoryAddress = useFactoryAddress((state) => state.factoryAddress);
+  const resolvedPath = resolveNavigationPath(location.pathname);
   const currentItem =
-    navigation.find((item) => location.pathname === item.href) ?? navigation[0];
+    navigation.find((item) => resolvedPath === item.href) ?? navigation[0];
 
   if (!account) {
     return <Navigate to="/" replace />;
@@ -55,7 +67,7 @@ export default function DashboardLayout() {
 
             <nav className="mt-6 space-y-2">
               {navigation.map((item) => {
-                const isActive = location.pathname === item.href;
+                const isActive = resolvedPath === item.href;
 
                 return (
                   <Link
@@ -80,9 +92,17 @@ export default function DashboardLayout() {
                 Workspace actions
               </div>
               <p className="mt-2 leading-7">
-                Create wallets, add existing contract wallets, review
-                proposals, and open contract tools without switching products.
+                Create programmable wallets, add existing contract wallets,
+                review proposals, and handle setup tasks without leaving the
+                workspace.
               </p>
+              {factoryAddress && (
+                <p className="mt-3 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
+                  Operator tools are mainly for factory setup and advanced
+                  contract workflows. Most beta users only need Dashboard,
+                  Wallets, Create, and Add contract wallet.
+                </p>
+              )}
             </div>
 
             <div className="mt-6 grid gap-3">
@@ -96,7 +116,7 @@ export default function DashboardLayout() {
                   variant="outline"
                   className="h-11 w-full rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
                 >
-                  Open contracts
+                  Open operator tools
                 </Button>
               </Link>
             </div>
@@ -126,6 +146,8 @@ export default function DashboardLayout() {
                 <ConnectButton />
               </div>
             </div>
+
+            <ChainConnectionBanner />
 
             <MappingGate>
               <main className="rounded-[30px] border border-zinc-200 bg-white/86 p-6 shadow-[0_18px_80px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-[#0b0b0b]/88 dark:shadow-[0_0_60px_rgba(255,255,255,0.04)]">

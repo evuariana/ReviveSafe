@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useChainToken } from "@/hooks/useChainToken";
 import { useHubAssetBalances } from "@/hooks/useHubAssetBalances";
 import { useHubAssets } from "@/hooks/useHubAssets";
+import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import { useReviveWallet } from "@/hooks/useReviveWallet";
 
 type ProposalMode = "native" | "asset";
@@ -28,10 +29,16 @@ export default function NewTransactionForm({
 }: NewTransactionFormProps) {
   const wallet = useReviveWallet(walletAddress);
   const token = useChainToken();
+  const { client, loading: clientLoading, error: clientError } = usePolkadotClient();
   const assetsQuery = useHubAssets();
   const assets = assetsQuery.data ?? EMPTY_ASSETS;
   const assetBalancesQuery = useHubAssetBalances(walletAddress);
   const assetBalances = assetBalancesQuery.balances;
+  const writeUnavailableReason = clientLoading
+    ? "Waiting for the active network runtime."
+    : clientError || !client
+      ? "ReviveSafe cannot submit contract actions until the network connection recovers."
+      : undefined;
 
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<ProposalMode>("native");
@@ -267,15 +274,22 @@ export default function NewTransactionForm({
             {error || wallet.error}
           </div>
         )}
+        {writeUnavailableReason && (
+          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            {writeUnavailableReason}
+          </div>
+        )}
 
         <div className="flex gap-2">
           <Button
             className="flex-1 rounded-full"
-            disabled={wallet.isSubmitting || assetModeBlocked}
+            disabled={wallet.isSubmitting || assetModeBlocked || !!writeUnavailableReason}
             onClick={() => void submit()}
           >
             {wallet.isSubmitting
               ? "Submitting..."
+              : writeUnavailableReason
+                ? "Network connection required"
               : assetModeBlocked
                 ? "Asset metadata required"
                 : "Submit for approval"}

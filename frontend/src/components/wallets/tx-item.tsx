@@ -3,6 +3,7 @@ import { CheckCircle, Clock, Coins, Sparkles } from "lucide-react";
 import { formatUnits, type Address, type Hex } from "viem";
 
 import { Button } from "@/components/ui/button";
+import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import { decodeAssetTransferCall, findHubAssetById } from "@/lib/precompiles";
 import { formatAddress } from "@/lib/utils";
 import type { ChainTokenInfo, HubAsset } from "@/types/revive";
@@ -32,9 +33,15 @@ export default function TransactionItem({
   onConfirm,
   onExecute,
 }: TransactionItemProps) {
+  const { client, loading: clientLoading, error: clientError } = usePolkadotClient();
   const [isConfirming, setIsConfirming] = useState(false);
   const [isExecuting, setIsExecuting] = useState(false);
   const [actionError, setActionError] = useState<string>();
+  const writeUnavailableReason = clientLoading
+    ? "Waiting for the active network runtime."
+    : clientError || !client
+      ? "ReviveSafe cannot submit approvals or execution until the network connection recovers."
+      : undefined;
 
   const decodedAssetTransfer = useMemo(() => {
     const decoded = decodeAssetTransferCall(tx.destination, tx.data);
@@ -127,6 +134,11 @@ export default function TransactionItem({
               {actionError}
             </div>
           )}
+          {writeUnavailableReason && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              {writeUnavailableReason}
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-2">
             {tx.canConfirm && (
@@ -134,7 +146,7 @@ export default function TransactionItem({
                 variant="outline"
                 size="sm"
                 className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
-                disabled={isConfirming}
+                disabled={isConfirming || !!writeUnavailableReason}
                 onClick={async () => {
                   setActionError(undefined);
                   setIsConfirming(true);
@@ -159,7 +171,7 @@ export default function TransactionItem({
               <Button
                 size="sm"
                 className="rounded-full"
-                disabled={isExecuting}
+                disabled={isExecuting || !!writeUnavailableReason}
                 onClick={async () => {
                   setActionError(undefined);
                   setIsExecuting(true);

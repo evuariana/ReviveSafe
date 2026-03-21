@@ -3,16 +3,19 @@ import { Link, useNavigate } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
 import { isAddress, type Address } from "viem";
 
+import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
 import { AmountInput } from "@/components/inputs/amount-input";
 import { MappedAccountInput } from "@/components/inputs/mapped-account-input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useMappedAccount } from "@/hooks/useMappedAccount";
+import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import { useReviveFactory } from "@/hooks/useReviveFactory";
 
 export default function Create() {
   const navigate = useNavigate();
   const { mappedAccount } = useMappedAccount();
+  const { client, loading: clientLoading, error: clientError } = usePolkadotClient();
   const { createMultisig, isCreating, createSuccess, isFactoryAvailable, error } =
     useReviveFactory();
 
@@ -36,6 +39,10 @@ export default function Create() {
     () => owners.filter((owner): owner is Address => !!owner && isAddress(owner)),
     [owners]
   );
+  const uniqueOwnerCount = useMemo(
+    () => new Set(validOwners.map((owner) => owner.toLowerCase())).size,
+    [validOwners]
+  );
 
   const requiredNumber = Number(required || 0);
 
@@ -50,8 +57,20 @@ export default function Create() {
       return;
     }
 
+    if (uniqueOwnerCount !== validOwners.length) {
+      setSubmitError("Each owner must be unique.");
+      return;
+    }
+
     if (!requiredNumber || requiredNumber > validOwners.length) {
       setSubmitError("Threshold must be between 1 and the owner count.");
+      return;
+    }
+
+    if (clientLoading || !client || clientError) {
+      setSubmitError(
+        "The active network is not ready for contract writes yet. Reconnect and try again."
+      );
       return;
     }
 
@@ -77,13 +96,15 @@ export default function Create() {
           Create wallet
         </div>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-          Set up a new shared wallet
+          Set up a programmable shared wallet
         </h1>
         <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-          Add the people or contract addresses that should control this wallet,
-          then choose how many approvals every action needs before execution.
+          Create a new contract wallet for your team, choose who can approve
+          actions, and set the threshold required before execution.
         </p>
       </div>
+
+      <PublicBetaNotice compact />
 
       {!isFactoryAvailable && (
         <Card className="rounded-[24px] border-amber-200 bg-amber-50 shadow-none">
@@ -109,7 +130,8 @@ export default function Create() {
           {mappedAccount?.mappedH160 && (
             <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
               Your connected account is added as the first owner by default
-              using its contract address.
+              using its mapped H160. You can paste either mapped H160 addresses
+              or regular SS58 addresses for the other owners.
             </div>
           )}
 
@@ -190,14 +212,26 @@ export default function Create() {
           {submitError || error}
         </div>
       )}
+      {clientError && (
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+          Contract writes are unavailable until ReviveSafe reconnects to the
+          active network runtime.
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-3">
         <Button
           className="rounded-full px-5"
-          disabled={isCreating}
+          disabled={isCreating || clientLoading || !client || !!clientError}
           onClick={() => void submit()}
         >
-          {isCreating ? "Creating..." : "Create shared wallet"}
+          {isCreating
+            ? "Creating..."
+            : clientLoading
+              ? "Waiting for network..."
+              : clientError || !client
+                ? "Network connection required"
+                : "Create shared wallet"}
         </Button>
         <Link to="/wallets">
           <Button

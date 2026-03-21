@@ -3,10 +3,12 @@ import { Copy, Loader2, Waypoints } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useMappedAccount } from "@/hooks/useMappedAccount";
+import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 
 export function MappingGate({ children }: { children: ReactNode }) {
   const { mappedAccount, isLoading, isMapping, mapAccount, mappingError } =
     useMappedAccount();
+  const { client, error: clientError, loading: clientLoading } = usePolkadotClient();
 
   if (!mappedAccount) {
     return <>{children}</>;
@@ -83,13 +85,17 @@ export function MappingGate({ children }: { children: ReactNode }) {
           <Button
             className="mt-5 h-11 rounded-full bg-zinc-950 px-5 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
             onClick={() => void mapAccount()}
-            disabled={isMapping}
+            disabled={isMapping || clientLoading || !client || !!clientError}
           >
             {isMapping ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Activating wallet...
               </>
+            ) : clientLoading ? (
+              "Waiting for network..."
+            ) : clientError || !client ? (
+              "Network connection required"
             ) : (
               "Activate wallet"
             )}
@@ -99,6 +105,12 @@ export function MappingGate({ children }: { children: ReactNode }) {
             No funds move here. This only prepares the on-chain identity
             ReviveSafe uses for shared wallet actions.
           </p>
+          {clientError && (
+            <p className="mt-3 text-xs leading-6 text-amber-700 dark:text-amber-300">
+              ReviveSafe cannot reach the active runtime right now. Reconnect to
+              the selected network and try again.
+            </p>
+          )}
         </div>
       </div>
 
@@ -154,9 +166,9 @@ export function MappingGate({ children }: { children: ReactNode }) {
         </div>
       </div>
 
-      {mappingError && (
+      {(mappingError || clientError) && (
         <div className="rounded-[24px] border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-200">
-          {mappingError}
+          {mappingError || clientError}
         </div>
       )}
     </div>

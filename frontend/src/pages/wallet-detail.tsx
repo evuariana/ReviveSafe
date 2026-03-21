@@ -17,7 +17,7 @@ import { formatTokenBalance } from "@/lib/currency";
 
 export default function WalletDetail() {
   const { address } = useParams<{ address: string }>();
-  const { chain } = usePolkadotClient();
+  const { chain, error: clientError, loading: clientLoading } = usePolkadotClient();
   const token = useChainToken();
   const { mappedAccount } = useMappedAccount();
   const walletAddress = isAddress(address ?? "") ? (address as Address) : undefined;
@@ -67,7 +67,7 @@ export default function WalletDetail() {
               Wallet detail
             </div>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-              Wallet overview
+              Programmable wallet overview
             </h1>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
               <span className="font-mono">{walletAddress}</span>
@@ -113,7 +113,9 @@ export default function WalletDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
-              {wallet.balance === undefined
+              {clientError && !clientLoading
+                ? "Unavailable"
+                : wallet.balance === undefined
                 ? "Loading..."
                 : `${formatTokenBalance(wallet.balance, token.decimals)} ${token.symbol}`}
             </div>
@@ -154,7 +156,9 @@ export default function WalletDetail() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-semibold text-zinc-950 dark:text-white">
-              {assetBalancesQuery.isLoading || assetsQuery.isLoading
+              {clientError && !clientLoading
+                ? "Unavailable"
+                : assetBalancesQuery.isLoading || assetsQuery.isLoading
                 ? "Loading..."
                 : visibleAssetBalances.length}
             </div>
@@ -177,7 +181,12 @@ export default function WalletDetail() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {assetBalancesQuery.error || assetsQuery.error ? (
+            {clientError && !clientLoading ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+                Asset balances are unavailable until ReviveSafe reconnects to
+                the active runtime.
+              </div>
+            ) : assetBalancesQuery.error || assetsQuery.error ? (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
                 Failed to load wallet asset balances from the active network.
               </div>

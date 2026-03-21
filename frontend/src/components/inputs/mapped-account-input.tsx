@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useConnectedAccounts } from "@/hooks/useMappedAccount";
+import { deriveMappingStatus } from "@/lib/account-mapping";
 
 const STORAGE_KEY = "revivesafe.recentMappedAddresses";
 
@@ -28,6 +29,24 @@ function readRecentAddresses(): Address[] {
 function persistRecentAddress(address: Address) {
   const next = Array.from(new Set([address, ...readRecentAddresses()])).slice(0, 6);
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+}
+
+function normalizeMappedInput(value: string): Address | undefined {
+  const normalizedValue = value.trim();
+
+  if (!normalizedValue) {
+    return undefined;
+  }
+
+  if (isAddress(normalizedValue)) {
+    return getAddress(normalizedValue);
+  }
+
+  try {
+    return deriveMappingStatus(normalizedValue).mappedH160;
+  } catch {
+    return undefined;
+  }
 }
 
 interface MappedAccountInputProps {
@@ -70,16 +89,21 @@ export function MappedAccountInput({
       })),
     [accounts]
   );
+  const normalizedInputValue = useMemo(
+    () => normalizeMappedInput(inputValue),
+    [inputValue]
+  );
 
   const commitValue = (nextValue: string) => {
     setInputValue(nextValue);
 
-    if (!isAddress(nextValue)) {
+    const normalized = normalizeMappedInput(nextValue);
+
+    if (!normalized) {
       onChange(undefined);
       return;
     }
 
-    const normalized = getAddress(nextValue);
     persistRecentAddress(normalized);
     setRecentAddresses(readRecentAddresses());
     onChange(normalized);
@@ -97,6 +121,17 @@ export function MappedAccountInput({
       />
 
       {description && <p className="text-xs text-slate-500">{description}</p>}
+      <p className="text-xs text-slate-500">
+        Paste either a mapped H160 or a Polkadot SS58 address. ReviveSafe will
+        use the mapped H160 on-chain.
+      </p>
+      {normalizedInputValue &&
+        inputValue.trim() &&
+        normalizedInputValue.toLowerCase() !== inputValue.trim().toLowerCase() && (
+          <p className="text-xs text-emerald-700 dark:text-emerald-300">
+            Resolved to {normalizedInputValue}
+          </p>
+        )}
 
       {accountOptions.length > 0 && (
         <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
