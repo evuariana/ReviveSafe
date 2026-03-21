@@ -18,12 +18,12 @@ export function WalletTypesSection() {
     <section id="wallet-types" className="scroll-mt-28 mx-auto mb-40 max-w-7xl px-6">
       <div className="mb-16">
         <h2 className="text-3xl font-display font-medium tracking-tight text-zinc-950 md:text-5xl dark:text-zinc-100">
-          Choose the wallet type that fits your team.
+          What the current beta supports.
         </h2>
         <p className="mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
-          Start with the wallet type that fits your team today. Stay native when
-          simple shared control is enough, or choose programmable when you need
-          richer wallet behavior.
+          ReviveSafe is being built toward native and programmable wallet rails,
+          but the live beta today supports programmable contract wallets. Native
+          shared-wallet flows are planned, not launched.
         </p>
       </div>
 
@@ -63,12 +63,12 @@ export function WalletTypesSection() {
               Native wallets.
             </h3>
             <p className="mb-6 mt-2 text-xl font-light text-zinc-500 dark:text-zinc-400">
-              The simplest wallet type.
+              Planned, not live yet.
             </p>
             <p className="font-light leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Choose Native when your team wants the fastest path to reliable
-              shared control. It is a strong long-term option for teams that
-              need clear shared approvals without added setup complexity.
+              Native shared control remains part of the product direction, but
+              this beta does not yet include native wallet creation, import, or
+              guided native-to-programmable upgrades.
             </p>
           </div>
 
@@ -79,11 +79,11 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  Lower setup complexity
+                  Planned lower setup complexity
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  A straightforward way to create or import shared wallets on
-                  Polkadot.
+                  A future native path for teams that want simpler shared
+                  control without contract deployment.
                 </p>
               </div>
             </div>
@@ -94,11 +94,11 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  First-class import
+                  Planned native import
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  Bring existing multisig and proxy wallets into one workspace
-                  instead of starting over.
+                  Existing multisig and proxy import are product goals, not live
+                  beta flows today.
                 </p>
               </div>
             </div>
@@ -109,11 +109,11 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  Native shared control
+                  Planned native shared control
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  Use familiar Polkadot account-control patterns without making
-                  the wallet feel like a developer tool.
+                  The long-term goal is familiar Polkadot account-control
+                  patterns without making the wallet feel like a developer tool.
                 </p>
               </div>
             </div>
@@ -157,12 +157,12 @@ export function WalletTypesSection() {
               Programmable wallets.
             </h3>
             <p className="mb-6 mt-2 text-xl font-light text-zinc-500 dark:text-zinc-400">
-              The extensible wallet type.
+              Live in the current beta.
             </p>
             <p className="font-light leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Choose Programmable when your team needs richer rules, delegation,
-              batching, automation, or more advanced wallet actions inside the
-              same product.
+              The beta supports programmable contract wallets for shared
+              approvals, native transfers, Asset Hub asset transfers, and clear
+              execution status on Asset Hub.
             </p>
           </div>
 
@@ -173,11 +173,11 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  Richer rules and modules
+                  Proposal lifecycle you can follow
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  Add behavior through modules and use more expressive approval
-                  rules when simple thresholds are no longer enough.
+                  Submit, approve, reach ready-to-execute, and execute through
+                  one contract-backed proposal flow.
                 </p>
               </div>
             </div>
@@ -188,11 +188,11 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  Batch and advanced actions
+                  Asset Hub token support
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  Handle more complex wallet behavior without breaking the shared
-                  proposal model.
+                  Move native balances and supported Asset Hub assets through the
+                  current programmable wallet flow.
                 </p>
               </div>
             </div>
@@ -203,11 +203,12 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  Delegation and automation
+                  Operator-managed setup
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  Unlock richer team workflows when the wallet needs more than
-                  standard shared approvals.
+                  Factory deployment and advanced contract tooling exist today,
+                  but they should be treated as setup workflows rather than the
+                  core end-user story.
                 </p>
               </div>
             </div>

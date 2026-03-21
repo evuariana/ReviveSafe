@@ -189,19 +189,20 @@ export function FeatureBlocks() {
           <div className="relative z-10">
             <Download className="mb-6 h-6 w-6 text-zinc-600 dark:text-zinc-300" strokeWidth={1.5} />
             <h3 className="text-2xl font-display font-medium text-zinc-900 dark:text-zinc-100">
-              First-class import
+              Existing contract wallets
             </h3>
             <p className="mb-6 mt-3 max-w-md font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Bring existing Polkadot multisig and proxy wallets into your
-              workspace. Verified members can start using them right away, with
-              recovered details clearly labeled.
+              Add an already deployed compatible contract wallet to your
+              workspace and keep proposal review, approvals, and execution in
+              one place. Native multisig and proxy import are not live in this
+              beta.
             </p>
             <button
               type="button"
               onClick={handleImport}
               className="inline-flex items-center gap-2 text-sm font-medium text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
             >
-              See import flow
+              See add-wallet flow
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -257,14 +258,14 @@ export function FeatureBlocks() {
           <div className="relative z-10">
             <ArrowUpRight className="mb-6 h-6 w-6 text-zinc-600 dark:text-zinc-300" strokeWidth={1.5} />
             <h3 className="text-2xl font-display font-medium text-zinc-900 dark:text-zinc-100">
-              Upgrade to programmable
+              What comes after the beta
             </h3>
             <p className="mb-6 mt-3 max-w-md font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-              When your team needs richer rules, delegation, batching, or
-              automation, create a programmable successor wallet and follow
-              guided migration steps.
+              Native shared-wallet support, richer rules, delegation, batching,
+              and guided upgrade flows are part of the ReviveSafe roadmap. The
+              live beta today is focused on programmable contract wallets.
             </p>
-            <InlineAnchorLink href="#wallet-types">Learn about upgrades</InlineAnchorLink>
+            <InlineAnchorLink href="#wallet-types">See beta scope</InlineAnchorLink>
           </div>
 
           <div className="relative z-10 mt-auto flex h-full items-center justify-center pt-8">

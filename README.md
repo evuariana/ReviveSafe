@@ -1,14 +1,32 @@
 # ReviveSafe
 
-ReviveSafe is a rebuilt PVM-track multisig for Polkadot Asset Hub. It keeps the
-core Solidity multisig flow, but now routes the app through a Dedot and
-LunoKit-first runtime model:
+ReviveSafe is a programmable shared-wallet beta for Polkadot Asset Hub. It
+keeps the core Solidity multisig flow, but now routes the app through a Dedot
+and LunoKit-first runtime model:
 
 - Solidity contracts compile to PolkaVM bytecode with `resolc`
 - The frontend signs through `pallet_revive` extrinsics, not wagmi/RainbowKit
 - The multisig can submit `pallet-assets` transfers through deterministic ERC-20 precompile addresses
 - The app uses Dedot for chain context, mapping status, runtime metadata, and revive writes
 - ETH RPC stays in place as a read-only adapter for contract state, calldata, and precompile balances
+
+## Current Beta Scope
+
+The truthful product scope in this repo today is:
+
+- programmable contract wallet creation through the factory flow
+- adding existing compatible contract wallets to the workspace
+- proposal submission, approval, ready-to-execute state, and execution
+- native token transfers and Asset Hub asset transfers through deterministic precompiles
+- dashboard queueing for approvals, execution, and recent wallet activity
+
+Not live yet in the current public beta:
+
+- native multisig or proxy wallet creation
+- native wallet import
+- native-to-programmable upgrade flows
+- top-level Inbox, Activity, or Proposals product surfaces
+- wallet rules, modules, policies, or settings as first-class end-user flows
 
 ## What Changed
 
@@ -110,19 +128,13 @@ pnpm deploy-contracts
 
 Optional deploy args can be passed through `CONSTRUCTOR_ARGS` as a JSON array.
 
-## Why This Fits The Hackathon
-
-- It is clearly a Track 2 PVM submission, not an EVM copy-paste
-- Precompile usage is now a core workflow, not a README claim
-- The app surfaces mapping, revive writes, deploy flows, and precompile proposals in the demo path
-- Dedot integration gives us runtime-aware metadata instead of stale hardcoded assumptions
-- The connect button, chain selector, and input patterns now align with RelayCode instead of the old wallet stack
-
 ## Notes
 
 - Contract writes now go through Revive extrinsics signed by LunoKit wallets.
 - Read-only contract hydration still uses the ETH RPC path by design.
-- The deploy console can compile bundled or pasted Solidity, but the browser `resolc` chunk is large; this is expected for the hackathon operator workflow.
+- The deploy console can compile bundled or pasted Solidity, but the browser `resolc` chunk is large; treat it as an operator setup tool, not a primary end-user workflow.
+- The current beta supports Talisman, SubWallet, and Polkadot.js through LunoKit.
+- The safest default network for beta testing is Paseo Asset Hub unless your factory and balances are already verified on Polkadot Asset Hub.
 
 ## Writing
 
