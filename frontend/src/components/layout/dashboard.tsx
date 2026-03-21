@@ -11,6 +11,7 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { ReviveSafeBrand } from "@/components/brand/revivesafe-brand";
 import { MappingGate } from "@/components/wallet/mapping-gate";
 import { Button } from "@/components/ui/button";
 import { ChainSelector } from "@/components/wallet/chain-selector";
@@ -45,12 +46,11 @@ export default function DashboardLayout() {
         <div className="grid gap-6 lg:grid-cols-[280px_minmax(0,1fr)]">
           <aside className="rounded-[30px] border border-zinc-200 bg-white/88 p-5 shadow-[0_18px_80px_rgba(15,23,42,0.08)] backdrop-blur lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)] dark:border-white/10 dark:bg-[#0b0b0b]/88 dark:shadow-[0_0_60px_rgba(255,255,255,0.04)]">
             <div className="flex items-center gap-3 border-b border-zinc-200 pb-5 dark:border-white/8">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white text-black shadow-sm dark:border-white/10 dark:bg-white dark:shadow-[0_0_24px_rgba(255,255,255,0.08)]">
-                <Shield className="h-5 w-5" />
-              </div>
-              <div className="text-lg font-semibold text-zinc-950 dark:text-white">
-                ReviveSafe
-              </div>
+              <ReviveSafeBrand
+                className="gap-3"
+                logoClassName="h-9 w-auto"
+                labelClassName="text-lg font-semibold"
+              />
             </div>
 
             <nav className="mt-6 space-y-2">

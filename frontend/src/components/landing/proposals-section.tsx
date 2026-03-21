@@ -1,4 +1,11 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import {
+  motion,
+  useReducedMotion,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from "framer-motion";
 import { ArrowRight, ArrowRightLeft, Settings, Users } from "lucide-react";
 
 const features = [
@@ -28,6 +35,9 @@ const features = [
 type Feature = (typeof features)[number];
 
 const DESKTOP_STAGE_HEIGHT = "min(520px, calc(100vh - 180px))";
+const DESKTOP_CARD_SHELL_HEIGHT = "calc(100vh - 4rem)";
+const CARD_STACK_OFFSET = 26;
+const CARD_SCALE_STEP = 0.04;
 
 function ProposalTextStage({ feature }: { feature: Feature }) {
   return (
@@ -230,7 +240,7 @@ function ProposalStageCard({
 }) {
   return (
     <div
-      className="overflow-hidden rounded-[32px] border border-black/5 bg-white/88 p-6 shadow-[0_18px_80px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-[#0a0a0a]/88 dark:shadow-[0_0_60px_rgba(255,255,255,0.04)] lg:p-8 xl:p-10"
+      className="overflow-hidden rounded-[32px] border border-black/5 bg-white p-6 shadow-[0_18px_80px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_60px_rgba(255,255,255,0.04)] lg:p-8 xl:p-10"
       style={{ height: DESKTOP_STAGE_HEIGHT }}
     >
       <div className="grid h-full grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] items-center gap-8 xl:gap-10">
@@ -245,6 +255,65 @@ function ProposalStageCard({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function DesktopProposalCard({
+  feature,
+  index,
+  total,
+  progress,
+  prefersReducedMotion,
+}: {
+  feature: Feature;
+  index: number;
+  total: number;
+  progress: MotionValue<number>;
+  prefersReducedMotion: boolean;
+}) {
+  const targetScale = 1 - (total - index - 1) * CARD_SCALE_STEP;
+  const rangeStart = index * 0.25;
+  const scale = useTransform(progress, [rangeStart, 1], [1, targetScale]);
+
+  return (
+    <div
+      className="sticky top-28 flex items-start justify-center"
+      style={{ height: DESKTOP_CARD_SHELL_HEIGHT }}
+    >
+      <motion.div
+        className="relative origin-top will-change-transform"
+        style={{
+          top: `${index * CARD_STACK_OFFSET}px`,
+          scale: prefersReducedMotion ? 1 : scale,
+        }}
+      >
+        <ProposalStageCard feature={feature} />
+      </motion.div>
+    </div>
+  );
+}
+
+function DesktopProposalStack() {
+  const ref = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion() === true;
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end end"],
+  });
+
+  return (
+    <div ref={ref} className="relative">
+      {features.map((feature, index) => (
+        <DesktopProposalCard
+          key={feature.id}
+          feature={feature}
+          index={index}
+          total={features.length}
+          progress={scrollYProgress}
+          prefersReducedMotion={prefersReducedMotion}
+        />
+      ))}
     </div>
   );
 }
@@ -287,11 +356,7 @@ export function ProposalsSection() {
         </div>
 
         <div className="hidden md:block">
-          <div className="space-y-8">
-            {features.map((feature) => (
-              <ProposalStageCard key={feature.id} feature={feature} />
-            ))}
-          </div>
+          <DesktopProposalStack />
         </div>
       </div>
     </section>

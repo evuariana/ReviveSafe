@@ -3,8 +3,17 @@ import { useAccount } from "@luno-kit/react";
 import { useAccountModal, useConnectModal } from "@luno-kit/ui";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
-export function ConnectButton() {
+interface ConnectButtonProps {
+  className?: string;
+  iconSectionClassName?: string;
+}
+
+export function ConnectButton({
+  className,
+  iconSectionClassName,
+}: ConnectButtonProps = {}) {
   const { open: openConnectModal } = useConnectModal();
   const { open: openAccountModal } = useAccountModal();
   const { account } = useAccount();
@@ -29,12 +38,20 @@ export function ConnectButton() {
       <Button
         type="button"
         variant="outline"
-        className="relative h-11 overflow-hidden rounded-full border border-zinc-200 bg-white p-0 text-zinc-900 hover:bg-zinc-50 hover:text-zinc-900 dark:border-white/10 dark:bg-[#070707] dark:text-white dark:hover:bg-[#111111] dark:hover:text-white"
+        className={cn(
+          "relative h-11 overflow-hidden rounded-full border border-zinc-200 bg-white p-0 text-zinc-900 hover:bg-zinc-50 hover:text-zinc-900 dark:border-white/10 dark:bg-[#070707] dark:text-white dark:hover:bg-[#111111] dark:hover:text-white",
+          className,
+        )}
         onClick={handleClick}
         disabled={!canOpenModal}
       >
         <span className="flex items-center gap-0">
-          <span className="flex h-11 items-center justify-center border-r border-zinc-200 px-3 dark:border-white/10">
+          <span
+            className={cn(
+              "flex h-11 items-center justify-center border-r border-zinc-200 px-3 dark:border-white/10",
+              iconSectionClassName,
+            )}
+          >
             <Wallet className="h-4 w-4" />
           </span>
           <span className="px-4 text-sm">{displayAddress}</span>
