@@ -25,7 +25,7 @@ export function LandingCtaButtons() {
         className={getButtonClasses("secondary")}
         onClick={handleImport}
       >
-        Import existing wallet
+        Add contract wallet
       </Button>
     </div>
   );

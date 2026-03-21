@@ -61,9 +61,9 @@ export function FeatureBlocks() {
           Engineered for Asset Hub.
         </h2>
         <p className="mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
-          Manage shared assets, approvals, and advanced wallet actions in one
-          place, starting simple and growing into richer control when your team
-          needs it.
+          Manage shared assets, approvals, and contract wallet actions in one
+          place, with the live beta focused on programmable wallets that already
+          work end to end.
         </p>
       </div>
 

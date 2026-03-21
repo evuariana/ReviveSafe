@@ -42,11 +42,11 @@ export function BottomSections() {
               </motion.div>
             </div>
             <h4 className="mb-3 text-xl font-display font-medium text-zinc-900 dark:text-zinc-100">
-              1. Create or import
+              1. Create or add
             </h4>
             <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Start with a new shared wallet or bring an existing native wallet
-              into your workspace.
+              Start with a new programmable contract wallet or add a compatible
+              contract wallet your team already owns.
             </p>
           </motion.div>
 
@@ -125,22 +125,22 @@ export function BottomSections() {
             </h2>
             <p className="mb-8 mt-6 text-lg font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
               ReviveSafe gives teams one approval and operations layer across
-              shared wallet activity. Native remains a strong default, and
-              programmable becomes useful only when the team needs richer
-              control.
+              programmable contract-wallet activity on Asset Hub. The current
+              beta focuses on the flows that are already live: create, add,
+              approve, and execute.
             </p>
             <ul className="space-y-4 text-zinc-600 dark:text-zinc-300">
               <li className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-zinc-400" />
-                Non-custodial shared wallet model
+                Non-custodial contract wallet model
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-zinc-400" />
-                Native wallets stay native
+                Add compatible contract wallets to one workspace
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-zinc-400" />
-                Imported wallets remain usable, with clear recovery status
+                Explicit submit, approve, ready, execute lifecycle
               </li>
             </ul>
           </div>
@@ -152,14 +152,14 @@ export function BottomSections() {
                 <h4 className="text-lg font-medium text-zinc-900 dark:text-zinc-100">
                   Honest control model
                 </h4>
-                <p className="text-sm text-zinc-500">Simple when native is enough.</p>
+                <p className="text-sm text-zinc-500">Truthful scope before broad claims.</p>
               </div>
             </div>
             <p className="text-sm font-light leading-relaxed text-zinc-600 dark:text-zinc-400">
-              ReviveSafe stays explicit about what each wallet type enforces.
-              Native is the simplest path to shared control. Programmable adds
-              richer rules, delegation, batching, and automation when the team
-              actually needs them.
+              ReviveSafe stays explicit about what this beta does today. The
+              live flows are programmable contract wallets with owner approvals
+              and execution on Asset Hub. Native wallet rails remain roadmap
+              work, not shipped beta behavior.
             </p>
           </div>
         </div>
@@ -176,7 +176,8 @@ export function BottomSections() {
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
               ReviveSafe should feel clear, serious, and understandable from the
-              first screen to the final approval.
+              first screen to the final approval, especially while the beta
+              scope stays narrow.
             </p>
           </div>
 
@@ -184,18 +185,18 @@ export function BottomSections() {
             {[
               {
                 icon: Blocks,
-                title: "Built on native patterns",
-                body: "Native wallets use familiar Polkadot control patterns while still living inside one team workspace.",
+                title: "Compatible wallets only",
+                body: "The add-wallet flow is limited to compatible ReviveSafe contract wallets and checks owner access before registration.",
               },
               {
                 icon: Shield,
-                title: "Open-source product",
-                body: "Use proof rooted in real product behavior and open code, not vague claims or generic Web3 trust badges.",
+                title: "Open-source beta",
+                body: "Use proof rooted in real product behavior and open code. No audit is linked in this repo today, so treat the contracts as unaudited.",
               },
               {
                 icon: Layers,
-                title: "Clear wallet lifecycle",
-                body: "Imported wallets, current wallets, and successor wallets should always stay legible as the team evolves.",
+                title: "Explicit lifecycle",
+                body: "The live proposal flow is submit, approve, ready, and execute. That lifecycle should stay legible across the app and release docs.",
               },
             ].map(({ icon: Icon, title, body }, index) => (
               <motion.div
@@ -225,8 +226,8 @@ export function BottomSections() {
           Ready to bring your team into one shared wallet workspace?
         </h2>
         <p className="mb-12 mt-8 text-xl font-light text-zinc-500 dark:text-zinc-400">
-          Create a new shared wallet or import an existing one, then keep
-          approvals, wallet operations, and visibility in one place.
+          Create a new programmable wallet or add a compatible contract wallet,
+          then keep approvals, wallet operations, and visibility in one place.
         </p>
         <div className="flex justify-center">
           <LandingCtaButtons />

@@ -26,11 +26,11 @@ export function WorkspaceSection() {
     <section className="mx-auto mb-40 max-w-7xl px-6">
       <div className="mb-16">
         <h2 className="text-3xl font-display font-medium tracking-tight text-zinc-950 md:text-5xl dark:text-zinc-100">
-          One workspace for every shared wallet.
+          One workspace for every contract wallet your team runs.
         </h2>
         <p className="mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
-          See what needs action, which wallets matter, and what changed recently
-          without switching between disconnected tools.
+          See what needs action, which programmable wallets matter, and what
+          changed recently without switching between disconnected tools.
         </p>
       </div>
 
@@ -50,7 +50,7 @@ export function WorkspaceSection() {
             Unified dashboard
           </h3>
           <p className="mb-10 mt-3 max-w-md font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-            View native and programmable wallets in one place, with queues,
+            View programmable contract wallets in one place, with queues,
             proposals, and wallet context kept together.
           </p>
           <div className="mt-auto flex h-40 gap-4 rounded-xl border border-black/5 bg-zinc-50 p-4 dark:border-white/5 dark:bg-[#111]">
@@ -105,8 +105,8 @@ export function WorkspaceSection() {
             Team context
           </h3>
           <p className="mb-8 mt-3 font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Keep members, delegates, and connected participants visible across
-            the wallets your team operates together.
+            Keep owners, approval thresholds, and connected participants
+            visible across the contract wallets your team operates together.
           </p>
           <div className="mt-auto flex -space-x-2">
             {[1, 2, 3, 4].map((item) => (
@@ -127,26 +127,26 @@ export function WorkspaceSection() {
           <div className="flex-1">
             <ShieldAlert className="mb-6 h-6 w-6 text-zinc-600 dark:text-zinc-300" strokeWidth={1.5} />
             <h3 className="text-2xl font-display font-medium text-zinc-900 dark:text-zinc-100">
-              Rules and control
+              Execution clarity
             </h3>
             <p className="mt-3 font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Keep approval thresholds, stricter rules, and execution context
-              understandable instead of buried in raw transaction details.
+              Keep approval thresholds and ready-to-execute state easy to
+              understand instead of buried in raw transaction details.
             </p>
           </div>
 
           <div className="h-32 w-full rounded-xl border border-black/5 bg-zinc-50 p-4 dark:border-white/5 dark:bg-[#111] md:w-64">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-zinc-500">Approval rule</span>
+              <span className="text-xs font-medium text-zinc-500">Current threshold</span>
               <span className="rounded border border-black/5 bg-white px-2 py-1 text-sm font-mono dark:border-white/5 dark:bg-[#1a1a1a]">
-                3 / 5
+                2 / 3
               </span>
             </div>
             <div className="my-4 h-px bg-black/5 dark:bg-white/5" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-zinc-500">Stricter rule</span>
+              <span className="text-xs font-medium text-zinc-500">Execution status</span>
               <span className="rounded border border-black/5 bg-white px-2 py-1 text-sm font-mono dark:border-white/5 dark:bg-[#1a1a1a]">
-                XCM 4 / 5
+                Ready
               </span>
             </div>
           </div>

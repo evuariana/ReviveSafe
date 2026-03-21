@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/landing/hero-section";
 import { ProposalsSection } from "@/components/landing/proposals-section";
 import { WalletTypesSection } from "@/components/landing/wallet-types-section";
 import { WorkspaceSection } from "@/components/landing/workspace-section";
+import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
 
 export default function Landing() {
   return (
@@ -14,6 +15,9 @@ export default function Landing() {
 
       <div className="relative">
         <HeroSection />
+        <div className="mx-auto mb-24 max-w-5xl px-6">
+          <PublicBetaNotice compact />
+        </div>
         <WorkspaceSection />
         <WalletTypesSection />
         <FeatureBlocks />

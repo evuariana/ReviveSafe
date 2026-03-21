@@ -134,7 +134,7 @@ export default function RegisterMultisig() {
       setSubmitError(
         registerError instanceof Error
           ? registerError.message
-          : "Failed to register multisig"
+          : "Failed to add contract wallet"
       );
     }
   };
@@ -151,7 +151,7 @@ export default function RegisterMultisig() {
         <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-400">
           Register an already deployed contract wallet so your team can review
           balances, approvals, and proposal history from the same app. Native
-          wallet import is not part of the current public beta yet.
+          wallet import is not part of the current beta yet.
         </p>
       </div>
 

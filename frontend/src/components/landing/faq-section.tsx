@@ -11,12 +11,12 @@ const faqs = [
   {
     question: "Do I need a Programmable Wallet?",
     answer:
-      "No. Native is the simplest wallet type and a credible long-term option when standard shared approvals are enough. Move to Programmable when your team needs richer rules, delegation, batching, automation, or more advanced wallet behavior.",
+      "For the live beta, yes. The shipped flow today is programmable contract wallets on Asset Hub. Native wallet support remains part of the product direction, but it is not implemented end to end yet.",
   },
   {
     question: "Can I import the wallets my team already uses?",
     answer:
-      "Yes. Existing native multisig and proxy wallets can be imported through a verified member flow, so your team can bring current wallets into one workspace instead of starting from scratch.",
+      "You can add compatible ReviveSafe contract wallets today. Native multisig and proxy import are not live in the current beta yet.",
   },
   {
     question: "What happens if some wallet history cannot be recovered?",
@@ -26,7 +26,12 @@ const faqs = [
   {
     question: "Is this a new chain or a separate wallet system?",
     answer:
-      "No. ReviveSafe is a shared wallet product for Polkadot teams. Native wallets use existing Polkadot account-control patterns, and Programmable wallets add more extensible wallet behavior inside the same product.",
+      "No. ReviveSafe uses Asset Hub networks and connected Polkadot wallets. The current beta adds a programmable contract-wallet layer for approvals and execution; it is not a separate chain.",
+  },
+  {
+    question: "Is this production-ready custody software?",
+    answer:
+      "No. ReviveSafe is still a beta. No contract audit is linked in this repo today, so treat the contracts as unaudited, verify the selected network and factory, and use beta-appropriate funds only.",
   },
 ];
 
