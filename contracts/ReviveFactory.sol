@@ -52,15 +52,7 @@ contract MultiSigFactory {
     /// @param multisig The address of the multisig to register.
     function registerExistingMultisig(address multisig) external {
         require(multisig != address(0), "Invalid multisig address");
-        // Optionally, check that the address is a contract and supports isOwner(address).
-        // Try to call isOwner(address(this)) to verify.
-        bool success = false;
-        try MultiSigWallet(payable(multisig)).isOwner(address(this)) returns (bool) {
-            success = true;
-        } catch {
-            success = false;
-        }
-        require(success, "Not a valid MultiSigWallet");
+        require(_hasCompatibleWalletSurface(multisig), "Not a valid MultiSigWallet");
         _registerMultisig(multisig);
         emit MultiSigRegistered(msg.sender, multisig);
     }
@@ -83,9 +75,7 @@ contract MultiSigFactory {
         // First pass: count how many match so we can allocate the result array
         uint256 count = 0;
         for (uint256 i = 0; i < total; i++) {
-            // Interface‐call to the deployed MultiSigWallet
-            MultiSigWallet candidate = MultiSigWallet(payable(allMultiSigs[i]));
-            if (candidate.isOwner(owner)) {
+            if (_isOwnerSafe(allMultiSigs[i], owner)) {
                 count++;
             }
         }
@@ -94,13 +84,102 @@ contract MultiSigFactory {
         myMultisigs = new address[](count);
         uint256 idx = 0;
         for (uint256 i = 0; i < total; i++) {
-            MultiSigWallet candidate = MultiSigWallet(payable(allMultiSigs[i]));
-            if (candidate.isOwner(owner)) {
+            if (_isOwnerSafe(allMultiSigs[i], owner)) {
                 myMultisigs[idx] = allMultiSigs[i];
                 idx++;
             }
         }
         return myMultisigs;
+    }
+
+    function _hasCompatibleWalletSurface(address multisig)
+        internal
+        view
+        returns (bool)
+    {
+        MultiSigWallet candidate = MultiSigWallet(payable(multisig));
+        address[] memory owners;
+        uint256 required;
+
+        try candidate.walletCoreVersion() returns (uint32 version) {
+            if (version < 2) {
+                return false;
+            }
+        } catch {
+            return false;
+        }
+
+        try candidate.getOwners() returns (address[] memory returnedOwners) {
+            owners = returnedOwners;
+        } catch {
+            return false;
+        }
+
+        if (owners.length == 0) {
+            return false;
+        }
+
+        try candidate.required() returns (uint256 returnedRequired) {
+            required = returnedRequired;
+        } catch {
+            return false;
+        }
+
+        if (required == 0 || required > owners.length) {
+            return false;
+        }
+
+        try candidate.isOwner(owners[0]) returns (bool listedOwner) {
+            if (!listedOwner) {
+                return false;
+            }
+        } catch {
+            return false;
+        }
+
+        try candidate.transactionCount() returns (uint256) {
+        } catch {
+            return false;
+        }
+
+        try candidate.getTransactionCount(true, false) returns (uint256) {
+        } catch {
+            return false;
+        }
+
+        try candidate.getTransactionIds(0, 0, true, false) returns (uint256[] memory) {
+        } catch {
+            return false;
+        }
+
+        try candidate.getConfirmations(0) returns (address[] memory) {
+        } catch {
+            return false;
+        }
+
+        try candidate.canConfirmTransaction(0, owners[0]) returns (bool) {
+        } catch {
+            return false;
+        }
+
+        try candidate.canExecuteTransaction(0, owners[0]) returns (bool) {
+        } catch {
+            return false;
+        }
+
+        return true;
+    }
+
+    function _isOwnerSafe(address multisig, address owner)
+        internal
+        view
+        returns (bool)
+    {
+        try MultiSigWallet(payable(multisig)).isOwner(owner) returns (bool ownerMatch) {
+            return ownerMatch;
+        } catch {
+            return false;
+        }
     }
 
     function _registerMultisig(address multisig) internal {
