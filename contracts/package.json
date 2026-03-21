@@ -6,7 +6,8 @@
   "scripts": {
     "export": "tsc && node dist/exportContracts.js",
     "build": "tsc && node dist/build.js",
-    "deploy-contracts": "tsc && node dist/deploy.js"
+    "deploy-contracts": "tsc && node dist/deploy.js",
+    "test": "node --test tests/*.test.mjs"
   },
   "main": "dist/index.js",
   "devDependencies": {
@@ -15,7 +16,9 @@
     "@polkadot-labs/hdkd-helpers": "^0.0.10",
     "@polkadot-labs/hdkd": "^0.0.10",
     "@types/node": "^24.3.0",
+    "ganache": "^7.9.2",
     "micro-sr25519": "^0.1.0",
+    "solc": "0.8.28",
     "@scure/bip32": "^1.6.1",
     "@scure/bip39": "^1.5.1"
   }

@@ -6,14 +6,29 @@ pragma solidity ^0.8.28;
 contract MultiSigWallet {
     uint160 private constant ERC20_PRECOMPILE_SUFFIX = 0x01200000;
 
+    enum ExecutionPolicy {
+        AnyOwner,
+        ConfirmingOwner,
+        AutoExecute
+    }
+
     /*
      *  Events
      */
     event Confirmation(address indexed sender, uint indexed transactionId);
+    event TransactionReady(
+        uint indexed transactionId,
+        uint confirmationCount,
+        uint required
+    );
     event Revocation(address indexed sender, uint indexed transactionId);
     event Submission(uint indexed transactionId);
     event Execution(uint indexed transactionId);
     event ExecutionFailure(uint indexed transactionId);
+    event ExecutionPolicyChange(
+        uint8 previousPolicy,
+        uint8 newPolicy
+    );
     event Deposit(address indexed sender, uint value);
     event OwnerAddition(address indexed owner);
     event OwnerRemoval(address indexed owner);
@@ -40,6 +55,7 @@ contract MultiSigWallet {
     address[] public owners;
     uint public required;
     uint public transactionCount;
+    ExecutionPolicy public executionPolicy;
 
     struct Transaction {
         address destination;
@@ -99,6 +115,11 @@ contract MultiSigWallet {
         _;
     }
 
+    modifier validExecutionPolicy(uint8 _policy) {
+        require(_policy <= uint8(ExecutionPolicy.AutoExecute));
+        _;
+    }
+
     /// @dev Fallback function allows to deposit ether.
     receive() external payable {
         if (msg.value > 0)
@@ -120,6 +141,16 @@ contract MultiSigWallet {
         }
         owners = _owners;
         required = _required;
+        executionPolicy = ExecutionPolicy.AnyOwner;
+    }
+
+    /// @notice Returns the ReviveSafe wallet core version for compatibility checks.
+    function walletCoreVersion()
+        public
+        pure
+        returns (uint32)
+    {
+        return 2;
     }
 
     /// @dev Allows to add a new owner. Transaction has to be sent by wallet.
@@ -163,6 +194,7 @@ contract MultiSigWallet {
         onlyWallet
         ownerExists(owner)
         ownerDoesNotExist(newOwner)
+        notNull(newOwner)
     {
         for (uint i=0; i<owners.length; i++)
             if (owners[i] == owner) {
@@ -186,6 +218,18 @@ contract MultiSigWallet {
         emit RequirementChange(_required);
     }
 
+    /// @dev Allows the wallet to update who can execute once a transaction is ready.
+    /// @param _executionPolicy Execution policy encoded as the enum index.
+    function changeExecutionPolicy(uint8 _executionPolicy)
+        public
+        onlyWallet
+        validExecutionPolicy(_executionPolicy)
+    {
+        uint8 previousPolicy = uint8(executionPolicy);
+        executionPolicy = ExecutionPolicy(_executionPolicy);
+        emit ExecutionPolicyChange(previousPolicy, _executionPolicy);
+    }
+
     /// @dev Allows an owner to submit and confirm a transaction.
     /// @param destination Transaction target address.
     /// @param value Transaction ether value.
@@ -196,6 +240,7 @@ contract MultiSigWallet {
         ownerExists(msg.sender)
         returns (uint transactionId)
     {
+        require(value > 0 || data.length > 0, "Empty transaction");
         transactionId = addTransaction(destination, value, data);
         confirmTransaction(transactionId);
     }
@@ -238,6 +283,8 @@ contract MultiSigWallet {
         public
         returns (uint transactionId)
     {
+        require(destination != address(0), "Invalid destination");
+        require(amount > 0, "Invalid amount");
         (address assetPrecompile, bytes memory data) = encodeAssetTransfer(
             assetId,
             destination,
@@ -260,11 +307,23 @@ contract MultiSigWallet {
         public
         ownerExists(msg.sender)
         transactionExists(transactionId)
-        notConfirmed(transactionId, msg.sender)
+        notExecuted(transactionId)
     {
+        require(
+            canConfirmTransaction(transactionId, msg.sender),
+            "Transaction cannot be confirmed"
+        );
         confirmations[transactionId][msg.sender] = true;
         emit Confirmation(msg.sender, transactionId);
-        executeTransaction(transactionId);
+
+        uint confirmationCount = getConfirmationCount(transactionId);
+        if (confirmationCount == required) {
+            emit TransactionReady(transactionId, confirmationCount, required);
+
+            if (executionPolicy == ExecutionPolicy.AutoExecute) {
+                _executeTransaction(transactionId);
+            }
+        }
     }
 
     /// @dev Allows an owner to revoke a confirmation for a transaction.
@@ -284,18 +343,71 @@ contract MultiSigWallet {
     function executeTransaction(uint transactionId)
         public
         ownerExists(msg.sender)
-        confirmed(transactionId, msg.sender)
+        transactionExists(transactionId)
         notExecuted(transactionId)
     {
-        if (isConfirmed(transactionId)) {
-            Transaction storage txn = transactions[transactionId];
-            txn.executed = true;
-            if (external_call(txn.destination, txn.value, txn.data.length, txn.data))
-                emit Execution(transactionId);
-            else {
-                emit ExecutionFailure(transactionId);
-                txn.executed = false;
-            }
+        require(
+            canExecuteTransaction(transactionId, msg.sender),
+            "Transaction cannot be executed"
+        );
+
+        _executeTransaction(transactionId);
+    }
+
+    /// @notice Returns whether an owner can still confirm a transaction.
+    function canConfirmTransaction(uint transactionId, address owner)
+        public
+        view
+        returns (bool)
+    {
+        if (!isOwner[owner]) {
+            return false;
+        }
+
+        Transaction storage txn = transactions[transactionId];
+        if (txn.destination == address(0) || txn.executed) {
+            return false;
+        }
+
+        if (confirmations[transactionId][owner]) {
+            return false;
+        }
+
+        return !isConfirmed(transactionId);
+    }
+
+    /// @notice Returns whether an owner can execute a ready transaction.
+    function canExecuteTransaction(uint transactionId, address owner)
+        public
+        view
+        returns (bool)
+    {
+        if (!isOwner[owner]) {
+            return false;
+        }
+
+        Transaction storage txn = transactions[transactionId];
+        if (txn.destination == address(0) || txn.executed || !isConfirmed(transactionId)) {
+            return false;
+        }
+
+        if (executionPolicy == ExecutionPolicy.ConfirmingOwner) {
+            return confirmations[transactionId][owner];
+        }
+
+        return true;
+    }
+
+    function _executeTransaction(uint transactionId)
+        internal
+    {
+        Transaction storage txn = transactions[transactionId];
+        txn.executed = true;
+        if (external_call(txn.destination, txn.value, txn.data.length, txn.data))
+            emit Execution(transactionId);
+        else {
+            emit ExecutionFailure(transactionId);
+            txn.executed = false;
         }
     }
 
@@ -366,6 +478,27 @@ contract MultiSigWallet {
     /*
      * Web3 call functions
      */
+    /// @dev Returns a transaction by ID.
+    /// @param transactionId Transaction ID.
+    /// @return destination Transaction target address.
+    /// @return value Transaction ether value.
+    /// @return data Transaction calldata payload.
+    /// @return executed Whether the transaction has been executed.
+    function getTransaction(uint transactionId)
+        public
+        view
+        transactionExists(transactionId)
+        returns (
+            address destination,
+            uint value,
+            bytes memory data,
+            bool executed
+        )
+    {
+        Transaction storage txn = transactions[transactionId];
+        return (txn.destination, txn.value, txn.data, txn.executed);
+    }
+
     /// @dev Returns number of confirmations of a transaction.
     /// @param transactionId Transaction ID.
     /// @return count Number of confirmations.
@@ -446,6 +579,11 @@ contract MultiSigWallet {
                 transactionIdsTemp[count] = i;
                 count += 1;
             }
+        if (from > count)
+            from = count;
+        if (to > count)
+            to = count;
+        require(to >= from, "Invalid transaction range");
         _transactionIds = new uint[](to - from);
         for (i=from; i<to; i++)
             _transactionIds[i - from] = transactionIdsTemp[i];
