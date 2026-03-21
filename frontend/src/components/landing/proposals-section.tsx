@@ -1,101 +1,257 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { motion } from "framer-motion";
 import { ArrowRight, ArrowRightLeft, Settings, Users } from "lucide-react";
-import { motion, useInView } from "framer-motion";
 
 const features = [
   {
     id: "transfers",
+    eyebrow: "Proposal type 01",
     title: "Asset transfers",
     description:
       "Send DOT, stablecoins, or other supported assets through one proposal flow with clear summaries and visible status.",
   },
   {
     id: "members",
+    eyebrow: "Proposal type 02",
     title: "Member changes",
     description:
       "Add or remove members through the same proposal model your team already uses for shared approvals.",
   },
   {
     id: "rules",
+    eyebrow: "Proposal type 03",
     title: "Rule updates",
     description:
       "Update approval rules and wallet behavior without switching into a separate configuration tool.",
   },
-];
+] as const;
 
-function FeatureTitle({
-  feature,
-  setActiveFeature,
-  activeFeature,
-}: {
-  feature: (typeof features)[0];
-  setActiveFeature: (id: string) => void;
-  activeFeature: string | null;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, {
-    margin: "-50% 0px -50% 0px",
-  });
+type Feature = (typeof features)[number];
 
-  useEffect(() => {
-    if (isInView) {
-      setActiveFeature(feature.id);
-    }
-  }, [feature.id, isInView, setActiveFeature]);
+const DESKTOP_STAGE_HEIGHT = "min(520px, calc(100vh - 180px))";
 
-  const isActive = activeFeature === feature.id;
-
+function ProposalTextStage({ feature }: { feature: Feature }) {
   return (
-    <div
-      ref={ref}
-      className={`flex flex-col justify-center space-y-4 py-32 transition-all duration-500 ${
-        isActive ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-30"
-      }`}
-    >
-      <h4 className="text-2xl font-display font-medium text-zinc-900 md:text-4xl dark:text-zinc-100">
+    <div className="max-w-xl space-y-5">
+      <div className="text-xs font-semibold uppercase tracking-[0.26em] text-zinc-500 dark:text-zinc-400">
+        {feature.eyebrow}
+      </div>
+      <h3 className="text-4xl font-display font-medium tracking-tight text-zinc-950 dark:text-zinc-100 xl:text-5xl">
         {feature.title}
-      </h4>
-      <p className="max-w-md text-lg font-light leading-relaxed text-zinc-500 md:text-xl dark:text-zinc-400">
+      </h3>
+      <p className="max-w-lg text-lg font-light leading-relaxed text-zinc-500 dark:text-zinc-400 xl:text-xl">
         {feature.description}
       </p>
     </div>
   );
 }
 
-function FeatureCard({
-  id,
-  activeFeature,
-  children,
-}: {
-  id: string;
-  activeFeature: string | null;
-  children: ReactNode;
-}) {
-  const isActive = activeFeature === id;
+function TransferCard() {
+  return (
+    <div className="w-full max-w-md rounded-[28px] border border-black/5 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-[#111] dark:shadow-[0_0_40px_rgba(255,255,255,0.04)]">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
+            Transfer
+          </div>
+          <div className="mt-2 text-2xl font-mono text-zinc-950 dark:text-zinc-100">
+            5,000 DOT
+          </div>
+        </div>
+        <div className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          Ready for approval
+        </div>
+      </div>
 
+      <div className="rounded-2xl border border-black/5 bg-zinc-50 p-5 dark:border-white/5 dark:bg-[#0b0b0b]">
+        <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
+          <span>From shared wallet</span>
+          <span className="font-mono">0x91AA...40f7</span>
+        </div>
+
+        <div className="my-5 h-px w-full bg-black/5 dark:bg-white/5" />
+
+        <div className="relative flex items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black/5 dark:bg-white/5">
+            <ArrowRightLeft className="h-4 w-4 text-zinc-500" strokeWidth={1.6} />
+          </div>
+          <div className="relative h-2 flex-1 overflow-hidden rounded-full bg-black/5 dark:bg-white/5">
+            <motion.div
+              animate={{ x: ["-110%", "110%"] }}
+              transition={{ duration: 1.8, ease: "easeInOut", repeat: Infinity }}
+              className="absolute inset-y-0 left-0 w-24 rounded-full bg-zinc-900 dark:bg-white"
+            />
+          </div>
+        </div>
+
+        <div className="mt-5 flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
+          <span>Destination</span>
+          <span className="font-mono">14Gz...9xQw</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MembersCard() {
+  return (
+    <div className="w-full max-w-md rounded-[28px] border border-black/5 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-[#111] dark:shadow-[0_0_40px_rgba(255,255,255,0.04)]">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
+            Add member
+          </div>
+          <div className="mt-2 text-lg font-mono text-zinc-950 dark:text-zinc-100">
+            14Gz...9xQw
+          </div>
+        </div>
+        <div className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400">
+          Draft proposal
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-black/5 bg-zinc-50 p-5 dark:border-white/5 dark:bg-[#0b0b0b]">
+        <div className="text-sm text-zinc-500 dark:text-zinc-400">Current members</div>
+        <div className="mt-4 flex flex-wrap gap-3">
+          {["0xBc19...173b6", "0x4cF2...19b2", "0x91AA...40f7"].map((member) => (
+            <div
+              key={member}
+              className="rounded-full border border-black/5 bg-white px-3 py-2 text-sm font-mono text-zinc-600 dark:border-white/8 dark:bg-[#121212] dark:text-zinc-300"
+            >
+              {member}
+            </div>
+          ))}
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 18 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm font-mono text-emerald-600 dark:text-emerald-400"
+          >
+            + 14Gz...9xQw
+          </motion.div>
+        </div>
+
+        <div className="mt-6 flex items-center gap-4 rounded-2xl border border-black/5 bg-white px-4 py-4 dark:border-white/8 dark:bg-[#121212]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
+            <Users className="h-4 w-4 text-emerald-500" strokeWidth={1.6} />
+          </div>
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">
+            Member updates follow the same approval queue as transfers and other wallet actions.
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RulesCard() {
+  return (
+    <div className="w-full max-w-md rounded-[28px] border border-black/5 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-[#111] dark:shadow-[0_0_40px_rgba(255,255,255,0.04)]">
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
+            Update approval rule
+          </div>
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-lg font-mono text-zinc-400 line-through">2 / 3</span>
+            <ArrowRight className="h-4 w-4 text-zinc-400" />
+            <span className="text-lg font-mono text-zinc-950 dark:text-zinc-100">3 / 5</span>
+          </div>
+        </div>
+        <div className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+          Needs review
+        </div>
+      </div>
+
+      <div className="rounded-2xl border border-black/5 bg-zinc-50 p-5 dark:border-white/5 dark:bg-[#0b0b0b]">
+        <div className="flex items-center gap-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10">
+            <Settings className="h-4 w-4 text-blue-500" strokeWidth={1.6} />
+          </div>
+          <div className="text-sm text-zinc-500 dark:text-zinc-400">
+            Adjust wallet rules without switching into a separate admin surface.
+          </div>
+        </div>
+
+        <div className="mt-6 space-y-4">
+          <div className="rounded-2xl border border-black/5 bg-white px-4 py-4 dark:border-white/8 dark:bg-[#121212]">
+            <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
+              <span>Default approvals</span>
+              <span className="font-mono text-zinc-950 dark:text-zinc-100">3 / 5</span>
+            </div>
+            <div className="mt-3 flex gap-2">
+              {[1, 2, 3, 4, 5].map((value) => (
+                <motion.div
+                  key={value}
+                  initial={{ scaleX: value <= 2 ? 1 : 0.3, opacity: value <= 2 ? 0.4 : 0.2 }}
+                  animate={{
+                    scaleX: 1,
+                    opacity: value <= 3 ? 1 : 0.25,
+                  }}
+                  transition={{
+                    duration: 0.45,
+                    delay: value * 0.08,
+                    ease: [0.16, 1, 0.3, 1],
+                  }}
+                  className={`h-2 flex-1 rounded-full ${
+                    value <= 3 ? "bg-zinc-950 dark:bg-white" : "bg-black/8 dark:bg-white/10"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-black/5 bg-white px-4 py-4 dark:border-white/8 dark:bg-[#121212]">
+            <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
+              <span>High-value transfers</span>
+              <span className="font-mono text-zinc-950 dark:text-zinc-100">4 / 5</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProposalPreviewCard({ featureId }: { featureId: Feature["id"] }) {
+  return (
+    <div className="flex w-full justify-center">
+      {featureId === "transfers" && <TransferCard />}
+      {featureId === "members" && <MembersCard />}
+      {featureId === "rules" && <RulesCard />}
+    </div>
+  );
+}
+
+function ProposalStageCard({
+  feature,
+}: {
+  feature: Feature;
+}) {
   return (
     <div
-      className={`absolute inset-0 flex h-full w-full items-center justify-center p-8 transition-opacity duration-500 ${
-        isActive ? "z-10 opacity-100" : "pointer-events-none z-0 opacity-0"
-      }`}
+      className="overflow-hidden rounded-[32px] border border-black/5 bg-white/88 p-6 shadow-[0_18px_80px_rgba(15,23,42,0.08)] backdrop-blur dark:border-white/10 dark:bg-[#0a0a0a]/88 dark:shadow-[0_0_60px_rgba(255,255,255,0.04)] lg:p-8 xl:p-10"
+      style={{ height: DESKTOP_STAGE_HEIGHT }}
     >
-      <motion.div
-        initial={{ scale: 0.8, y: 20 }}
-        animate={{ scale: isActive ? 1 : 0.8, y: isActive ? 0 : 20 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="flex w-full justify-center"
-      >
-        {children}
-      </motion.div>
+      <div className="grid h-full grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] items-center gap-8 xl:gap-10">
+        <div className="flex h-full items-center pr-4">
+          <ProposalTextStage feature={feature} />
+        </div>
+
+        <div className="relative flex h-full items-center justify-center overflow-hidden rounded-[28px] border border-black/5 bg-zinc-50 p-6 dark:border-white/10 dark:bg-[#050505] lg:p-8">
+          <div className="absolute left-1/2 top-1/2 h-[24rem] w-[24rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-black/[0.04] blur-[100px] dark:bg-white/[0.04]" />
+          <div className="relative z-10 flex w-full items-center justify-center">
+            <ProposalPreviewCard featureId={feature.id} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
 
 export function ProposalsSection() {
-  const [activeFeature, setActiveFeature] = useState<string | null>("transfers");
-
   return (
-    <section id="proposal-model" className="relative mb-40 scroll-mt-28">
+    <section id="proposal-model" className="relative mb-24 scroll-mt-28 md:mb-28">
       <div className="mx-auto w-full max-w-7xl px-6">
         <div className="mb-16 pt-24">
           <h2 className="text-3xl font-display font-medium tracking-tight text-zinc-950 md:text-5xl dark:text-zinc-100">
@@ -108,85 +264,33 @@ export function ProposalsSection() {
           </p>
         </div>
 
-        <div className="flex flex-col items-start gap-20 md:flex-row">
-          <div className="w-full py-[50vh] md:w-1/2">
-            <ul>
-              {features.map((feature) => (
-                <li key={feature.id}>
-                  <FeatureTitle
-                    activeFeature={activeFeature}
-                    feature={feature}
-                    setActiveFeature={setActiveFeature}
-                  />
-                </li>
-              ))}
-            </ul>
+        <div className="md:hidden">
+          <div className="space-y-8">
+            {features.map((feature) => (
+              <div
+                key={feature.id}
+                className="space-y-5 rounded-[28px] border border-black/5 bg-white p-6 dark:border-white/10 dark:bg-[#0a0a0a]"
+              >
+                <div className="text-xs font-semibold uppercase tracking-[0.26em] text-zinc-500 dark:text-zinc-400">
+                  {feature.eyebrow}
+                </div>
+                <h3 className="text-2xl font-display font-medium tracking-tight text-zinc-950 dark:text-zinc-100">
+                  {feature.title}
+                </h3>
+                <p className="text-base font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
+                  {feature.description}
+                </p>
+                <ProposalPreviewCard featureId={feature.id} />
+              </div>
+            ))}
           </div>
+        </div>
 
-          <div className="sticky top-0 hidden h-screen w-full items-center justify-center md:flex md:w-1/2">
-            <div className="relative aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-black/5 bg-zinc-50 dark:border-white/10 dark:bg-[#0a0a0a]">
-              <FeatureCard id="transfers" activeFeature={activeFeature}>
-                <div className="w-full max-w-sm rounded-xl border border-black/5 bg-white p-6 shadow-sm dark:border-white/5 dark:bg-[#111]">
-                  <div className="mb-6 flex items-center justify-between">
-                    <span className="text-sm font-medium text-zinc-500">Transfer</span>
-                    <span className="text-sm font-mono text-zinc-900 dark:text-zinc-100">
-                      5,000 DOT
-                    </span>
-                  </div>
-                  <div className="mb-6 h-px w-full bg-black/5 dark:bg-white/5" />
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 dark:bg-white/5">
-                      <ArrowRightLeft className="h-4 w-4 text-zinc-400" strokeWidth={1.5} />
-                    </div>
-                    <div className="h-2 flex-1 rounded-full bg-black/5 dark:bg-white/5" />
-                  </div>
-                </div>
-              </FeatureCard>
-
-              <FeatureCard id="members" activeFeature={activeFeature}>
-                <div className="w-full max-w-sm rounded-xl border border-black/5 bg-white p-6 shadow-sm dark:border-white/5 dark:bg-[#111]">
-                  <div className="mb-6 flex items-center justify-between">
-                    <span className="text-sm font-medium text-zinc-500">Add member</span>
-                    <span className="text-sm font-mono text-zinc-900 dark:text-zinc-100">
-                      14Gz...9xQw
-                    </span>
-                  </div>
-                  <div className="mb-6 h-px w-full bg-black/5 dark:bg-white/5" />
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10">
-                      <Users className="h-4 w-4 text-emerald-500" strokeWidth={1.5} />
-                    </div>
-                    <div className="h-2 flex-1 rounded-full bg-black/5 dark:bg-white/5" />
-                  </div>
-                </div>
-              </FeatureCard>
-
-              <FeatureCard id="rules" activeFeature={activeFeature}>
-                <div className="w-full max-w-sm rounded-xl border border-black/5 bg-white p-6 shadow-sm dark:border-white/5 dark:bg-[#111]">
-                  <div className="mb-6 flex items-center justify-between">
-                    <span className="text-sm font-medium text-zinc-500">
-                      Update approval rule
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-mono text-zinc-400 line-through">
-                        2 / 3
-                      </span>
-                      <ArrowRight className="h-3 w-3 text-zinc-400" />
-                      <span className="text-sm font-mono text-zinc-900 dark:text-zinc-100">
-                        3 / 5
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mb-6 h-px w-full bg-black/5 dark:bg-white/5" />
-                  <div className="flex items-center gap-4">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10">
-                      <Settings className="h-4 w-4 text-blue-500" strokeWidth={1.5} />
-                    </div>
-                    <div className="h-2 flex-1 rounded-full bg-black/5 dark:bg-white/5" />
-                  </div>
-                </div>
-              </FeatureCard>
-            </div>
+        <div className="hidden md:block">
+          <div className="space-y-8">
+            {features.map((feature) => (
+              <ProposalStageCard key={feature.id} feature={feature} />
+            ))}
           </div>
         </div>
       </div>
