@@ -1,8 +1,8 @@
 # ReviveSafe
 
-ReviveSafe is a programmable shared-wallet beta for Polkadot Asset Hub. It
-keeps the core Solidity multisig flow, but now routes the app through a Dedot
-and LunoKit-first runtime model:
+ReviveSafe is a programmable contract-wallet beta for Asset Hub. It keeps the
+core Solidity multisig flow, but now routes the app through a Dedot and
+LunoKit-first runtime model:
 
 - Solidity contracts compile to PolkaVM bytecode with `resolc`
 - The frontend signs through `pallet_revive` extrinsics, not wagmi/RainbowKit
@@ -20,13 +20,20 @@ The truthful product scope in this repo today is:
 - native token transfers and Asset Hub asset transfers through deterministic precompiles
 - dashboard queueing for approvals, execution, and recent wallet activity
 
-Not live yet in the current public beta:
+Not live yet in the current beta:
 
 - native multisig or proxy wallet creation
 - native wallet import
 - native-to-programmable upgrade flows
 - top-level Inbox, Activity, or Proposals product surfaces
 - wallet rules, modules, policies, or settings as first-class end-user flows
+
+## Launch Docs
+
+- Release readiness: [`docs/revivesafe-release-readiness.md`](docs/revivesafe-release-readiness.md)
+- Beta operator runbook: [`docs/revivesafe-beta-operator-runbook.md`](docs/revivesafe-beta-operator-runbook.md)
+- Trust and security: [`docs/revivesafe-trust-and-security.md`](docs/revivesafe-trust-and-security.md)
+- Observability checklist: [`docs/revivesafe-observability-checklist.md`](docs/revivesafe-observability-checklist.md)
 
 ## What Changed
 
@@ -107,6 +114,11 @@ pnpm frontend:preview
 - `VITE_POLKADOT_ASSET_HUB_ETH_RPC_URL`: optional override for Polkadot Asset Hub ETH RPC
 - `VITE_POLKADOT_ASSET_HUB_WS_URL`: optional override for Polkadot Asset Hub websocket
 - `VITE_POLKADOT_ASSET_HUB_EXPLORER_URL`: optional override for Polkadot Asset Hub explorer
+- `VITE_REPOSITORY_URL`: optional override for repo and docs links shown in the app
+- `VITE_BETA_SUPPORT_URL`: optional support or issue intake URL shown in the app
+- `VITE_BETA_SUPPORT_LABEL`: optional short label for the support link
+- `VITE_RELEASE_CHANNEL`: optional channel label for observability payloads such as `private-beta`
+- `VITE_OBSERVABILITY_ENDPOINT`: optional endpoint that accepts JSON POST or beacon payloads for runtime and write failures
 
 ## Contract Build + Deploy
 
@@ -135,6 +147,8 @@ Optional deploy args can be passed through `CONSTRUCTOR_ARGS` as a JSON array.
 - The deploy console can compile bundled or pasted Solidity, but the browser `resolc` chunk is large; treat it as an operator setup tool, not a primary end-user workflow.
 - The current beta supports Talisman, SubWallet, and Polkadot.js through LunoKit.
 - The safest default network for beta testing is Paseo Asset Hub unless your factory and balances are already verified on Polkadot Asset Hub.
+- No contract audit is linked or referenced in this repo today. Treat the contracts as unaudited until a published audit exists.
+- The frontend now includes a lightweight observability stub. External beta environments should set `VITE_OBSERVABILITY_ENDPOINT` before rollout.
 
 ## Writing
 
