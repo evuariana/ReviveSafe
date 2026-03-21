@@ -22,7 +22,7 @@ const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Wallets", href: "/wallets", icon: Wallet },
   { name: "Create", href: "/create", icon: Shield },
-  { name: "Add Wallet", href: "/register", icon: UserPlus },
+  { name: "Add Contract Wallet", href: "/register", icon: UserPlus },
   { name: "Contracts", href: "/deploy", icon: Upload },
 ];
 
@@ -80,8 +80,8 @@ export default function DashboardLayout() {
                 Workspace actions
               </div>
               <p className="mt-2 leading-7">
-                Create wallets, add existing ones, review proposals, and open
-                contract tools without switching products.
+                Create wallets, add existing contract wallets, review
+                proposals, and open contract tools without switching products.
               </p>
             </div>
 

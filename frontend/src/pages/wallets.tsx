@@ -108,6 +108,10 @@ export default function Wallets() {
         <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
           Loading wallets from the factory...
         </div>
+      ) : myMultisigsQuery.error ? (
+        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700">
+          {(myMultisigsQuery.error as Error).message}
+        </div>
       ) : filteredMultisigs.length === 0 ? (
         <Card className="rounded-[28px] border-dashed border-zinc-300 bg-white shadow-none dark:border-white/12 dark:bg-[#0a0a0a]">
           <CardContent className="py-12 text-center">
@@ -116,8 +120,8 @@ export default function Wallets() {
               No wallets yet
             </h2>
             <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              Create a new wallet or add an existing one to start managing it
-              here.
+              Create a new wallet or add an existing contract wallet to start
+              managing it here.
             </p>
             <div className="mt-6 flex justify-center gap-3">
               <Link to="/create">
@@ -128,7 +132,7 @@ export default function Wallets() {
                   variant="outline"
                   className="rounded-full border-zinc-200 bg-white px-5 text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
                 >
-                  Add existing
+                  Add contract wallet
                 </Button>
               </Link>
             </div>

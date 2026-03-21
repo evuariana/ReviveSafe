@@ -42,14 +42,15 @@ export default function RegisterMultisig() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <div className="text-sm font-semibold uppercase tracking-[0.22em] text-zinc-500">
-          Add existing wallet
+          Add contract wallet
         </div>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-          Add an existing wallet to this workspace
+          Add an existing contract wallet to this workspace
         </h1>
         <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-          Register a wallet that is already deployed so your team can review
-          balances, approvals, and proposal history from the same app.
+          Register an already deployed contract wallet so your team can review
+          balances, approvals, and proposal history from the same app. Native
+          wallet import is not part of the current testnet demo yet.
         </p>
       </div>
 
@@ -94,7 +95,7 @@ export default function RegisterMultisig() {
 
           {registerSuccess && (
             <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
-              Wallet added. You can now open it from the wallets page.
+              Contract wallet added. You can now open it from the wallets page.
             </div>
           )}
 
@@ -103,7 +104,7 @@ export default function RegisterMultisig() {
             disabled={!isFactoryAvailable || isRegistering}
             onClick={() => void submit()}
           >
-            {isRegistering ? "Adding..." : "Add wallet to workspace"}
+            {isRegistering ? "Adding..." : "Add contract wallet"}
           </Button>
         </CardContent>
       </Card>
