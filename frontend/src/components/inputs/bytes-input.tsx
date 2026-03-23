@@ -2,6 +2,11 @@ import { useMemo, useRef, useState } from "react";
 import { Upload } from "lucide-react";
 import { isHex, type Hex } from "viem";
 
+import {
+  workspaceInputClassName,
+  workspaceOutlineButtonClassName,
+  workspacePanelMutedClassName,
+} from "@/components/layout/workspace-surfaces";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -41,13 +46,15 @@ export function BytesInput({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label>{label}</Label>
-        <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-[11px] font-medium">
+        <div className={`inline-flex p-1 text-[11px] font-medium ${workspacePanelMutedClassName}`}>
           {(["hex", "text", "file"] as const).map((nextMode) => (
             <button
               key={nextMode}
               type="button"
               className={`rounded-full px-2 py-1 ${
-                mode === nextMode ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
+                mode === nextMode
+                  ? "bg-white text-zinc-900 shadow-sm dark:bg-white dark:text-black"
+                  : "text-zinc-500 dark:text-zinc-400"
               }`}
               onClick={() => setMode(nextMode)}
               disabled={disabled}
@@ -60,7 +67,7 @@ export function BytesInput({
 
       {mode === "hex" && (
         <Input
-          className="font-mono"
+          className={`${workspaceInputClassName} font-mono`}
           disabled={disabled}
           value={displayHex}
           onChange={(event) => {
@@ -80,7 +87,7 @@ export function BytesInput({
 
       {mode === "text" && (
         <Textarea
-          className="font-mono"
+          className={`${workspaceInputClassName} min-h-28 font-mono`}
           disabled={disabled}
           value={displayText}
           onChange={(event) => {
@@ -124,20 +131,22 @@ export function BytesInput({
           <Button
             type="button"
             variant="outline"
-            className="w-full justify-center rounded-xl"
+            className={`w-full justify-center rounded-xl ${workspaceOutlineButtonClassName}`}
             onClick={() => fileInputRef.current?.click()}
             disabled={disabled}
           >
             <Upload className="h-4 w-4" />
             Choose file
           </Button>
-          <div className="truncate rounded-xl bg-slate-50 px-3 py-2 text-xs font-mono text-slate-600">
+          <div
+            className={`truncate px-3 py-2 text-xs font-mono text-zinc-600 dark:text-zinc-300 ${workspacePanelMutedClassName}`}
+          >
             {displayHex}
           </div>
         </div>
       )}
 
-      <div className="flex items-center justify-between text-xs text-slate-500">
+      <div className="flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
         <span>{description}</span>
         <span>{byteCount} bytes</span>
       </div>
@@ -145,4 +154,3 @@ export function BytesInput({
     </div>
   );
 }
-

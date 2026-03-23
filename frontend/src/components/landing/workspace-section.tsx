@@ -26,11 +26,12 @@ export function WorkspaceSection() {
     <section className="mx-auto mb-40 max-w-7xl px-6">
       <div className="mb-16">
         <h2 className="text-3xl font-display font-medium tracking-tight text-zinc-950 md:text-5xl dark:text-zinc-100">
-          One workspace for every contract wallet your team runs.
+          One workspace for the shared wallets your team already runs.
         </h2>
         <p className="mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
-          See what needs action, which programmable wallets matter, and what
-          changed recently without switching between disconnected tools.
+          See what needs action, which native or programmable wallets matter,
+          and what changed recently without switching between disconnected
+          tools.
         </p>
       </div>
 
@@ -50,8 +51,9 @@ export function WorkspaceSection() {
             Unified dashboard
           </h3>
           <p className="mb-10 mt-3 max-w-md font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-            View programmable contract wallets in one place, with queues,
-            proposals, and wallet context kept together.
+            View imported native multisigs and programmable contract wallets in
+            one place, with queues, proposals, and wallet context kept
+            together.
           </p>
           <div className="mt-auto flex h-40 gap-4 rounded-xl border border-black/5 bg-zinc-50 p-4 dark:border-white/5 dark:bg-[#111]">
             {[1, 2, 3].map((item) => (
@@ -105,8 +107,8 @@ export function WorkspaceSection() {
             Team context
           </h3>
           <p className="mb-8 mt-3 font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-            Keep owners, approval thresholds, and connected participants
-            visible across the contract wallets your team operates together.
+            Keep members, approval thresholds, and connected participants
+            visible across the wallets your team operates together.
           </p>
           <div className="mt-auto flex -space-x-2">
             {[1, 2, 3, 4].map((item) => (

@@ -61,9 +61,9 @@ export function FeatureBlocks() {
           Engineered for Asset Hub.
         </h2>
         <p className="mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
-          Manage shared assets, approvals, and contract wallet actions in one
-          place, with the live beta focused on programmable wallets that already
-          work end to end.
+          Manage shared assets, approvals, and wallet actions in one place, with
+          live support for programmable wallets and verified import of direct
+          native multisigs.
         </p>
       </div>
 
@@ -189,20 +189,20 @@ export function FeatureBlocks() {
           <div className="relative z-10">
             <Download className="mb-6 h-6 w-6 text-zinc-600 dark:text-zinc-300" strokeWidth={1.5} />
             <h3 className="text-2xl font-display font-medium text-zinc-900 dark:text-zinc-100">
-              Existing contract wallets
+              Bring existing wallets in
             </h3>
             <p className="mb-6 mt-3 max-w-md font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Add an already deployed compatible contract wallet to your
-              workspace and keep proposal review, approvals, and execution in
-              one place. Native multisig and proxy import are not live in this
-              beta.
+              Import a direct native multisig by member set and threshold, then
+              keep proposal review, approvals, and execution in one place.
+              Compatible contract wallets can still be added separately. Proxy
+              import is not live in this beta.
             </p>
             <button
               type="button"
               onClick={handleImport}
               className="inline-flex items-center gap-2 text-sm font-medium text-zinc-900 transition-colors hover:text-zinc-600 dark:text-zinc-100 dark:hover:text-zinc-300"
             >
-              See add-wallet flow
+              See import flow
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -261,9 +261,9 @@ export function FeatureBlocks() {
               What comes after the beta
             </h3>
             <p className="mb-6 mt-3 max-w-md font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Native shared-wallet support, richer rules, delegation, batching,
-              and guided upgrade flows are part of the ReviveSafe roadmap. The
-              live beta today is focused on programmable contract wallets.
+              Proxy support, guided upgrades, richer rules, delegation, and
+              batching remain roadmap work. The live beta today centers on
+              direct native multisig import plus programmable contract wallets.
             </p>
             <InlineAnchorLink href="#wallet-types">See beta scope</InlineAnchorLink>
           </div>

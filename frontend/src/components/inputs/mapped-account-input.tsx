@@ -2,6 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import { UserRoundPlus } from "lucide-react";
 import { getAddress, isAddress, type Address } from "viem";
 
+import {
+  workspaceInputClassName,
+  workspaceOutlineButtonClassName,
+  workspacePanelMutedClassName,
+} from "@/components/layout/workspace-surfaces";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,15 +118,15 @@ export function MappedAccountInput({
     <div className="space-y-2">
       <Label>{label}</Label>
       <Input
-        className="font-mono"
+        className={`${workspaceInputClassName} font-mono`}
         disabled={disabled}
         placeholder="0x..."
         value={inputValue}
         onChange={(event) => commitValue(event.target.value)}
       />
 
-      {description && <p className="text-xs text-slate-500">{description}</p>}
-      <p className="text-xs text-slate-500">
+      {description && <p className="text-xs text-zinc-500 dark:text-zinc-400">{description}</p>}
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
         Paste either a mapped H160 or a Polkadot SS58 address. ReviveSafe will
         use the mapped H160 on-chain.
       </p>
@@ -134,8 +139,8 @@ export function MappedAccountInput({
         )}
 
       {accountOptions.length > 0 && (
-        <div className="space-y-2 rounded-2xl border border-slate-200 bg-slate-50 p-3">
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+        <div className={`space-y-2 p-3 ${workspacePanelMutedClassName}`}>
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
             <UserRoundPlus className="h-3.5 w-3.5" />
             Connected accounts
           </div>
@@ -146,7 +151,11 @@ export function MappedAccountInput({
                 type="button"
                 variant={value === option.value ? "default" : "outline"}
                 size="sm"
-                className="h-auto max-w-full rounded-full px-3 py-2 text-left"
+                className={
+                  value === option.value
+                    ? "h-auto max-w-full rounded-full px-3 py-2 text-left"
+                    : `h-auto max-w-full rounded-full px-3 py-2 text-left ${workspaceOutlineButtonClassName}`
+                }
                 onClick={() => commitValue(option.value)}
                 disabled={disabled}
               >
@@ -172,7 +181,7 @@ export function MappedAccountInput({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-auto rounded-full border border-slate-200 px-3 py-1 font-mono text-[11px]"
+              className={`h-auto rounded-full px-3 py-1 font-mono text-[11px] ${workspaceOutlineButtonClassName}`}
               onClick={() => commitValue(recentAddress)}
               disabled={disabled}
             >

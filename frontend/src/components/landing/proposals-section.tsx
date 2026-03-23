@@ -6,7 +6,7 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
-import { ArrowRight, ArrowRightLeft, Settings, Users } from "lucide-react";
+import { ArrowRightLeft, Blocks, Shield } from "lucide-react";
 
 const features = [
   {
@@ -17,18 +17,18 @@ const features = [
       "Send DOT, stablecoins, or other supported assets through one proposal flow with clear summaries and visible status.",
   },
   {
-    id: "members",
+    id: "contract-calls",
     eyebrow: "Proposal type 02",
-    title: "Member changes",
+    title: "Contract calls",
     description:
-      "Add or remove members through the same proposal model your team already uses for shared approvals.",
+      "Programmable wallets can submit arbitrary calldata proposals through the same queue used for shared approvals and execution.",
   },
   {
-    id: "rules",
+    id: "native-approvals",
     eyebrow: "Proposal type 03",
-    title: "Rule updates",
+    title: "Native multisig approvals",
     description:
-      "Update approval rules and wallet behavior without switching into a separate configuration tool.",
+      "Imported native multisigs share the same proposal queue. ReviveSafe reconstructs full call detail when chain history makes it possible and stays explicit when only a call hash is available.",
   },
 ] as const;
 
@@ -102,51 +102,44 @@ function TransferCard() {
   );
 }
 
-function MembersCard() {
+function ContractCallCard() {
   return (
     <div className="w-full max-w-md rounded-[28px] border border-black/5 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-[#111] dark:shadow-[0_0_40px_rgba(255,255,255,0.04)]">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
-            Add member
+            Contract call
           </div>
           <div className="mt-2 text-lg font-mono text-zinc-950 dark:text-zinc-100">
-            14Gz...9xQw
+            0x7A3f...F2c1
           </div>
         </div>
         <div className="rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-400">
-          Draft proposal
+          Programmable
         </div>
       </div>
 
       <div className="rounded-2xl border border-black/5 bg-zinc-50 p-5 dark:border-white/5 dark:bg-[#0b0b0b]">
-        <div className="text-sm text-zinc-500 dark:text-zinc-400">Current members</div>
-        <div className="mt-4 flex flex-wrap gap-3">
-          {["0xBc19...173b6", "0x4cF2...19b2", "0x91AA...40f7"].map((member) => (
-            <div
-              key={member}
-              className="rounded-full border border-black/5 bg-white px-3 py-2 text-sm font-mono text-zinc-600 dark:border-white/8 dark:bg-[#121212] dark:text-zinc-300"
-            >
-              {member}
-            </div>
-          ))}
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 18 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-2 text-sm font-mono text-emerald-600 dark:text-emerald-400"
-          >
-            + 14Gz...9xQw
-          </motion.div>
+        <div className="text-sm text-zinc-500 dark:text-zinc-400">Calldata preview</div>
+        <div className="mt-4 space-y-3">
+          {["Function: setSpendLimit(uint256)", "Argument: 500000000000", "Value: 0"].map(
+            (line) => (
+              <div
+                key={line}
+                className="rounded-full border border-black/5 bg-white px-3 py-2 text-sm font-mono text-zinc-600 dark:border-white/8 dark:bg-[#121212] dark:text-zinc-300"
+              >
+                {line}
+              </div>
+            )
+          )}
         </div>
 
         <div className="mt-6 flex items-center gap-4 rounded-2xl border border-black/5 bg-white px-4 py-4 dark:border-white/8 dark:bg-[#121212]">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10">
-            <Users className="h-4 w-4 text-emerald-500" strokeWidth={1.6} />
+            <Blocks className="h-4 w-4 text-emerald-500" strokeWidth={1.6} />
           </div>
           <div className="text-sm text-zinc-500 dark:text-zinc-400">
-            Member updates follow the same approval queue as transfers and other wallet actions.
+            Contract-backed proposals use the same submit, approve, and execute lifecycle as transfers.
           </div>
         </div>
       </div>
@@ -154,49 +147,50 @@ function MembersCard() {
   );
 }
 
-function RulesCard() {
+function NativeApprovalCard() {
   return (
     <div className="w-full max-w-md rounded-[28px] border border-black/5 bg-white p-6 shadow-[0_18px_60px_rgba(15,23,42,0.08)] dark:border-white/10 dark:bg-[#111] dark:shadow-[0_0_40px_rgba(255,255,255,0.04)]">
       <div className="mb-8 flex items-center justify-between">
         <div>
           <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
-            Update approval rule
+            Imported native proposal
           </div>
           <div className="mt-2 flex items-center gap-2">
-            <span className="text-lg font-mono text-zinc-400 line-through">2 / 3</span>
-            <ArrowRight className="h-4 w-4 text-zinc-400" />
-            <span className="text-lg font-mono text-zinc-950 dark:text-zinc-100">3 / 5</span>
+            <span className="text-lg font-mono text-zinc-950 dark:text-zinc-100">
+              0x9c7d...4ef2
+            </span>
           </div>
         </div>
         <div className="rounded-full bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
-          Needs review
+          Hash-aware import
         </div>
       </div>
 
       <div className="rounded-2xl border border-black/5 bg-zinc-50 p-5 dark:border-white/5 dark:bg-[#0b0b0b]">
         <div className="flex items-center gap-4">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10">
-            <Settings className="h-4 w-4 text-blue-500" strokeWidth={1.6} />
+            <Shield className="h-4 w-4 text-blue-500" strokeWidth={1.6} />
           </div>
           <div className="text-sm text-zinc-500 dark:text-zinc-400">
-            Adjust wallet rules without switching into a separate admin surface.
+            ReviveSafe shows recovered call detail when chain history preserves
+            it and falls back to the call hash when it does not.
           </div>
         </div>
 
         <div className="mt-6 space-y-4">
           <div className="rounded-2xl border border-black/5 bg-white px-4 py-4 dark:border-white/8 dark:bg-[#121212]">
             <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
-              <span>Default approvals</span>
-              <span className="font-mono text-zinc-950 dark:text-zinc-100">3 / 5</span>
+              <span>Approval progress</span>
+              <span className="font-mono text-zinc-950 dark:text-zinc-100">2 / 3</span>
             </div>
             <div className="mt-3 flex gap-2">
-              {[1, 2, 3, 4, 5].map((value) => (
+              {[1, 2, 3].map((value) => (
                 <motion.div
                   key={value}
                   initial={{ scaleX: value <= 2 ? 1 : 0.3, opacity: value <= 2 ? 0.4 : 0.2 }}
                   animate={{
                     scaleX: 1,
-                    opacity: value <= 3 ? 1 : 0.25,
+                    opacity: value <= 2 ? 1 : 0.25,
                   }}
                   transition={{
                     duration: 0.45,
@@ -213,8 +207,8 @@ function RulesCard() {
 
           <div className="rounded-2xl border border-black/5 bg-white px-4 py-4 dark:border-white/8 dark:bg-[#121212]">
             <div className="flex items-center justify-between text-sm text-zinc-500 dark:text-zinc-400">
-              <span>High-value transfers</span>
-              <span className="font-mono text-zinc-950 dark:text-zinc-100">4 / 5</span>
+              <span>Recovered detail</span>
+              <span className="font-mono text-zinc-950 dark:text-zinc-100">TransferKeepAlive</span>
             </div>
           </div>
         </div>
@@ -227,8 +221,8 @@ function ProposalPreviewCard({ featureId }: { featureId: Feature["id"] }) {
   return (
     <div className="flex w-full justify-center">
       {featureId === "transfers" && <TransferCard />}
-      {featureId === "members" && <MembersCard />}
-      {featureId === "rules" && <RulesCard />}
+      {featureId === "contract-calls" && <ContractCallCard />}
+      {featureId === "native-approvals" && <NativeApprovalCard />}
     </div>
   );
 }
@@ -327,9 +321,10 @@ export function ProposalsSection() {
             Proposals made simple.
           </h2>
           <p className="mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
-            A proposal is the universal interaction model in ReviveSafe. Whether
-            the team is transferring funds, changing members, or updating rules,
-            the flow stays clear: propose, approve, execute.
+            A proposal is the universal interaction model in ReviveSafe. Today
+            that queue covers transfers, programmable contract calls, and
+            imported native multisig approvals with the same clear lifecycle:
+            propose, approve, execute.
           </p>
         </div>
 

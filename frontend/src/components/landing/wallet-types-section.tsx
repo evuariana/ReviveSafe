@@ -21,9 +21,9 @@ export function WalletTypesSection() {
           What the current beta supports.
         </h2>
         <p className="mt-6 max-w-2xl text-lg font-light text-zinc-500 dark:text-zinc-400">
-          ReviveSafe is being built toward native and programmable wallet rails,
-          but the live beta today supports programmable contract wallets. Native
-          shared-wallet flows are planned, not launched.
+          ReviveSafe now supports a limited native import path alongside
+          programmable contract wallets. Native creation and proxy flows are
+          still out of scope for this beta.
         </p>
       </div>
 
@@ -63,12 +63,12 @@ export function WalletTypesSection() {
               Native wallets.
             </h3>
             <p className="mb-6 mt-2 text-xl font-light text-zinc-500 dark:text-zinc-400">
-              Planned, not live yet.
+              Live with current limits.
             </p>
             <p className="font-light leading-relaxed text-zinc-600 dark:text-zinc-400">
-              Native shared control remains part of the product direction, but
-              this beta does not yet include native wallet creation, import, or
-              guided native-to-programmable upgrades.
+              This beta can import direct `pallet_multisig` wallets by verified
+              member set and threshold. Native wallet creation, proxy import,
+              and upgrade flows are not live here yet.
             </p>
           </div>
 
@@ -79,11 +79,11 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  Planned lower setup complexity
+                  Verified direct import
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  A future native path for teams that want simpler shared
-                  control without contract deployment.
+                  Import derives the deterministic native wallet address and
+                  checks that the connected signer is a direct member.
                 </p>
               </div>
             </div>
@@ -94,11 +94,12 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  Planned native import
+                  Partial native action support
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  Existing multisig and proxy import are product goals, not live
-                  beta flows today.
+                  ReviveSafe can show pending native multisig operations,
+                  approve them by hash, and execute supported calls when full
+                  call details are recoverable.
                 </p>
               </div>
             </div>
@@ -109,11 +110,11 @@ export function WalletTypesSection() {
               </div>
               <div>
                 <h4 className="mb-1 font-medium text-zinc-900 dark:text-zinc-100">
-                  Planned native shared control
+                  Explicit scope limits
                 </h4>
                 <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-                  The long-term goal is familiar Polkadot account-control
-                  patterns without making the wallet feel like a developer tool.
+                  Proxy wallets, automatic discovery, and native wallet creation
+                  remain out of scope in the current pass.
                 </p>
               </div>
             </div>

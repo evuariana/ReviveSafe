@@ -2,6 +2,13 @@ import { useMemo, useState } from "react";
 import { CheckCircle, Clock, Coins, Sparkles } from "lucide-react";
 import { formatUnits, type Address, type Hex } from "viem";
 
+import {
+  WorkspaceBadge,
+  WorkspaceNotice,
+  workspaceListItemClassName,
+  workspaceOutlineButtonClassName,
+  workspacePanelMutedClassName,
+} from "@/components/layout/workspace-surfaces";
 import { Button } from "@/components/ui/button";
 import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import { decodeAssetTransferCall, findHubAssetById } from "@/lib/precompiles";
@@ -63,135 +70,127 @@ export default function TransactionItem({
     : `${formatUnits(tx.value, token.decimals)} ${token.symbol}`;
 
   return (
-    <div className="rounded-[28px] border border-zinc-200 bg-white p-4 shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className={`${workspaceListItemClassName} px-5 py-5`}>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="text-sm font-semibold text-zinc-950 dark:text-white">
+          <div className="text-sm font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
             Proposal #{tx.id}
           </div>
-          <div className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          <div className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
+            {displayValue}
+          </div>
+          <div className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
             To {formatAddress(tx.destination, 6)}
           </div>
         </div>
-        <div className="text-left sm:text-right">
-          <div className="text-base font-semibold text-zinc-950 dark:text-white">
-            {displayValue}
-          </div>
-          <div className="text-xs text-zinc-500 dark:text-zinc-400">
+
+        <div className="space-y-3 sm:text-right">
+          {tx.executed ? (
+            <WorkspaceBadge tone="emerald">
+              <CheckCircle className="h-3.5 w-3.5" />
+              Executed
+            </WorkspaceBadge>
+          ) : tx.isConfirmed ? (
+            <WorkspaceBadge tone="sky">
+              <Clock className="h-3.5 w-3.5" />
+              Ready to execute
+            </WorkspaceBadge>
+          ) : (
+            <WorkspaceBadge tone="amber">
+              <Clock className="h-3.5 w-3.5" />
+              Awaiting approvals
+            </WorkspaceBadge>
+          )}
+          <div className="text-xs uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
             {tx.confirmations.length} approvals so far
           </div>
         </div>
       </div>
 
-      {decodedAssetTransfer && (
-        <div className="mt-4 rounded-2xl bg-amber-50 p-3 text-sm text-amber-900">
-          <div className="flex items-center gap-2 font-semibold">
+      {decodedAssetTransfer ? (
+        <div className={`mt-4 p-4 ${workspacePanelMutedClassName}`}>
+          <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950 dark:text-white">
             <Coins className="h-4 w-4" />
             Asset Hub token transfer
           </div>
-          <div className="mt-1 text-xs text-amber-800">
-            Recipient: {formatAddress(decodedAssetTransfer.recipient, 6)} | Asset
-            ID: {decodedAssetTransfer.assetId}
+          <div className="mt-2 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
+            Recipient: {formatAddress(decodedAssetTransfer.recipient, 6)} • Asset ID:{" "}
+            {decodedAssetTransfer.assetId}
           </div>
         </div>
-      )}
+      ) : null}
 
-      {tx.data !== "0x" && !decodedAssetTransfer && (
-        <div className="mt-4 rounded-2xl border border-zinc-200 bg-zinc-50 p-3 dark:border-white/10 dark:bg-white/[0.03]">
+      {tx.data !== "0x" && !decodedAssetTransfer ? (
+        <div className={`mt-4 p-4 ${workspacePanelMutedClassName}`}>
           <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950 dark:text-white">
             <Sparkles className="h-4 w-4" />
             Custom calldata
           </div>
-          <div className="mt-2 break-all font-mono text-xs text-zinc-600 dark:text-zinc-400">
+          <div className="mt-3 break-all font-mono text-xs leading-6 text-zinc-600 dark:text-zinc-400">
             {tx.data}
           </div>
         </div>
-      )}
+      ) : null}
 
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          {tx.executed ? (
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-              <CheckCircle className="h-3.5 w-3.5" />
-              Executed
-            </div>
-          ) : tx.isConfirmed ? (
-            <div className="inline-flex items-center gap-2 rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-sky-700">
-              <Clock className="h-3.5 w-3.5" />
-              Ready to execute
-            </div>
-          ) : (
-            <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-700">
-              <Clock className="h-3.5 w-3.5" />
-              Awaiting approvals
-            </div>
-          )}
-        </div>
+      <div className="mt-4 space-y-3">
+        {actionError ? (
+          <WorkspaceNotice tone="rose">{actionError}</WorkspaceNotice>
+        ) : null}
+        {writeUnavailableReason ? (
+          <WorkspaceNotice tone="amber">{writeUnavailableReason}</WorkspaceNotice>
+        ) : null}
 
-        <div className="space-y-2">
-          {actionError && (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
-              {actionError}
-            </div>
-          )}
-          {writeUnavailableReason && (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-              {writeUnavailableReason}
-            </div>
-          )}
+        <div className="flex flex-wrap gap-2">
+          {tx.canConfirm ? (
+            <Button
+              variant="outline"
+              size="sm"
+              className={workspaceOutlineButtonClassName}
+              disabled={isConfirming || !!writeUnavailableReason}
+              onClick={async () => {
+                setActionError(undefined);
+                setIsConfirming(true);
+                try {
+                  await onConfirm(tx.id);
+                } catch (confirmError) {
+                  setActionError(
+                    confirmError instanceof Error
+                      ? confirmError.message
+                      : "Approval failed."
+                  );
+                } finally {
+                  setIsConfirming(false);
+                }
+              }}
+            >
+              {isConfirming ? "Approving..." : "Approve"}
+            </Button>
+          ) : null}
 
-          <div className="flex flex-wrap gap-2">
-            {tx.canConfirm && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
-                disabled={isConfirming || !!writeUnavailableReason}
-                onClick={async () => {
-                  setActionError(undefined);
-                  setIsConfirming(true);
-                  try {
-                    await onConfirm(tx.id);
-                  } catch (confirmError) {
-                    setActionError(
-                      confirmError instanceof Error
-                        ? confirmError.message
-                        : "Approval failed."
-                    );
-                  } finally {
-                    setIsConfirming(false);
-                  }
-                }}
-              >
-                {isConfirming ? "Approving..." : "Approve"}
-              </Button>
-            )}
-
-            {tx.canExecute && (
-              <Button
-                size="sm"
-                className="rounded-full"
-                disabled={isExecuting || !!writeUnavailableReason}
-                onClick={async () => {
-                  setActionError(undefined);
-                  setIsExecuting(true);
-                  try {
-                    await onExecute(tx.id);
-                  } catch (executeError) {
-                    setActionError(
-                      executeError instanceof Error
-                        ? executeError.message
-                        : "Execution failed."
-                    );
-                  } finally {
-                    setIsExecuting(false);
-                  }
-                }}
-              >
-                {isExecuting ? "Executing..." : "Execute"}
-              </Button>
-            )}
-          </div>
+          {tx.canExecute ? (
+            <Button
+              size="sm"
+              className="rounded-full"
+              disabled={isExecuting || !!writeUnavailableReason}
+              onClick={async () => {
+                setActionError(undefined);
+                setIsExecuting(true);
+                try {
+                  await onExecute(tx.id);
+                } catch (executeError) {
+                  setActionError(
+                    executeError instanceof Error
+                      ? executeError.message
+                      : "Execution failed."
+                  );
+                } finally {
+                  setIsExecuting(false);
+                }
+              }}
+            >
+              {isExecuting ? "Executing..." : "Execute"}
+            </Button>
+          ) : null}
         </div>
       </div>
     </div>

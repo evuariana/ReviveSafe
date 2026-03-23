@@ -17,7 +17,7 @@ const fadeUp = {
 
 const proofItems = [
   "Programmable contract wallets",
-  "Add existing compatible contract wallets",
+  "Verified native multisig import",
   "One proposal model across actions",
 ];
 
@@ -59,9 +59,8 @@ export function HeroSection() {
             variants={fadeUp}
             className="mx-auto mt-8 max-w-2xl text-lg font-light leading-relaxed text-zinc-500 dark:text-zinc-400 md:text-xl"
           >
-            One place for shared approvals, contract wallet operations, and
-            clear proposal history on Asset Hub. Native wallet import is part
-            of the roadmap, not the current beta.
+            One place for shared approvals, imported native multisigs, contract
+            wallet operations, and clear proposal history on Asset Hub.
           </motion.p>
 
           <motion.div

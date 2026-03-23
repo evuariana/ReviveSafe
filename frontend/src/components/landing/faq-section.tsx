@@ -11,12 +11,12 @@ const faqs = [
   {
     question: "Do I need a Programmable Wallet?",
     answer:
-      "For the live beta, yes. The shipped flow today is programmable contract wallets on Asset Hub. Native wallet support remains part of the product direction, but it is not implemented end to end yet.",
+      "No. You can import a direct native multisig today. Use a programmable wallet when you need a new contract wallet or contract-backed proposal flows. Native wallet creation and proxy support are still out of scope in this beta.",
   },
   {
     question: "Can I import the wallets my team already uses?",
     answer:
-      "You can add compatible ReviveSafe contract wallets today. Native multisig and proxy import are not live in the current beta yet.",
+      "Yes for direct native multisigs if you know the exact members and threshold. ReviveSafe derives the deterministic wallet address and checks the connected signer is a direct member. Compatible ReviveSafe contract wallets can also still be added. Proxy import is not live yet.",
   },
   {
     question: "What happens if some wallet history cannot be recovered?",

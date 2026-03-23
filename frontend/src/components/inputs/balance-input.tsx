@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 
+import {
+  workspaceInputClassName,
+  workspaceOutlineButtonClassName,
+  workspaceSelectClassName,
+} from "@/components/layout/workspace-surfaces";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -60,7 +65,7 @@ export function BalanceInput({
       <div className="flex items-center justify-between">
         <Label>{label}</Label>
         <select
-          className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs font-medium text-slate-600"
+          className={`${workspaceSelectClassName} h-9 w-auto rounded-full px-3 py-1 text-xs font-medium`}
           value={selectedDenomination.label}
           onChange={(event) => setSelectedLabel(event.target.value)}
           disabled={disabled}
@@ -75,7 +80,7 @@ export function BalanceInput({
 
       <Input
         inputMode={selectedDenomination.decimals === 0 ? "numeric" : "decimal"}
-        className="font-mono"
+        className={`${workspaceInputClassName} font-mono`}
         disabled={disabled}
         placeholder={selectedDenomination.decimals === 0 ? "0" : "0.00"}
         value={displayValue}
@@ -87,7 +92,7 @@ export function BalanceInput({
       />
 
       {(description || maxPlanck !== undefined) && (
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-zinc-500 dark:text-zinc-400">
           <span>{description}</span>
           {maxPlanck !== undefined && (
             <div className="flex items-center gap-1">
@@ -97,7 +102,7 @@ export function BalanceInput({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-7 rounded-full px-2 text-[11px]"
+                  className={`h-7 rounded-full px-2 text-[11px] ${workspaceOutlineButtonClassName}`}
                   disabled={disabled}
                   onClick={() => {
                     const nextValue =
@@ -120,4 +125,3 @@ export function BalanceInput({
     </div>
   );
 }
-

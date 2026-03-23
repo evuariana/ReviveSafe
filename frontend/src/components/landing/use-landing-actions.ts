@@ -18,7 +18,7 @@ export function useLandingActions() {
 
   return {
     handleCreate: () => goTo("/create"),
-    handleImport: () => goTo("/register"),
+    handleImport: () => goTo("/import"),
     isConnected: !!account,
   };
 }

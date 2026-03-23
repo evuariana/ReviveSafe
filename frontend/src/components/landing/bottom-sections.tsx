@@ -45,8 +45,9 @@ export function BottomSections() {
               1. Create or add
             </h4>
             <p className="text-sm font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Start with a new programmable contract wallet or add a compatible
-              contract wallet your team already owns.
+              Start with a new programmable contract wallet, import a direct
+              native multisig, or add a compatible contract wallet your team
+              already owns.
             </p>
           </motion.div>
 
@@ -125,9 +126,9 @@ export function BottomSections() {
             </h2>
             <p className="mb-8 mt-6 text-lg font-light leading-relaxed text-zinc-500 dark:text-zinc-400">
               ReviveSafe gives teams one approval and operations layer across
-              programmable contract-wallet activity on Asset Hub. The current
-              beta focuses on the flows that are already live: create, add,
-              approve, and execute.
+              imported native multisigs and programmable contract-wallet
+              activity on Asset Hub. The current beta focuses on the flows that
+              are already live: import, create, add, approve, and execute.
             </p>
             <ul className="space-y-4 text-zinc-600 dark:text-zinc-300">
               <li className="flex items-center gap-3">
@@ -136,7 +137,7 @@ export function BottomSections() {
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-zinc-400" />
-                Add compatible contract wallets to one workspace
+                Import direct native multisigs and add compatible contract wallets
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-zinc-400" />
@@ -157,9 +158,9 @@ export function BottomSections() {
             </div>
             <p className="text-sm font-light leading-relaxed text-zinc-600 dark:text-zinc-400">
               ReviveSafe stays explicit about what this beta does today. The
-              live flows are programmable contract wallets with owner approvals
-              and execution on Asset Hub. Native wallet rails remain roadmap
-              work, not shipped beta behavior.
+              live flows are direct native multisig import plus programmable
+              contract wallets with owner approvals and execution on Asset Hub.
+              Proxy and deeper wallet-management surfaces remain roadmap work.
             </p>
           </div>
         </div>
@@ -226,8 +227,8 @@ export function BottomSections() {
           Ready to bring your team into one shared wallet workspace?
         </h2>
         <p className="mb-12 mt-8 text-xl font-light text-zinc-500 dark:text-zinc-400">
-          Create a new programmable wallet or add a compatible contract wallet,
-          then keep approvals, wallet operations, and visibility in one place.
+          Import a supported native wallet or create a programmable one, then
+          keep approvals, wallet operations, and visibility in one place.
         </p>
         <div className="flex justify-center">
           <LandingCtaButtons />

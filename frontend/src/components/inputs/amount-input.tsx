@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 
+import {
+  workspaceInputClassName,
+  workspacePanelMutedClassName,
+} from "@/components/layout/workspace-surfaces";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -48,13 +52,15 @@ export function AmountInput({
       <div className="flex items-center justify-between">
         <Label>{label}</Label>
         {allowHex && (
-          <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1 text-[11px] font-medium">
+          <div className={`inline-flex p-1 text-[11px] font-medium ${workspacePanelMutedClassName}`}>
             {(["dec", "hex"] as const).map((nextMode) => (
               <button
                 key={nextMode}
                 type="button"
                 className={`rounded-full px-2 py-1 ${
-                  mode === nextMode ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"
+                  mode === nextMode
+                    ? "bg-white text-zinc-900 shadow-sm dark:bg-white dark:text-black"
+                    : "text-zinc-500 dark:text-zinc-400"
                 }`}
                 onClick={() => setMode(nextMode)}
                 disabled={disabled}
@@ -67,7 +73,7 @@ export function AmountInput({
       </div>
 
       <Input
-        className="font-mono"
+        className={`${workspaceInputClassName} font-mono`}
         disabled={disabled}
         value={displayValue}
         onChange={(event) => {
@@ -102,9 +108,8 @@ export function AmountInput({
         }}
       />
 
-      {description && <p className="text-xs text-slate-500">{description}</p>}
+      {description && <p className="text-xs text-zinc-500 dark:text-zinc-400">{description}</p>}
       {error && <p className="text-sm text-rose-600">{error}</p>}
     </div>
   );
 }
-
