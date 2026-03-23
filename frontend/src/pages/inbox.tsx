@@ -5,34 +5,65 @@ import {
   WorkspaceEmptyState,
   WorkspaceHero,
   WorkspaceLinkCard,
+  WorkspaceNotice,
   WorkspacePanel,
+  workspacePageClassName,
 } from "@/components/layout/workspace-surfaces";
+import { Button } from "@/components/ui/button";
+import { useWorkspaceLiveData } from "@/hooks/useWorkspaceLiveData";
 import { useWorkspaceSurfaces } from "@/hooks/useWorkspaceSurfaces";
 
 export default function InboxPage() {
-  const workspace = useWorkspaceSurfaces();
+  const liveWorkspace = useWorkspaceLiveData();
+  const workspace = useWorkspaceSurfaces({
+    enabled: liveWorkspace.enabled,
+    includeAssetMetadata: false,
+  });
 
   return (
-    <div className="space-y-8">
+    <div className={workspacePageClassName}>
       <WorkspaceHero
         eyebrow="Inbox"
-        title="Actionable updates across your wallets"
-        description="Use Inbox for what needs attention now, and keep activity history separate from the approval queue."
+        title="What needs attention right now"
+        description="Use Inbox like a shared to-do list. It shows approvals waiting on you, recent updates worth checking, and wallet notices that still matter."
         aside={
           <div className="space-y-4">
-            <WorkspaceBadge tone="amber">Needs attention</WorkspaceBadge>
+            <WorkspaceBadge tone={liveWorkspace.enabled ? "amber" : "sky"}>
+              {liveWorkspace.enabled ? "Needs attention" : "On-demand queue"}
+            </WorkspaceBadge>
             <div className="font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
-              {workspace.needsAction.length} actionable items
+              {liveWorkspace.enabled
+                ? `${workspace.needsAction.length} actionable items`
+                : "Load the shared to-do list when you need it"}
             </div>
             <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-              Inbox is intentionally current-state oriented: approvals waiting on
-              you, recent execution updates, and wallet lifecycle notices.
+              {liveWorkspace.enabled
+                ? "Inbox is intentionally current-state oriented. Historical browsing stays in Activity so this page can remain easy to scan."
+                : "To keep the workspace stable, Inbox now loads its cross-wallet action queue on demand instead of rehydrating it automatically after every connect."}
             </p>
           </div>
         }
       />
 
-      <div className="grid gap-4 xl:grid-cols-3">
+      {!liveWorkspace.enabled ? (
+        <WorkspacePanel
+          title="Load Inbox data"
+          description="When you load Inbox, ReviveSafe will recover approvals waiting on you, recent updates, and wallet notices for this connected account."
+          actions={
+            <Button className="rounded-full px-5" onClick={liveWorkspace.enable}>
+              Load Inbox
+            </Button>
+          }
+        >
+          <WorkspaceNotice tone="amber">
+            This beta no longer keeps the entire shared-wallet queue running in
+            the background after connect.
+          </WorkspaceNotice>
+        </WorkspacePanel>
+      ) : null}
+
+      {liveWorkspace.enabled ? (
+        <div className="grid gap-4 xl:grid-cols-3">
         <WorkspacePanel title="Needs action" contentClassName="space-y-3">
           {workspace.needsAction.length === 0 ? (
             <WorkspaceEmptyState
@@ -106,7 +137,8 @@ export default function InboxPage() {
             ))
           )}
         </WorkspacePanel>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }

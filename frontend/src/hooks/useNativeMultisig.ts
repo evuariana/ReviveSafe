@@ -32,7 +32,7 @@ const DEFAULT_NATIVE_MULTISIG_WEIGHT: ReviveWeight = {
   refTime: 3_500_000_000n,
 };
 
-const REFRESH_INTERVAL = 10_000;
+const REFRESH_INTERVAL = 30_000;
 
 export interface NativeMultisigOperationView {
   actionSummary: string;
@@ -367,6 +367,7 @@ export function useImportedNativeWallets() {
 
 interface UseNativeMultisigOperationsOptions {
   enabled?: boolean;
+  includeAssetMetadata?: boolean;
   refetchInterval?: false | number;
 }
 
@@ -376,7 +377,10 @@ export function useNativeMultisigOperations(
 ) {
   const { account } = useAccount();
   const { client, chain } = usePolkadotClient();
-  const assetsQuery = useHubAssets();
+  const assetsQuery = useHubAssets({
+    enabled:
+      (options.enabled ?? true) && (options.includeAssetMetadata ?? true),
+  });
   const token = useChainToken();
 
   return useQuery({

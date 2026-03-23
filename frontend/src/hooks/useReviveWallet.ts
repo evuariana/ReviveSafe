@@ -7,7 +7,7 @@ import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import { encodeContractCall, useReviveActions } from "@/hooks/useReviveActions";
 import { h160ToFallbackAccountId32 } from "@/lib/account-mapping";
 
-const REFRESH_INTERVAL = 5_000;
+const REFRESH_INTERVAL = 30_000;
 
 export interface WalletTransactionView {
   id: number;

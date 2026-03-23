@@ -6,7 +6,11 @@ import { reviveWalletAbi } from "@/config/contracts";
 import { useContractAdapter } from "@/hooks/useContractAdapter";
 import type { WalletTransactionView } from "@/hooks/useReviveWallet";
 
-const REFRESH_INTERVAL = 10_000;
+interface UseWorkspaceQueuesOptions {
+  enabled?: boolean;
+  includeRecentActivity?: boolean;
+  refetchInterval?: false | number;
+}
 
 interface WorkspaceWalletSnapshot {
   address: Address;
@@ -31,15 +35,24 @@ function queryErrorMessage(error: unknown) {
 
 export function useWorkspaceQueues(
   walletAddresses: Address[],
-  currentOwner?: Address
+  currentOwner?: Address,
+  options: UseWorkspaceQueuesOptions = {}
 ) {
   const adapter = useContractAdapter();
+  const enabled = options.enabled ?? true;
+  const includeRecentActivity = options.includeRecentActivity ?? true;
+  const refetchInterval = options.refetchInterval ?? false;
 
   const walletQueries = useQueries({
-    queries: walletAddresses.map((walletAddress) => ({
-      queryKey: ["workspace-wallet-snapshot", walletAddress, currentOwner],
+    queries: (enabled ? walletAddresses : []).map((walletAddress) => ({
+      queryKey: [
+        "workspace-wallet-snapshot",
+        walletAddress,
+        currentOwner,
+        includeRecentActivity ? "with-activity" : "pending-only",
+      ],
       enabled: !!walletAddress,
-      refetchInterval: REFRESH_INTERVAL,
+      refetchInterval,
       queryFn: async () => {
         const readTransactionView = async (
           transactionId: bigint
@@ -106,11 +119,13 @@ export function useWorkspaceQueues(
             abi: reviveWalletAbi,
             functionName: "required",
           }),
-          adapter.read<bigint>({
-            address: walletAddress,
-            abi: reviveWalletAbi,
-            functionName: "transactionCount",
-          }),
+          includeRecentActivity
+            ? adapter.read<bigint>({
+                address: walletAddress,
+                abi: reviveWalletAbi,
+                functionName: "transactionCount",
+              })
+            : Promise.resolve(0n),
           adapter.read<bigint>({
             address: walletAddress,
             abi: reviveWalletAbi,
@@ -120,7 +135,9 @@ export function useWorkspaceQueues(
         ]);
 
         const pendingTotal = Number(pendingCount);
-        const executedTotal = Math.max(Number(transactionCount) - pendingTotal, 0);
+        const executedTotal = includeRecentActivity
+          ? Math.max(Number(transactionCount) - pendingTotal, 0)
+          : 0;
 
         const [pendingIds, executedIds] = await Promise.all([
           pendingTotal > 0
@@ -131,7 +148,7 @@ export function useWorkspaceQueues(
                 args: [0n, BigInt(pendingTotal), true, false],
               })
             : Promise.resolve([] as readonly bigint[]),
-          executedTotal > 0
+          includeRecentActivity && executedTotal > 0
             ? adapter.read<readonly bigint[]>({
                 address: walletAddress,
                 abi: reviveWalletAbi,
@@ -187,13 +204,11 @@ export function useWorkspaceQueues(
 
     return {
       snapshots,
-      needsApproval: proposalItems
-        .filter((proposal) => proposal.needsApproval),
-      readyToExecute: proposalItems
-        .filter((proposal) => proposal.readyToExecute),
+      needsApproval: proposalItems.filter((proposal) => proposal.needsApproval),
+      readyToExecute: proposalItems.filter((proposal) => proposal.readyToExecute),
       recentActivity,
-      isLoading: walletQueries.some((query) => query.isLoading),
+      isLoading: enabled && walletQueries.some((query) => query.isLoading),
       error: queryErrorMessage(firstError),
     };
-  }, [walletQueries]);
+  }, [enabled, walletQueries]);
 }

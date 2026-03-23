@@ -12,6 +12,7 @@ import {
   WorkspacePanel,
   workspaceInputClassName,
   workspaceOutlineButtonClassName,
+  workspacePageFrameClassName,
   workspacePanelMutedClassName,
 } from "@/components/layout/workspace-surfaces";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,7 @@ export default function ImportWallet() {
   const [label, setLabel] = useState("");
   const [members, setMembers] = useState<string[]>([]);
   const [optionalAddress, setOptionalAddress] = useState("");
+  const [previewRequested, setPreviewRequested] = useState(false);
   const [threshold, setThreshold] = useState("1");
   const [submitError, setSubmitError] = useState<string>();
 
@@ -62,8 +64,10 @@ export default function ImportWallet() {
   }, [chain.key, client, label, members, optionalAddress, threshold]);
 
   const previewOperationsQuery = useNativeMultisigOperations(
-    previewWallet ? [previewWallet] : [],
+    previewRequested && previewWallet ? [previewWallet] : [],
     {
+      enabled: previewRequested,
+      includeAssetMetadata: false,
       refetchInterval: false,
     }
   );
@@ -102,11 +106,11 @@ export default function ImportWallet() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl space-y-8">
+    <div className={workspacePageFrameClassName}>
       <WorkspaceHero
         eyebrow="Import wallet"
-        title="Import a native multisig wallet"
-        description="Import is manual and verified. Enter the direct member set and threshold, and ReviveSafe will derive the deterministic native multisig account for this chain before it adds anything to your browser-local workspace on this device."
+        title="Add a native multisig your team already uses"
+        description="Import is manual and verified. Enter the exact direct member list and threshold, and ReviveSafe will derive the native multisig account for this chain before it adds anything to your browser-local workspace on this device."
         aside={
           <div className="space-y-4">
             <WorkspaceBadge tone="sky">Manual verified import</WorkspaceBadge>
@@ -120,10 +124,10 @@ export default function ImportWallet() {
 
       <PublicBetaNotice compact />
 
-      <WorkspacePanel title="1. Add direct members" contentClassName="space-y-4">
+      <WorkspacePanel title="1. Add the signer list" contentClassName="space-y-4">
         <WorkspaceNotice>
-          Native import currently supports direct `pallet_multisig` wallets. Proxy
-          wrappers and automatic wallet discovery are not part of this pass.
+          ReviveSafe currently supports direct `pallet_multisig` wallets only.
+          Proxy wrappers and automatic wallet discovery are not part of this pass.
         </WorkspaceNotice>
         <WorkspaceNotice tone="amber">
           Imported native wallets are currently stored in this browser only. If
@@ -144,11 +148,12 @@ export default function ImportWallet() {
                   type="button"
                   variant="ghost"
                   size="sm"
-                  onClick={() =>
+                  onClick={() => {
+                    setPreviewRequested(false);
                     setMembers((current) =>
                       current.filter((_, currentIndex) => currentIndex !== index)
-                    )
-                  }
+                    );
+                  }}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -159,13 +164,14 @@ export default function ImportWallet() {
               className={workspaceInputClassName}
               placeholder="1..."
               value={member}
-              onChange={(event) =>
+              onChange={(event) => {
+                setPreviewRequested(false);
                 setMembers((current) =>
                   current.map((entry, currentIndex) =>
                     currentIndex === index ? event.target.value : entry
                   )
-                )
-              }
+                );
+              }}
             />
           </div>
         ))}
@@ -174,7 +180,10 @@ export default function ImportWallet() {
           type="button"
           variant="outline"
           className={workspaceOutlineButtonClassName}
-          onClick={() => setMembers((current) => [...current, ""])}
+          onClick={() => {
+            setPreviewRequested(false);
+            setMembers((current) => [...current, ""]);
+          }}
         >
           <Plus className="h-4 w-4" />
           Add member
@@ -182,21 +191,27 @@ export default function ImportWallet() {
       </WorkspacePanel>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <WorkspacePanel title="2. Review derived wallet" contentClassName="space-y-4">
+        <WorkspacePanel title="2. Confirm the derived wallet" contentClassName="space-y-4">
           <div className="space-y-2">
             <Label className="text-zinc-700 dark:text-zinc-300">Wallet label</Label>
             <Input
               className={workspaceInputClassName}
               placeholder="Treasury wallet"
               value={label}
-              onChange={(event) => setLabel(event.target.value)}
+              onChange={(event) => {
+                setPreviewRequested(false);
+                setLabel(event.target.value);
+              }}
             />
           </div>
 
           <AmountInput
             label="Required approvals"
             value={threshold}
-            onChange={(value) => setThreshold(value ?? "1")}
+            onChange={(value) => {
+              setPreviewRequested(false);
+              setThreshold(value ?? "1");
+            }}
             min={1}
             max={Math.max(validMembers.length, 1)}
             description="Use the exact threshold that created the original native multisig."
@@ -210,7 +225,10 @@ export default function ImportWallet() {
               className={workspaceInputClassName}
               placeholder="1..."
               value={optionalAddress}
-              onChange={(event) => setOptionalAddress(event.target.value)}
+              onChange={(event) => {
+                setPreviewRequested(false);
+                setOptionalAddress(event.target.value);
+              }}
             />
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               Leave blank to let ReviveSafe derive the wallet address. If you
@@ -237,7 +255,7 @@ export default function ImportWallet() {
           )}
         </WorkspacePanel>
 
-        <WorkspacePanel title="3. Preview recovered details" contentClassName="space-y-4">
+        <WorkspacePanel title="3. Preview what ReviveSafe can recover" contentClassName="space-y-4">
           <div className={`${workspacePanelMutedClassName} p-4 text-sm text-zinc-700 dark:text-zinc-300`}>
             <div className="font-semibold text-zinc-950 dark:text-white">
               Connected account
@@ -253,23 +271,59 @@ export default function ImportWallet() {
           </div>
 
           {previewWallet ? (
-            <div className={`${workspacePanelMutedClassName} p-4 text-sm text-zinc-700 dark:text-zinc-300`}>
-              <div className="font-semibold text-zinc-950 dark:text-white">
-                Pending proposals
+            previewRequested ? (
+              <div className={`${workspacePanelMutedClassName} p-4 text-sm text-zinc-700 dark:text-zinc-300`}>
+                <div className="font-semibold text-zinc-950 dark:text-white">
+                  Pending proposals
+                </div>
+                <div className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
+                  {previewOperationsQuery.isLoading
+                    ? "..."
+                    : previewOperationsQuery.data?.length ?? 0}
+                </div>
+                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  ReviveSafe will recover pending native proposals where chain data
+                  is available. Some imported items may still expose only a call hash.
+                </p>
               </div>
-              <div className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
-                {previewOperationsQuery.isLoading
-                  ? "..."
-                  : previewOperationsQuery.data?.length ?? 0}
-              </div>
-              <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                ReviveSafe will recover pending native proposals where chain data
-                is available. Some imported items may still expose only a call hash.
-              </p>
-            </div>
+            ) : (
+              <WorkspaceNotice>
+                Load the on-chain preview only when you need it. This beta now
+                keeps native recovery on demand so the import flow stays stable
+                while you edit members and threshold.
+              </WorkspaceNotice>
+            )
           ) : null}
 
           {submitError ? <WorkspaceNotice tone="rose">{submitError}</WorkspaceNotice> : null}
+
+          <div className="flex flex-wrap gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              className={workspaceOutlineButtonClassName}
+              disabled={!previewWallet}
+              onClick={() => {
+                setSubmitError(undefined);
+                setPreviewRequested(true);
+              }}
+            >
+              Preview on-chain proposals
+            </Button>
+            {account?.address && !connectedMember ? (
+              <Button
+                type="button"
+                variant="outline"
+                className={workspaceOutlineButtonClassName}
+                onClick={() => {
+                  setPreviewRequested(false);
+                  setMembers((current) => [...current, account.address]);
+                }}
+              >
+                Add connected account
+              </Button>
+            ) : null}
+          </div>
         </WorkspacePanel>
       </div>
 

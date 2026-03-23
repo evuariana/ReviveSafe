@@ -10,9 +10,10 @@ export function BetaSupportCard() {
         Beta safety and support
       </div>
       <p className="mt-2 leading-7">
-        This beta currently supports programmable contract wallets on Asset Hub.
-        Contracts are treated as unaudited in this repo, so verify the selected
-        network and active factory before moving funds.
+        This beta currently supports programmable contract wallets on Asset Hub
+        plus manual verified native multisig import. Contracts are still treated
+        as unaudited in this repo, so verify the selected network, wallet type,
+        and active factory before moving funds.
       </p>
       <div className="mt-4 flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-amber-900 dark:text-amber-100">
         <a

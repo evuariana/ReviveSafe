@@ -7,36 +7,64 @@ import {
   WorkspaceLinkCard,
   WorkspaceNotice,
   WorkspacePanel,
+  workspacePageClassName,
 } from "@/components/layout/workspace-surfaces";
+import { Button } from "@/components/ui/button";
+import { useWorkspaceLiveData } from "@/hooks/useWorkspaceLiveData";
 import { useWorkspaceSurfaces } from "@/hooks/useWorkspaceSurfaces";
 
 export default function ActivityPage() {
-  const workspace = useWorkspaceSurfaces();
+  const liveWorkspace = useWorkspaceLiveData();
+  const workspace = useWorkspaceSurfaces({
+    enabled: liveWorkspace.enabled,
+    includeAssetMetadata: false,
+  });
 
   return (
-    <div className="space-y-8">
+    <div className={workspacePageClassName}>
       <WorkspaceHero
         eyebrow="Activity"
-        title="Workspace activity feed"
-        description="Activity is a best-effort workspace feed. Native events recorded in ReviveSafe carry local timestamps, while programmable executions are currently shown as untimed wallet snapshots until indexed history exists."
+        title="What changed recently"
+        description="Activity is a best-effort feed of recent wallet changes. ReviveSafe stays explicit about what is truly time-ordered and what is only recoverable as a current snapshot."
         aside={
           <div className="space-y-4">
-            <WorkspaceBadge>Best-effort feed</WorkspaceBadge>
+            <WorkspaceBadge tone={liveWorkspace.enabled ? "default" : "amber"}>
+              {liveWorkspace.enabled ? "Best-effort feed" : "On-demand feed"}
+            </WorkspaceBadge>
             <div className="font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
-              {workspace.activity.length} recent events
+              {liveWorkspace.enabled
+                ? `${workspace.activity.length} recent events`
+                : "Load recent changes when you need context"}
             </div>
             <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-              Native events with recorded timestamps are shown chronologically.
-              Programmable items are still untimed snapshots recovered from current
-              wallet state, not a full indexed ledger.
+              {liveWorkspace.enabled
+                ? "Native events with recorded timestamps are shown chronologically. Programmable items are still untimed snapshots from current wallet state, not a full indexed ledger yet."
+                : "Activity is now an explicit best-effort load in this beta. That keeps history reads from constantly rebuilding across every connected wallet."}
             </p>
           </div>
         }
       />
 
-      <WorkspacePanel
+      {!liveWorkspace.enabled ? (
+        <WorkspacePanel
+          title="Load recent activity"
+          description="ReviveSafe will fetch the latest wallet updates and best-effort recorded events for this workspace when you ask for them."
+          actions={
+            <Button className="rounded-full px-5" onClick={liveWorkspace.enable}>
+              Load Activity
+            </Button>
+          }
+        >
+          <WorkspaceNotice tone="amber">
+            Activity no longer auto-rebuilds in the background after every
+            connect. This keeps the workspace steadier while the beta still
+            depends on direct browser reads.
+          </WorkspaceNotice>
+        </WorkspacePanel>
+      ) : (
+        <WorkspacePanel
         title="Workspace activity"
-        description="This feed stays explicit about what is truly time-ordered versus what is only recoverable from current wallet state."
+        description="Use this feed for recent context, while keeping in mind that full cross-wallet history still needs dedicated indexing."
         contentClassName="space-y-4"
       >
         <WorkspaceNotice tone="amber">
@@ -75,7 +103,8 @@ export default function ActivityPage() {
             />
           ))
         )}
-      </WorkspacePanel>
+        </WorkspacePanel>
+      )}
     </div>
   );
 }

@@ -12,6 +12,7 @@ import {
   WorkspaceNotice,
   WorkspacePanel,
   workspaceOutlineButtonClassName,
+  workspacePageFrameClassName,
   workspacePanelMutedClassName,
 } from "@/components/layout/workspace-surfaces";
 import { MappingGate } from "@/components/wallet/mapping-gate";
@@ -99,7 +100,7 @@ export default function Create() {
 
   return (
     <MappingGate>
-      <div className="mx-auto max-w-5xl space-y-8">
+      <div className={workspacePageFrameClassName}>
         <WorkspaceHero
           eyebrow="Create wallet"
           title="Set up a programmable shared wallet"

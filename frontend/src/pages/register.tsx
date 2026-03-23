@@ -12,6 +12,7 @@ import {
   WorkspacePanel,
   workspaceInputClassName,
   workspaceOutlineButtonClassName,
+  workspacePageCompactClassName,
   workspacePanelMutedClassName,
 } from "@/components/layout/workspace-surfaces";
 import { MappingGate } from "@/components/wallet/mapping-gate";
@@ -150,7 +151,7 @@ export default function RegisterMultisig() {
 
   return (
     <MappingGate>
-      <div className="mx-auto max-w-3xl space-y-8">
+      <div className={workspacePageCompactClassName}>
         <WorkspaceHero
           eyebrow="Add contract wallet"
           title="Add an existing contract wallet to this workspace"

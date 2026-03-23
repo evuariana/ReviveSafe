@@ -56,6 +56,13 @@ export interface WorkspaceUpdateView {
 
 export type WorkspaceLifecycleView = WorkspaceUpdateView;
 
+interface UseWorkspaceSurfacesOptions {
+  enabled?: boolean;
+  includeActivity?: boolean;
+  includeAssetMetadata?: boolean;
+  refetchInterval?: false | number;
+}
+
 function compareActivityItems(left: WorkspaceUpdateView, right: WorkspaceUpdateView) {
   if (left.chronology !== right.chronology) {
     return left.chronology === "recorded" ? -1 : 1;
@@ -110,16 +117,35 @@ function describeProgrammableProposal(
   )} ${token.symbol} to ${formatAddress(proposal.transaction.destination, 6)}`;
 }
 
-export function useWorkspaceSurfaces() {
+export function useWorkspaceSurfaces(
+  options: UseWorkspaceSurfacesOptions = {}
+) {
   const { chain } = usePolkadotClient();
   const token = useChainToken();
-  const assetsQuery = useHubAssets();
+  const enabled = options.enabled ?? true;
+  const includeAssetMetadata = options.includeAssetMetadata ?? false;
+  const assetsQuery = useHubAssets({
+    enabled: enabled && includeAssetMetadata,
+  });
   const assets = useMemo(() => assetsQuery.data ?? [], [assetsQuery.data]);
   const { mappedAccount } = useMappedAccount();
-  const { myMultisigs } = useReviveFactory();
-  const queues = useWorkspaceQueues(myMultisigs, mappedAccount?.mappedH160);
+  const refreshInterval = options.refetchInterval ?? false;
+  const { myMultisigs } = useReviveFactory({
+    enabled,
+    refetchInterval: refreshInterval,
+  });
+  const includeActivity = options.includeActivity ?? true;
+  const queues = useWorkspaceQueues(myMultisigs, mappedAccount?.mappedH160, {
+    enabled,
+    includeRecentActivity: includeActivity,
+    refetchInterval: refreshInterval,
+  });
   const nativeWallets = useImportedNativeWallets();
-  const nativeOperationsQuery = useNativeMultisigOperations(nativeWallets);
+  const nativeOperationsQuery = useNativeMultisigOperations(nativeWallets, {
+    enabled,
+    includeAssetMetadata,
+    refetchInterval: refreshInterval,
+  });
   const nativeWorkspaceEvents = useWorkspaceNativeWallets((state) => state.events);
   const nativeEvents = useMemo(
     () => nativeWorkspaceEvents.filter((event) => event.chainKey === chain.key),

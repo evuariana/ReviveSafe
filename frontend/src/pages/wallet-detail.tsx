@@ -14,6 +14,7 @@ import {
   WorkspaceStatCard,
   workspaceGhostButtonClassName,
   workspaceOutlineButtonClassName,
+  workspacePageClassName,
   workspacePanelMutedClassName,
 } from "@/components/layout/workspace-surfaces";
 import { NativeWalletDetail } from "@/pages/native-wallet-detail";
@@ -68,7 +69,7 @@ export default function WalletDetail() {
   const visibleAssetBalances = assetBalances.filter((asset) => asset.balance > 0n);
 
   return (
-    <div className="space-y-8">
+    <div className={workspacePageClassName}>
       <WorkspaceHero
         eyebrow="Wallet detail"
         title="Programmable wallet overview"

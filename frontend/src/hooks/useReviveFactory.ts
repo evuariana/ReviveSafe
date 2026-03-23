@@ -7,7 +7,12 @@ import { useFactoryAddress } from "@/hooks/useFactoryAddress";
 import { useMappedAccount } from "@/hooks/useMappedAccount";
 import { encodeContractCall, useReviveActions } from "@/hooks/useReviveActions";
 
-export function useReviveFactory() {
+interface UseReviveFactoryOptions {
+  enabled?: boolean;
+  refetchInterval?: false | number;
+}
+
+export function useReviveFactory(options: UseReviveFactoryOptions = {}) {
   const adapter = useContractAdapter();
   const queryClient = useQueryClient();
   const factoryAddress = useFactoryAddress((state) => state.factoryAddress);
@@ -16,8 +21,11 @@ export function useReviveFactory() {
 
   const myMultisigsQuery = useQuery({
     queryKey: ["factory", "my-multisigs", factoryAddress, mappedAccount?.mappedH160],
-    enabled: !!factoryAddress && !!mappedAccount?.mappedH160,
-    refetchInterval: 10_000,
+    enabled:
+      (options.enabled ?? true) &&
+      !!factoryAddress &&
+      !!mappedAccount?.mappedH160,
+    refetchInterval: options.refetchInterval ?? false,
     queryFn: () =>
       adapter.read<readonly Address[]>({
         address: factoryAddress as Address,

@@ -9,14 +9,21 @@ import {
   WorkspacePanel,
   WorkspaceNotice,
   workspaceOutlineButtonClassName,
+  workspacePageClassName,
 } from "@/components/layout/workspace-surfaces";
 import { useWorkspaceSurfaces } from "@/hooks/useWorkspaceSurfaces";
+import { useWorkspaceLiveData } from "@/hooks/useWorkspaceLiveData";
 
 type ProposalFilter = "all" | "pending" | "ready";
 
 export default function ProposalsPage() {
   const [filter, setFilter] = useState<ProposalFilter>("all");
-  const workspace = useWorkspaceSurfaces();
+  const liveWorkspace = useWorkspaceLiveData();
+  const workspace = useWorkspaceSurfaces({
+    enabled: liveWorkspace.enabled,
+    includeActivity: false,
+    includeAssetMetadata: false,
+  });
 
   const visibleProposals = useMemo(() => {
     if (filter === "pending") {
@@ -35,28 +42,51 @@ export default function ProposalsPage() {
   }, [filter, workspace.proposals]);
 
   return (
-    <div className="space-y-8">
+    <div className={workspacePageClassName}>
       <WorkspaceHero
         eyebrow="Proposals"
-        title="Cross-wallet proposal queue"
-        description="Review pending approvals and ready-to-execute items across imported native and programmable wallets from one queue."
+        title="Open approvals and ready items"
+        description="Use Proposals as the shared work queue for actions that are still open across imported native and programmable wallets."
         aside={
           <div className="space-y-4">
-            <WorkspaceBadge tone="sky">Unified queue</WorkspaceBadge>
+            <WorkspaceBadge tone={liveWorkspace.enabled ? "sky" : "amber"}>
+              {liveWorkspace.enabled ? "Unified queue" : "On-demand queue"}
+            </WorkspaceBadge>
             <div className="font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
-              {workspace.proposals.length} open proposals
+              {liveWorkspace.enabled
+                ? `${workspace.proposals.length} open proposals`
+                : "Load open proposals when you need them"}
             </div>
             <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-              This is the work queue, not the historical ledger. Activity stays
-              separate so teams can quickly see what still needs action.
+              {liveWorkspace.enabled
+                ? "This page is for unfinished work, not history. Activity stays separate so teams can quickly see what still needs action."
+                : "Proposals now loads on demand in this beta. That keeps shared-wallet reads explicit instead of quietly rebuilding the whole queue in the background."}
             </p>
           </div>
         }
       />
 
-      <WorkspacePanel
+      {!liveWorkspace.enabled ? (
+        <WorkspacePanel
+          title="Load the proposal queue"
+          description="ReviveSafe will recover open approvals and ready-to-execute items across imported native and programmable wallets for this connected account."
+          actions={
+            <Button className="rounded-full px-5" onClick={liveWorkspace.enable}>
+              Load Proposals
+            </Button>
+          }
+        >
+          <WorkspaceNotice tone="amber">
+            This queue stays paused until you request it so the workspace does
+            not spin up heavy cross-wallet reads every time you connect.
+          </WorkspaceNotice>
+        </WorkspacePanel>
+      ) : null}
+
+      {liveWorkspace.enabled ? (
+        <WorkspacePanel
         title="Proposal queue"
-        description="Filter the queue by approval state without splitting native and programmable wallets into separate tools."
+        description="Filter by state without splitting native and programmable wallets into separate tools."
         contentClassName="space-y-5"
       >
         <div className="flex flex-wrap gap-2">
@@ -124,7 +154,8 @@ export default function ProposalsPage() {
             ))}
           </div>
         )}
-      </WorkspacePanel>
+        </WorkspacePanel>
+      ) : null}
     </div>
   );
 }

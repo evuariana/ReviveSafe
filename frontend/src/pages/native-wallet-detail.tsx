@@ -14,6 +14,7 @@ import {
   WorkspaceStatCard,
   workspaceGhostButtonClassName,
   workspaceOutlineButtonClassName,
+  workspacePageClassName,
   workspacePanelMutedClassName,
 } from "@/components/layout/workspace-surfaces";
 import { Button } from "@/components/ui/button";
@@ -50,7 +51,7 @@ export function NativeWalletDetail({
   );
 
   return (
-    <div className="space-y-8">
+    <div className={workspacePageClassName}>
       <WorkspaceHero
         eyebrow="Native wallet"
         title={wallet.name || "Imported native multisig"}

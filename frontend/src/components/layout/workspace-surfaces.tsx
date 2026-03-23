@@ -34,6 +34,14 @@ export const workspaceTitleClassName =
 export const workspaceDescriptionClassName =
   "max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-400";
 
+export const workspacePageClassName = "w-full space-y-8 2xl:space-y-10";
+
+export const workspacePageFrameClassName =
+  "w-full max-w-[1480px] space-y-8 2xl:max-w-[1600px] 2xl:space-y-10";
+
+export const workspacePageCompactClassName =
+  "w-full max-w-[1180px] space-y-8 2xl:max-w-[1280px] 2xl:space-y-10";
+
 const badgeToneClasses = {
   amber:
     "border-amber-200/90 bg-amber-500/[0.10] text-amber-800 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200",
@@ -87,27 +95,35 @@ export function WorkspaceHero({
   title: ReactNode;
 }) {
   return (
-    <section className={cn(workspacePanelClassName, "p-6 md:p-8", className)}>
+    <section
+      className={cn(
+        workspacePanelClassName,
+        "p-6 sm:p-7 xl:p-8 2xl:p-10",
+        className
+      )}
+    >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.08),transparent_34%),radial-gradient(circle_at_bottom_right,rgba(15,23,42,0.06),transparent_38%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.10),transparent_28%),radial-gradient(circle_at_bottom_right,rgba(255,255,255,0.05),transparent_34%)]" />
       <div className="pointer-events-none absolute -right-24 top-0 h-56 w-56 rounded-full bg-black/[0.04] blur-3xl dark:bg-white/[0.05]" />
 
-      <div className="relative z-10 grid gap-8 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-end">
-        <div>
+      <div className="relative z-10 grid gap-8 xl:grid-cols-[minmax(0,1.12fr)_minmax(320px,400px)] xl:items-start 2xl:grid-cols-[minmax(0,1.2fr)_minmax(360px,440px)] 2xl:gap-12">
+        <div className="min-w-0">
           <div className={workspaceEyebrowClassName}>{eyebrow}</div>
-          <h1 className="mt-4 font-display text-4xl font-medium tracking-tight text-zinc-950 md:text-[3.3rem] md:leading-[1.01] dark:text-white">
+          <h1 className="mt-4 max-w-[18ch] font-display text-[clamp(2.9rem,5vw,5.35rem)] font-medium leading-[0.93] tracking-[-0.05em] text-zinc-950 dark:text-white xl:max-w-[16ch] 2xl:max-w-[18ch]">
             {title}
           </h1>
-          <div className="mt-4 max-w-3xl text-base font-light leading-8 text-zinc-600 dark:text-zinc-400">
+          <div className="mt-5 max-w-[72ch] text-[15px] leading-8 text-zinc-600 dark:text-zinc-400 sm:text-base">
             {description}
           </div>
-          {actions ? <div className="mt-7 flex flex-wrap gap-3">{actions}</div> : null}
+          {actions ? (
+            <div className="mt-7 flex flex-wrap gap-3 xl:mt-8">{actions}</div>
+          ) : null}
         </div>
 
         {aside ? (
           <div
             className={cn(
               workspacePanelMutedClassName,
-              "relative z-10 p-5 md:p-6"
+              "relative z-10 p-5 sm:p-6 xl:p-7"
             )}
           >
             {aside}
@@ -134,7 +150,7 @@ export function WorkspacePanel({
   title?: ReactNode;
 }) {
   return (
-    <section className={cn(workspacePanelClassName, "p-6", className)}>
+    <section className={cn(workspacePanelClassName, "p-6 xl:p-7 2xl:p-8", className)}>
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.05),transparent_30%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.06),transparent_24%)]" />
 
       {(title || description || actions) && (
@@ -146,7 +162,7 @@ export function WorkspacePanel({
               </h2>
             ) : null}
             {description ? (
-              <div className="mt-2 max-w-2xl text-sm leading-7 text-zinc-500 dark:text-zinc-400">
+              <div className="mt-2 max-w-[70ch] text-sm leading-7 text-zinc-500 dark:text-zinc-400">
                 {description}
               </div>
             ) : null}
