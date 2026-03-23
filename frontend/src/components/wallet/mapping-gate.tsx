@@ -6,8 +6,15 @@ import { useMappedAccount } from "@/hooks/useMappedAccount";
 import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 
 export function MappingGate({ children }: { children: ReactNode }) {
-  const { mappedAccount, isLoading, isMapping, mapAccount, mappingError } =
-    useMappedAccount();
+  const {
+    mappedAccount,
+    isLoading,
+    isMapping,
+    mapAccount,
+    mappingError,
+    mappingStatusError,
+    refetch,
+  } = useMappedAccount();
   const { client, error: clientError, loading: clientLoading } = usePolkadotClient();
 
   if (!mappedAccount) {
@@ -27,6 +34,37 @@ export function MappingGate({ children }: { children: ReactNode }) {
 
   if (mappedAccount.isMapped) {
     return <>{children}</>;
+  }
+
+  if (mappingStatusError && !clientLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-6 text-amber-950 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
+          <div className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
+            Mapping check unavailable
+          </div>
+          <h2 className="mt-3 text-2xl font-semibold tracking-tight">
+            ReviveSafe could not verify this account's mapping yet
+          </h2>
+          <p className="mt-3 text-sm leading-7 text-amber-900/80 dark:text-amber-100/80">
+            We could not confirm whether this account already has a usable Revive
+            mapping on the active network. Retry the check before submitting a new
+            activation transaction.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button
+              className="rounded-full bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200"
+              onClick={() => void refetch()}
+            >
+              Check again
+            </Button>
+          </div>
+          <p className="mt-4 text-sm leading-7 text-amber-900/80 dark:text-amber-100/80">
+            {mappingStatusError}
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const copyValue = (value: string) => {

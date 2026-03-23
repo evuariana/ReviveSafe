@@ -5,7 +5,7 @@ import type { Hex } from "viem";
 
 import {
   deriveMappingStatus,
-  normalizeAccountId32,
+  isOriginalAccountMappingUsable,
 } from "@/lib/account-mapping";
 import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import type { MappingStatus } from "@/types/revive";
@@ -32,8 +32,13 @@ export function useMappedAccount() {
     return deriveMappingStatus(account.address);
   }, [account?.address]);
 
+  const mappingQueryKey = useMemo(
+    () => ["mapping-status", derivedStatus?.ss58Address, derivedStatus?.mappedH160],
+    [derivedStatus?.mappedH160, derivedStatus?.ss58Address]
+  );
+
   const mappingQuery = useQuery({
-    queryKey: ["mapping-status", derivedStatus?.ss58Address, derivedStatus?.mappedH160],
+    queryKey: mappingQueryKey,
     enabled: !!client && !!derivedStatus,
     queryFn: async () => {
       if (!client || !derivedStatus) {
@@ -50,11 +55,10 @@ export function useMappedAccount() {
       const originalAccount = await client.query.revive.originalAccount(
         derivedStatus.mappedH160
       );
-      const normalized = normalizeAccountId32(originalAccount);
 
       return {
         ...derivedStatus,
-        isMapped: normalized === derivedStatus.sourceAccountId32,
+        isMapped: isOriginalAccountMappingUsable(derivedStatus, originalAccount),
       };
     },
   });
@@ -74,9 +78,25 @@ export function useMappedAccount() {
       const receipt = await sendTransactionAsync({ extrinsic });
 
       if (receipt.status === "failed") {
-        throw new Error(
-          receipt.errorMessage ?? "Account activation failed on-chain."
-        );
+        const errorMessage =
+          receipt.errorMessage ?? "Account activation failed on-chain.";
+
+        if (errorMessage.includes("AccountAlreadyMapped")) {
+          if (derivedStatus) {
+            queryClient.setQueryData(mappingQueryKey, {
+              ...derivedStatus,
+              isMapped: true,
+            });
+          }
+
+          await queryClient.invalidateQueries({
+            queryKey: ["mapping-status"],
+          });
+
+          return receipt;
+        }
+
+        throw new Error(errorMessage);
       }
 
       return receipt;
@@ -105,6 +125,8 @@ export function useMappedAccount() {
     refetch: mappingQuery.refetch,
     isMapping: isPending || mapAccountMutation.isPending,
     mapAccount: mapAccountMutation.mutateAsync,
+    mappingStatusError:
+      mappingQuery.error instanceof Error ? mappingQuery.error.message : undefined,
     mappingError:
       mapAccountMutation.error instanceof Error
         ? mapAccountMutation.error.message

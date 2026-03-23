@@ -59,16 +59,20 @@ export function normalizeAccountId32(value: unknown): Hex | null {
     return null;
   }
 
-  if (typeof value === "string") {
-    if (value.startsWith("0x") && value.length === 66) {
-      return value as Hex;
+  const fromString = (stringValue: string): Hex | null => {
+    if (stringValue.startsWith("0x") && stringValue.length === 66) {
+      return stringValue as Hex;
     }
 
     try {
-      return toHex32(decodeAccountId32(value));
+      return toHex32(decodeAccountId32(stringValue));
     } catch {
       return null;
     }
+  };
+
+  if (typeof value === "string") {
+    return fromString(value);
   }
 
   if (value instanceof Uint8Array) {
@@ -82,13 +86,26 @@ export function normalizeAccountId32(value: unknown): Hex | null {
 
   if (
     typeof value === "object" &&
-    value !== null &&
-    "toString" in value &&
-    typeof value.toString === "function"
+    value !== null
   ) {
-    const stringValue = value.toString();
-    if (stringValue.startsWith("0x") && stringValue.length === 66) {
-      return stringValue as Hex;
+    if ("raw" in value && typeof value.raw === "string") {
+      return fromString(value.raw);
+    }
+
+    if ("address" in value && typeof value.address === "string") {
+      return fromString(value.address);
+    }
+
+    if ("toJSON" in value && typeof value.toJSON === "function") {
+      const jsonValue = value.toJSON();
+      const normalizedJson = normalizeAccountId32(jsonValue);
+      if (normalizedJson) {
+        return normalizedJson;
+      }
+    }
+
+    if ("toString" in value && typeof value.toString === "function") {
+      return fromString(value.toString());
     }
   }
 
@@ -107,6 +124,17 @@ export function deriveMappingStatus(address: string): MappingStatus {
     isMapped: false,
     sourceAccountId32: toHex32(accountId32),
   };
+}
+
+export function isOriginalAccountMappingUsable(
+  mapping: MappingStatus,
+  originalAccount: unknown
+) {
+  if (mapping.isEthDerived) {
+    return true;
+  }
+
+  return normalizeAccountId32(originalAccount) === mapping.sourceAccountId32;
 }
 
 export function isH160Address(value: string): value is Address {
