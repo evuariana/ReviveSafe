@@ -127,8 +127,8 @@ export function MappedAccountInput({
 
       {description && <p className="text-xs text-zinc-500 dark:text-zinc-400">{description}</p>}
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        Paste either a mapped H160 or a Polkadot SS58 address. ReviveSafe will
-        use the mapped H160 on-chain.
+        Paste either a contract wallet address or a regular Polkadot address.
+        ReviveSafe will resolve it for you.
       </p>
       {normalizedInputValue &&
         inputValue.trim() &&
@@ -142,7 +142,7 @@ export function MappedAccountInput({
         <div className={`space-y-2 p-3 ${workspacePanelMutedClassName}`}>
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
             <UserRoundPlus className="h-3.5 w-3.5" />
-            Connected accounts
+            Connected wallets
           </div>
           <div className="flex flex-wrap gap-2">
             {accountOptions.map((option) => (

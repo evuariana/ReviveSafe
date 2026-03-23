@@ -15,8 +15,8 @@ export default function Footer() {
               labelClassName="text-lg font-semibold"
             />
             <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Programmable contract-wallet beta for approvals, transfers, and
-              execution on Asset Hub.
+              Contract wallet beta for approvals, transfers, and execution on
+              Asset Hub.
             </p>
           </div>
         </div>
@@ -49,9 +49,8 @@ export default function Footer() {
             </Link>
           </div>
           <p className="text-center text-xs leading-5 text-zinc-500 md:text-right">
-            &copy; 2026 ReviveSafe. Current beta scope: programmable contract
-            wallets on Asset Hub with explicit submit, approve, ready, and
-            execute lifecycle.
+            &copy; 2026 ReviveSafe. Current beta scope: contract wallets on
+            Asset Hub with submit, approve, ready, and execute flow.
           </p>
         </div>
       </div>

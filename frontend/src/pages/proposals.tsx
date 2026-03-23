@@ -46,11 +46,11 @@ export default function ProposalsPage() {
       <WorkspaceHero
         eyebrow="Proposals"
         title="Open approvals and ready items"
-        description="Use Proposals as the shared work queue for actions that are still open across imported native and programmable wallets."
+        description="Use Proposals as the shared work queue for actions that are still open across imported native and contract wallets."
         aside={
           <div className="space-y-4">
             <WorkspaceBadge tone={liveWorkspace.enabled ? "sky" : "amber"}>
-              {liveWorkspace.enabled ? "Unified queue" : "On-demand queue"}
+              {liveWorkspace.enabled ? "Unified queue" : "Live updates off"}
             </WorkspaceBadge>
             <div className="font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
               {liveWorkspace.enabled
@@ -60,7 +60,7 @@ export default function ProposalsPage() {
             <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
               {liveWorkspace.enabled
                 ? "This page is for unfinished work, not history. Activity stays separate so teams can quickly see what still needs action."
-                : "Proposals now loads on demand in this beta. That keeps shared-wallet reads explicit instead of quietly rebuilding the whole queue in the background."}
+                : "Proposals stay paused until you ask for them so the workspace stays calmer right after connect."}
             </p>
           </div>
         }
@@ -68,8 +68,8 @@ export default function ProposalsPage() {
 
       {!liveWorkspace.enabled ? (
         <WorkspacePanel
-          title="Load the proposal queue"
-          description="ReviveSafe will recover open approvals and ready-to-execute items across imported native and programmable wallets for this connected account."
+          title="Load proposals"
+          description="ReviveSafe will pull open approvals and ready-to-execute items across imported native and contract wallets for this connected account."
           actions={
             <Button className="rounded-full px-5" onClick={liveWorkspace.enable}>
               Load Proposals
@@ -77,8 +77,7 @@ export default function ProposalsPage() {
           }
         >
           <WorkspaceNotice tone="amber">
-            This queue stays paused until you request it so the workspace does
-            not spin up heavy cross-wallet reads every time you connect.
+            Live updates stay off until you ask for them.
           </WorkspaceNotice>
         </WorkspacePanel>
       ) : null}
@@ -86,7 +85,7 @@ export default function ProposalsPage() {
       {liveWorkspace.enabled ? (
         <WorkspacePanel
         title="Proposal queue"
-        description="Filter by state without splitting native and programmable wallets into separate tools."
+        description="Filter by state without splitting native and contract wallets into separate tools."
         contentClassName="space-y-5"
       >
         <div className="flex flex-wrap gap-2">

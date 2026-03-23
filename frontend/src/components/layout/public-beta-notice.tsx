@@ -19,21 +19,21 @@ export function PublicBetaNotice({
       <div className="flex items-start gap-3">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         <div className="relative z-10">
-          <div className="font-semibold">Current beta scope</div>
+          <div className="font-semibold">Current beta</div>
           <p className="mt-1 text-sm leading-6">
-            ReviveSafe currently supports programmable contract wallets on Paseo
-            Asset Hub and Polkadot Asset Hub. Direct native multisig import is
-            live as a manual verified flow. Proxy wallets and
-            native-to-programmable upgrade flows are not live yet.
+            ReviveSafe currently supports contract wallets on Paseo Asset Hub
+            and Polkadot Asset Hub. Native multisig import is available as a
+            manual verified flow. Proxy wallets, native wallet creation, and
+            upgrade flows are not live yet.
           </p>
           <p className="mt-2 text-xs leading-5 text-sky-800 dark:text-sky-200">
-            Supported wallet connections in this beta: Talisman, SubWallet, and
+            Wallet connections in this beta: Talisman, SubWallet, and
             Polkadot.js through LunoKit.
           </p>
           <p className="mt-2 text-xs leading-5 text-sky-800 dark:text-sky-200">
-            Contracts are currently treated as unaudited in this repo. Verify
-            the network and active factory before using the beta, and use the
-            support path if a flow blocks you.
+            Smart contracts in this repo are not audited yet. Double-check the
+            selected network and factory before signing, and use the support
+            path if a flow blocks you.
           </p>
           <div className="mt-3 flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-sky-900 dark:text-sky-100">
             <a

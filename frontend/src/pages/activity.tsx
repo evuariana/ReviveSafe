@@ -25,11 +25,11 @@ export default function ActivityPage() {
       <WorkspaceHero
         eyebrow="Activity"
         title="What changed recently"
-        description="Activity is a best-effort feed of recent wallet changes. ReviveSafe stays explicit about what is truly time-ordered and what is only recoverable as a current snapshot."
+        description="Activity shows the latest changes ReviveSafe can recover. Some native and contract wallet history is still partial in this beta, so use this as context instead of a full audit log."
         aside={
           <div className="space-y-4">
             <WorkspaceBadge tone={liveWorkspace.enabled ? "default" : "amber"}>
-              {liveWorkspace.enabled ? "Best-effort feed" : "On-demand feed"}
+              {liveWorkspace.enabled ? "Recent changes" : "Live updates off"}
             </WorkspaceBadge>
             <div className="font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
               {liveWorkspace.enabled
@@ -38,8 +38,8 @@ export default function ActivityPage() {
             </div>
             <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
               {liveWorkspace.enabled
-                ? "Native events with recorded timestamps are shown chronologically. Programmable items are still untimed snapshots from current wallet state, not a full indexed ledger yet."
-                : "Activity is now an explicit best-effort load in this beta. That keeps history reads from constantly rebuilding across every connected wallet."}
+                ? "Use this page for context about what changed recently. Full cross-wallet history still needs better indexing in this beta."
+                : "Activity stays paused until you ask for it so the workspace stays calmer right after connect."}
             </p>
           </div>
         }
@@ -47,8 +47,8 @@ export default function ActivityPage() {
 
       {!liveWorkspace.enabled ? (
         <WorkspacePanel
-          title="Load recent activity"
-          description="ReviveSafe will fetch the latest wallet updates and best-effort recorded events for this workspace when you ask for them."
+          title="Load activity"
+          description="ReviveSafe will fetch the latest wallet updates and saved activity for this workspace when you ask for them."
           actions={
             <Button className="rounded-full px-5" onClick={liveWorkspace.enable}>
               Load Activity
@@ -56,9 +56,7 @@ export default function ActivityPage() {
           }
         >
           <WorkspaceNotice tone="amber">
-            Activity no longer auto-rebuilds in the background after every
-            connect. This keeps the workspace steadier while the beta still
-            depends on direct browser reads.
+            Live updates stay off until you ask for them.
           </WorkspaceNotice>
         </WorkspacePanel>
       ) : (
@@ -68,9 +66,8 @@ export default function ActivityPage() {
         contentClassName="space-y-4"
       >
         <WorkspaceNotice tone="amber">
-          Native activity is intentionally partial without a dedicated indexer, and
-          programmable execution items are currently untimed snapshots rather than
-          a chronological cross-wallet ledger.
+          Some items in this beta are still partial. Native history needs better
+          indexing, and contract wallet updates are not yet a full timeline.
         </WorkspaceNotice>
 
         {workspace.isLoading ? (
@@ -90,7 +87,7 @@ export default function ActivityPage() {
               meta={`${activity.walletLabel} • ${
                 activity.chronology === "recorded"
                   ? "Recorded locally"
-                  : "Untimed programmable snapshot"
+                  : "Current contract wallet snapshot"
               }`}
               description={activity.description}
               badge={

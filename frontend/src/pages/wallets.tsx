@@ -56,15 +56,12 @@ function ProgrammableWalletCard({ address }: { address: Address }) {
     <WorkspaceLinkCard
       to={`/wallet/${address}`}
       title={formatAddress(address, 6)}
-      meta="Programmable contract wallet"
-      description="Contract wallet with programmable approvals and execution on Asset Hub. Open the wallet to load live balances, owners, and proposal state."
-      badge={<WorkspaceBadge>Programmable</WorkspaceBadge>}
+      meta="Contract wallet"
+      description="Shared contract wallet on Asset Hub. Open it to review balances, owners, and open proposals."
+      badge={<WorkspaceBadge>Contract</WorkspaceBadge>}
       note={
         <div className="grid gap-3 sm:grid-cols-2">
-          <WalletMetaStat
-            label="Wallet type"
-            value="Programmable"
-          />
+          <WalletMetaStat label="Type" value="Contract" />
           <WalletMetaStat
             label="Approval rule"
             value="Open wallet"
@@ -81,7 +78,7 @@ function NativeWalletCard({ wallet }: { wallet: ImportedNativeWalletRecord }) {
       to={`/wallet/${wallet.address}`}
       title={wallet.name || formatAddress(wallet.address, 6)}
       meta="Imported native multisig"
-      description="Reconstructed from the exact direct member set and threshold for this chain. Open the wallet to load live balances and pending native proposals."
+      description="Imported from the signer list and approval rule for this chain. Open it to review balances and open proposals."
       badge={<WorkspaceBadge tone="sky">Native</WorkspaceBadge>}
       note={
         <div className="grid gap-3 sm:grid-cols-2">
@@ -132,7 +129,7 @@ export default function Wallets() {
       <WorkspaceHero
         eyebrow="Wallets"
         title="All shared wallets in this workspace"
-        description="Use this page like a directory. Open any wallet to review balances, members, pending proposals, and the latest activity ReviveSafe can recover."
+        description="Use this page like a directory. Open any wallet to review balances, members, open proposals, and recent changes."
         actions={
           <>
             <Link to="/import">
@@ -143,7 +140,7 @@ export default function Wallets() {
                 variant="outline"
                 className={`rounded-full px-5 ${workspaceOutlineButtonClassName}`}
               >
-                Create programmable wallet
+                Create contract wallet
               </Button>
             </Link>
           </>
@@ -152,9 +149,8 @@ export default function Wallets() {
           <div className="space-y-4">
             <WorkspaceBadge tone="sky">Cross-wallet directory</WorkspaceBadge>
             <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-              Native and programmable wallets live together here, while imported
-              native wallets stay browser-local for now and keep their more
-              limited action model.
+              Native and contract wallets live together here. Imported native
+              wallets stay on this browser for now and support a smaller action set.
             </p>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
               <WalletMetaStat
@@ -166,7 +162,7 @@ export default function Wallets() {
                 value={importedNativeWallets.length.toString()}
               />
               <WalletMetaStat
-                label="Programmable"
+                label="Contract wallets"
                 value={myMultisigsQuery.isLoading ? "..." : myMultisigs.length.toString()}
               />
             </div>
@@ -179,11 +175,6 @@ export default function Wallets() {
         description="Search by wallet name or address, then jump straight into the surface your team needs."
         contentClassName="space-y-8"
       >
-        <WorkspaceNotice tone="amber">
-          Imported native wallets are currently browser-local workspace entries.
-          Re-import them on any other browser or device.
-        </WorkspaceNotice>
-
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-center">
           <div className="relative max-w-lg">
             <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
@@ -211,7 +202,7 @@ export default function Wallets() {
           <WorkspaceEmptyState
             icon={Shield}
             title="No wallets yet"
-            description="Import a native multisig, create a programmable contract wallet, or add an existing compatible contract wallet to start managing it here."
+            description="Import a native multisig, create a contract wallet, or add an existing compatible contract wallet to start managing it here."
             action={
               <>
                 <Link to="/import">
@@ -222,7 +213,7 @@ export default function Wallets() {
                     variant="outline"
                     className={`rounded-full px-5 ${workspaceOutlineButtonClassName}`}
                   >
-                    Create wallet
+                    Create contract wallet
                   </Button>
                 </Link>
                 <Link to="/register">
@@ -262,13 +253,13 @@ export default function Wallets() {
 
             {myMultisigsQuery.isLoading && filteredNativeWallets.length === 0 ? (
               <WorkspaceNotice>
-                Loading programmable wallets from the active factory...
+                Loading contract wallets from the active factory...
               </WorkspaceNotice>
             ) : filteredProgrammableWallets.length > 0 ? (
               <section className="space-y-4">
                 <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.18em] text-zinc-500">
                   <Sparkles className="h-4 w-4" />
-                  Programmable wallets
+                  Contract wallets
                 </div>
                 <div className="grid gap-4 lg:grid-cols-2">
                   {filteredProgrammableWallets.map((multisigAddress) => (

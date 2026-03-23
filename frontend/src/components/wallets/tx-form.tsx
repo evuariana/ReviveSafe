@@ -41,9 +41,9 @@ export default function NewTransactionForm({
   const assetBalancesQuery = useHubAssetBalances(walletAddress);
   const assetBalances = assetBalancesQuery.balances;
   const writeUnavailableReason = clientLoading
-    ? "Waiting for the active network runtime."
+    ? "Waiting for the selected network."
     : clientError || !client
-      ? "ReviveSafe cannot submit contract actions until the network connection recovers."
+      ? "ReviveSafe cannot submit from this wallet until the network connection recovers."
       : undefined;
 
   const [isOpen, setIsOpen] = useState(false);
@@ -136,7 +136,7 @@ export default function NewTransactionForm({
     return (
       <WorkspacePanel
         title="Create a proposal"
-        description="Draft a new programmable wallet proposal without leaving the wallet context."
+        description="Draft a new action from this contract wallet."
       >
         <Button className="w-full rounded-full" onClick={() => setIsOpen(true)}>
           <Plus className="h-4 w-4" />
@@ -149,7 +149,7 @@ export default function NewTransactionForm({
   return (
     <WorkspacePanel
       title="Create a proposal"
-      description="Choose whether this programmable wallet should send the chain token or an Asset Hub asset."
+      description="Choose whether this contract wallet should send the chain token or an Asset Hub asset."
       contentClassName="space-y-5"
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -167,7 +167,7 @@ export default function NewTransactionForm({
             Native transfer
           </div>
           <p className="mt-2 text-xs leading-6 opacity-80">
-            Send the chain token, with optional calldata if this action needs it.
+            Send the main network token. Add extra call data only when needed.
           </p>
         </button>
 
@@ -185,7 +185,7 @@ export default function NewTransactionForm({
             Asset transfer
           </div>
           <p className="mt-2 text-xs leading-6 opacity-80">
-            Move an Asset Hub token through its deterministic precompile.
+            Send an Asset Hub token from this wallet.
           </p>
         </button>
       </div>
@@ -194,7 +194,7 @@ export default function NewTransactionForm({
         label="Recipient"
         value={destination}
         onChange={setDestination}
-        description="Choose a connected address or paste any valid H160 recipient."
+        description="Choose a connected wallet or paste the address that should receive the funds."
       />
 
       {mode === "native" ? (
@@ -206,13 +206,13 @@ export default function NewTransactionForm({
             symbol={token.symbol}
             decimals={token.decimals}
             maxPlanck={wallet.balance}
-            description="Amount to send from the wallet's native balance."
+            description="Amount to send from this wallet."
           />
           <BytesInput
             label="Optional calldata"
             value={data}
             onChange={setData}
-            description="Provide bytes only when the recipient contract expects extra call data."
+            description="Only add this when the recipient contract needs extra call data."
           />
         </>
       ) : (
@@ -242,7 +242,7 @@ export default function NewTransactionForm({
               <p className="text-xs text-rose-600 dark:text-rose-400">
                 {assetsQuery.error instanceof Error
                   ? assetsQuery.error.message
-                  : "Asset metadata could not be loaded from the active network."}
+                  : "Asset details could not be loaded from the selected network."}
               </p>
             ) : null}
           </div>
@@ -258,7 +258,7 @@ export default function NewTransactionForm({
 
       <div className="flex flex-wrap gap-2">
         <WorkspaceBadge tone={mode === "native" ? "default" : "sky"}>
-          {mode === "native" ? "Programmable native transfer" : "Programmable asset transfer"}
+          {mode === "native" ? "Contract wallet transfer" : "Contract wallet asset transfer"}
         </WorkspaceBadge>
       </div>
 

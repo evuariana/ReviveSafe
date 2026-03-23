@@ -5,7 +5,6 @@ import { isAddress, type Address } from "viem";
 
 import { AmountInput } from "@/components/inputs/amount-input";
 import { MappedAccountInput } from "@/components/inputs/mapped-account-input";
-import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
 import {
   WorkspaceBadge,
   WorkspaceHero,
@@ -78,7 +77,7 @@ export default function Create() {
 
     if (clientLoading || !client || clientError) {
       setSubmitError(
-        "The active network is not ready for contract writes yet. Reconnect and try again."
+        "The selected network is not ready for contract wallet actions yet. Reconnect and try again."
       );
       return;
     }
@@ -93,7 +92,7 @@ export default function Create() {
       setSubmitError(
         createError instanceof Error
           ? createError.message
-          : "Failed to create multisig"
+          : "Failed to create contract wallet"
       );
     }
   };
@@ -103,25 +102,23 @@ export default function Create() {
       <div className={workspacePageFrameClassName}>
         <WorkspaceHero
           eyebrow="Create wallet"
-          title="Set up a programmable shared wallet"
-          description="Create a new contract wallet for your team, choose who can approve actions, and set the threshold required before execution."
+          title="Create a contract wallet for your team"
+          description="Create a shared contract wallet, choose who can approve actions, and set how many approvals are needed before anything executes."
           aside={
             <div className="space-y-4">
-              <WorkspaceBadge>Programmable wallet</WorkspaceBadge>
+              <WorkspaceBadge>Contract wallet</WorkspaceBadge>
               <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-                This flow creates a new ReviveSafe contract wallet, so it still
-                depends on a valid mapping and an active factory.
+                This creates a new shared contract wallet. You need the one-time
+                contract-wallet setup step on this account and an active factory.
               </p>
             </div>
           }
         />
 
-        <PublicBetaNotice compact />
-
         {!isFactoryAvailable ? (
           <WorkspaceNotice tone="amber">
-            A wallet factory is not connected yet. Open contract tools to deploy
-            one or connect an existing factory before creating a wallet.
+            No contract wallet factory is connected yet. Open contract tools to
+            deploy one or connect an existing factory before creating a wallet.
             <div className="mt-3">
               <Link to="/deploy">
                 <Button variant="outline" className={workspaceOutlineButtonClassName}>
@@ -135,9 +132,9 @@ export default function Create() {
         <WorkspacePanel title="1. Add owners" contentClassName="space-y-4">
           {mappedAccount?.mappedH160 ? (
             <WorkspaceNotice>
-              Your connected account is added as the first owner by default using
-              its mapped H160. You can paste either mapped H160 addresses or regular
-              SS58 addresses for the other owners.
+              Your connected wallet is added as the first owner by default. You
+              can add more owners with either a contract wallet address or a
+              regular Polkadot address.
             </WorkspaceNotice>
           ) : null}
 
@@ -166,7 +163,7 @@ export default function Create() {
                 ) : null}
               </div>
               <MappedAccountInput
-                label="Owner contract address"
+                label="Owner"
                 value={owner}
                 onChange={(nextOwner) =>
                   setOwners((currentOwners) =>
@@ -175,7 +172,7 @@ export default function Create() {
                     )
                   )
                 }
-                description="Choose a connected account or paste the contract address that should be allowed to approve."
+                description="Choose a connected wallet or paste the address that should be allowed to approve."
               />
             </div>
           ))}
@@ -196,10 +193,10 @@ export default function Create() {
             label="Approvals required"
             value={required}
             onChange={(value) => setRequired(value ?? "1")}
-            description={`For this wallet, choose how many approvals are needed out of ${Math.max(
+            description={`Choose how many approvals are needed out of ${Math.max(
               validOwners.length,
               1
-            )} valid owners.`}
+            )} owners.`}
             min={1}
             max={Math.max(validOwners.length, 1)}
           />
@@ -210,8 +207,8 @@ export default function Create() {
         ) : null}
         {clientError ? (
           <WorkspaceNotice tone="amber">
-            Contract writes are unavailable until ReviveSafe reconnects to the
-            active network runtime.
+            Contract wallet actions are unavailable until ReviveSafe reconnects
+            to the selected network.
           </WorkspaceNotice>
         ) : null}
 
@@ -227,7 +224,7 @@ export default function Create() {
                 ? "Waiting for network..."
                 : clientError || !client
                   ? "Network connection required"
-                  : "Create shared wallet"}
+                  : "Create contract wallet"}
           </Button>
           <Link to="/wallets">
             <Button

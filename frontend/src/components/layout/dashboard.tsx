@@ -7,7 +7,6 @@ import {
   LifeBuoy,
   Moon,
   ScrollText,
-  Sparkles,
   Sun,
   Wallet,
 } from "lucide-react";
@@ -24,7 +23,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChainSelector } from "@/components/wallet/chain-selector";
 import { ConnectButton } from "@/components/wallet/connect-button";
-import { useFactoryAddress } from "@/hooks/useFactoryAddress";
 import { useTheme } from "@/hooks/useTheme";
 
 const navigation = [
@@ -74,25 +72,25 @@ const pageTitles: Record<string, string> = {
 };
 
 const pageDescriptions: Record<string, string> = {
-  "/activity": "Review recent wallet changes without mixing them into the live work queue.",
+  "/activity": "Review recent changes without mixing them into the work queue.",
   "/create":
-    "Set up a new programmable shared wallet with the owners and threshold your team needs.",
+    "Set up a new contract wallet with the people and approval rule your team needs.",
   "/dashboard":
-    "Start here for the cross-wallet summary: setup, approvals waiting on you, and active wallets.",
+    "Start here for the quick read: setup, work waiting on you, and active wallets.",
   "/deploy":
-    "Operator tools for contract deployment, registration, and advanced beta setup.",
+    "Operator tools for deployment and advanced beta setup.",
   "/import":
-    "Add a native multisig your team already uses by entering the exact signer list and threshold.",
+    "Add a native multisig by entering its signer list and approval rule.",
   "/inbox":
     "Use Inbox like a shared to-do list for approvals, updates, and wallet notices.",
   "/proposals":
     "See all open approvals and ready-to-execute items in one queue.",
   "/register":
-    "Add an existing compatible programmable wallet to this workspace.",
+    "Add an existing compatible contract wallet to this workspace.",
   "/wallet/:address":
-    "Open one wallet at a time to review balances, members, proposals, and recent activity.",
+    "Review balances, members, open proposals, and recent changes for one wallet.",
   "/wallets":
-    "Open any native or programmable wallet you have added to this workspace.",
+    "Open any native multisig or contract wallet in this workspace.",
 };
 
 function WorkspaceSessionGate({
@@ -116,7 +114,7 @@ function WorkspaceSessionGate({
         <p className="mt-4 max-w-2xl text-base leading-8 text-zinc-600 dark:text-zinc-400">
           {isRestoring
             ? "ReviveSafe is checking your last wallet session and network context. Stay on this page and the workspace will load automatically when the connection finishes."
-            : "Protected workspace pages stay on the current route now. Connect a supported wallet here and ReviveSafe will open this page instead of sending you back to the landing page."}
+            : "Connect a supported wallet to open this page. ReviveSafe keeps you here and loads the workspace in place."}
         </p>
 
         <div className="mt-7 flex flex-wrap gap-3">
@@ -168,17 +166,17 @@ function WorkspaceSessionGate({
         </div>
         <div className="mt-4 space-y-4 text-sm leading-7 text-zinc-600 dark:text-zinc-400">
           <p>
-            Native multisig import works without programmable wallet mapping, but
-            programmable create and approval flows still need a mapped ReviveSafe
-            account on Asset Hub.
+            Native multisig import works right away. Contract wallet create,
+            approval, and execution flows still need one extra setup step on
+            Asset Hub.
           </p>
           <p>
             Imported native wallets are kept in this browser on this device for
             now, so re-import them if you switch browsers or machines.
           </p>
           <p>
-            This beta is intentionally explicit about scope. If a flow is not
-            live, ReviveSafe should say so instead of implying hidden support.
+            If a flow is not live in this beta, ReviveSafe should say so clearly
+            instead of implying hidden support.
           </p>
         </div>
       </div>
@@ -191,7 +189,6 @@ export default function DashboardLayout() {
   const connectionStatus = useStatus();
   const location = useLocation();
   const { isDark, toggleTheme } = useTheme();
-  const factoryAddress = useFactoryAddress((state) => state.factoryAddress);
   const pagePath = resolvePagePath(location.pathname);
   const navigationPath = resolveNavigationPath(location.pathname);
   const currentItem =
@@ -202,15 +199,15 @@ export default function DashboardLayout() {
     pageDescriptions[pagePath] ?? pageDescriptions["/dashboard"];
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-zinc-50 text-zinc-950 transition-colors duration-500 dark:bg-[#050505] dark:text-zinc-50">
+    <div className="relative min-h-screen overflow-x-hidden bg-zinc-50 text-zinc-950 transition-colors duration-500 dark:bg-[#050505] dark:text-zinc-50 xl:h-screen xl:overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-60 [mask-image:radial-gradient(ellipse_at_top,black,transparent_78%)] dark:opacity-50" />
       <div className="pointer-events-none absolute left-1/2 top-0 h-[460px] w-[960px] -translate-x-1/2 rounded-full bg-black/[0.04] blur-[110px] dark:bg-white/[0.03]" />
       <div className="pointer-events-none absolute right-[-120px] top-[220px] h-[320px] w-[320px] rounded-full bg-black/[0.03] blur-[120px] dark:bg-white/[0.02]" />
 
-      <div className="relative w-full px-[clamp(0.875rem,1.4vw,1.5rem)] py-[clamp(0.875rem,1.2vw,1.5rem)] sm:px-[clamp(1rem,1.8vw,2rem)] xl:px-[clamp(1.25rem,2vw,2.75rem)] 2xl:px-[clamp(1.5rem,2.6vw,4rem)]">
-        <div className="grid items-start gap-4 xl:grid-cols-[clamp(272px,18vw,340px)_minmax(0,1fr)] xl:gap-6 2xl:grid-cols-[clamp(292px,16vw,360px)_minmax(0,1fr)] 2xl:gap-8">
+      <div className="relative w-full px-[clamp(0.875rem,1.4vw,1.5rem)] py-[clamp(0.875rem,1.2vw,1.5rem)] sm:px-[clamp(1rem,1.8vw,2rem)] xl:h-full xl:px-[clamp(1.25rem,2vw,2.75rem)] 2xl:px-[clamp(1.5rem,2.6vw,4rem)]">
+        <div className="grid items-start gap-4 xl:h-full xl:grid-cols-[clamp(272px,18vw,340px)_minmax(0,1fr)] xl:gap-6 2xl:grid-cols-[clamp(292px,16vw,360px)_minmax(0,1fr)] 2xl:gap-8">
           <aside
-            className={`${workspacePanelClassName} p-5 backdrop-blur lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto xl:p-6`}
+            className={`${workspacePanelClassName} flex flex-col p-5 backdrop-blur xl:min-h-0 xl:h-full xl:self-stretch xl:overflow-y-auto xl:p-6`}
           >
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.08),transparent_34%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.08),transparent_26%)]" />
 
@@ -243,65 +240,28 @@ export default function DashboardLayout() {
               })}
             </nav>
 
-            <div
-              className={`relative z-10 mt-6 p-4 text-sm text-zinc-600 dark:text-zinc-300 ${workspacePanelMutedClassName}`}
-            >
-              <div className="flex items-center gap-2 font-semibold text-zinc-950 dark:text-white">
-                <Sparkles className="h-4 w-4" />
-                What ReviveSafe does here
-              </div>
-              <p className="mt-3 leading-7">
-                Keep shared wallet work understandable: import native multisigs,
-                create programmable wallets, review approvals, and keep recent
-                changes in one place.
-              </p>
-              {factoryAddress && (
-                <p className="mt-3 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
-                  Operator tools are mainly for factory setup and advanced
-                  contract workflows. Most beta users only need Home, Wallets,
-                  Inbox, Proposals, and Activity.
-                </p>
-              )}
-            </div>
-
-            <div className="relative z-10">
+            <div className="relative z-10 mt-auto pt-6">
               <BetaSupportCard />
-            </div>
 
-            <div className="relative z-10 mt-6 grid gap-3">
-              <Link to="/import">
-                <Button className="h-11 w-full rounded-full bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200">
-                  Import wallet
-                </Button>
-              </Link>
-              <Link to="/create">
-                <Button
-                  variant="outline"
-                  className={`h-11 w-full ${workspaceOutlineButtonClassName}`}
-                >
-                  Create programmable wallet
-                </Button>
-              </Link>
-              <Link to="/register">
-                <Button
-                  variant="outline"
-                  className={`h-11 w-full ${workspaceOutlineButtonClassName}`}
-                >
-                  Add contract wallet
-                </Button>
-              </Link>
-              <Link to="/deploy">
-                <Button
-                  variant="outline"
-                  className={`h-11 w-full ${workspaceOutlineButtonClassName}`}
-                >
-                  Open operator tools
-                </Button>
-              </Link>
+              <div className="mt-4 grid gap-3">
+                <Link to="/import">
+                  <Button className="h-11 w-full rounded-full bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200">
+                    Import wallet
+                  </Button>
+                </Link>
+                <Link to="/create">
+                  <Button
+                    variant="outline"
+                    className={`h-11 w-full ${workspaceOutlineButtonClassName}`}
+                  >
+                    Create contract wallet
+                  </Button>
+                </Link>
+              </div>
             </div>
           </aside>
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 xl:flex xl:min-h-0 xl:flex-col xl:overflow-y-auto xl:pr-1">
             <div
               className={`relative mb-6 flex flex-col gap-4 p-4 backdrop-blur lg:flex-row lg:items-start lg:justify-between xl:items-center xl:p-5 2xl:p-6 ${workspacePanelClassName}`}
             >

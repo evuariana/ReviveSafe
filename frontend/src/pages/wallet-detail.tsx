@@ -71,8 +71,8 @@ export default function WalletDetail() {
   return (
     <div className={workspacePageClassName}>
       <WorkspaceHero
-        eyebrow="Wallet detail"
-        title="Programmable wallet overview"
+        eyebrow="Contract wallet"
+        title="Contract wallet"
         description={
           <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
@@ -92,8 +92,8 @@ export default function WalletDetail() {
               </a>
             </div>
             <p className="text-base font-light leading-8 text-zinc-600 dark:text-zinc-400">
-              This wallet uses the programmable contract flow on Asset Hub, with
-              proposal submit, approve, and execute kept inside the wallet surface.
+              Review balances, owners, open proposals, and recent changes for
+              this contract wallet.
             </p>
           </div>
         }
@@ -121,7 +121,7 @@ export default function WalletDetail() {
                 ? "Checking whether this account can act on this wallet."
                 : ownerQuery.data
                   ? "You are an owner on this wallet. You can create, approve, and execute proposals here."
-                  : "You are viewing this wallet in read-only mode. Only owners can create, approve, or execute proposals."}
+                  : "You are viewing this wallet in read-only mode. Only owners can create, approve, or execute proposals here."}
             </p>
           </div>
         }
@@ -151,7 +151,7 @@ export default function WalletDetail() {
         <WorkspaceStatCard
           label="Total proposals"
           value={wallet.transactionCount ?? "—"}
-          description="Total programmable proposals recorded for this wallet."
+          description="Total proposals recorded for this wallet."
           icon={Wallet2}
         />
         <WorkspaceStatCard
@@ -176,7 +176,7 @@ export default function WalletDetail() {
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <OwnersInfo
-          description="Owners are stored as the mapped H160 addresses ReviveSafe uses for programmable approvals and execution on Asset Hub."
+          description="These are the owners who can approve and execute work on this wallet."
           owners={wallet.owners}
           required={wallet.required}
           title="Owners"
@@ -194,11 +194,11 @@ export default function WalletDetail() {
         >
           {clientError && !clientLoading ? (
             <WorkspaceNotice tone="rose">
-              Asset balances are unavailable until ReviveSafe reconnects to the active runtime.
+              Asset balances are unavailable until ReviveSafe reconnects to the selected network.
             </WorkspaceNotice>
           ) : assetBalancesQuery.error || assetsQuery.error ? (
             <WorkspaceNotice tone="rose">
-              Failed to load wallet asset balances from the active network.
+              Failed to load wallet asset balances from the selected network.
             </WorkspaceNotice>
           ) : assetBalancesQuery.isLoading || assetsQuery.isLoading ? (
             <WorkspaceNotice>Loading supported asset balances...</WorkspaceNotice>
@@ -240,7 +240,7 @@ export default function WalletDetail() {
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <WorkspacePanel title="Proposal queue" contentClassName="space-y-4">
+        <WorkspacePanel title="Open proposals" contentClassName="space-y-4">
           {wallet.isLoading && wallet.pendingTransactions.length === 0 ? (
             <WorkspaceNotice>Loading pending proposals...</WorkspaceNotice>
           ) : wallet.loadError && wallet.pendingTransactions.length === 0 ? (
@@ -266,7 +266,7 @@ export default function WalletDetail() {
           )}
         </WorkspacePanel>
 
-        <WorkspacePanel title="Recent activity" contentClassName="space-y-4">
+        <WorkspacePanel title="Executed proposals" contentClassName="space-y-4">
           {wallet.isLoading && wallet.executedTransactions.length === 0 ? (
             <WorkspaceNotice>Loading executed proposals...</WorkspaceNotice>
           ) : wallet.executedTransactions.length === 0 ? (

@@ -78,9 +78,8 @@ export function NativeWalletDetail({
               </a>
             </div>
             <p className="text-base font-light leading-8 text-zinc-600 dark:text-zinc-400">
-              Imported native wallets are reconstructed from the direct member set
-              and threshold you entered, then kept truthful about the chain data
-              ReviveSafe can really recover.
+              Review members, balances, open proposals, and recent changes for
+              this imported native wallet.
             </p>
           </div>
         }
@@ -143,13 +142,13 @@ export function NativeWalletDetail({
         <WorkspaceNotice tone="amber">
           {nativeWallet.loadError
             ? nativeWallet.loadError
-            : "Some imported native proposals only expose a call hash on-chain. ReviveSafe can still show and approve them, but execution requires recoverable full call data."}
+            : "Some native proposals only expose a call hash on-chain. ReviveSafe can still show and approve them, but it can only execute the ones it can fully rebuild."}
         </WorkspaceNotice>
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <OwnersInfo
-          description="Imported native wallets are reconstructed from the direct multisig member set and threshold you entered."
+          description="These are the direct members and approval rule for this wallet."
           owners={wallet.members}
           required={wallet.threshold}
           title="Members"
@@ -198,7 +197,7 @@ export function NativeWalletDetail({
       {isMember ? <NativeProposalForm wallet={wallet} /> : null}
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <WorkspacePanel title="Proposal queue" contentClassName="space-y-4">
+        <WorkspacePanel title="Open proposals" contentClassName="space-y-4">
           {nativeWallet.isLoading && nativeWallet.operations.length === 0 ? (
             <WorkspaceNotice>Loading imported native proposals...</WorkspaceNotice>
           ) : nativeWallet.operations.length === 0 ? (
@@ -216,11 +215,11 @@ export function NativeWalletDetail({
           )}
         </WorkspacePanel>
 
-        <WorkspacePanel title="Workspace activity" contentClassName="space-y-4">
+        <WorkspacePanel title="Saved activity" contentClassName="space-y-4">
           {workspaceEvents.length === 0 ? (
             <WorkspaceEmptyState
               title="No local activity yet"
-              description="No local ReviveSafe activity has been recorded for this wallet yet."
+              description="No local ReviveSafe activity has been recorded for this wallet on this browser yet."
             />
           ) : (
             workspaceEvents.slice(0, 8).map((event) => (

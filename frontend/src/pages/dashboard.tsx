@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "@luno-kit/react";
 import {
   ArrowRight,
-  Blocks,
   CheckCircle2,
   Coins,
   Inbox,
@@ -13,7 +12,6 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
 import {
   WorkspaceBadge,
   WorkspaceEmptyState,
@@ -27,7 +25,6 @@ import {
 } from "@/components/layout/workspace-surfaces";
 import { Button } from "@/components/ui/button";
 import { useChainToken } from "@/hooks/useChainToken";
-import { useFactoryAddress } from "@/hooks/useFactoryAddress";
 import { useImportedNativeWallets } from "@/hooks/useNativeMultisig";
 import { useMappedAccount } from "@/hooks/useMappedAccount";
 import { usePolkadotClient } from "@/hooks/usePolkadotClient";
@@ -104,9 +101,6 @@ export default function Dashboard() {
   const { client, chain, error: clientError, loading: clientLoading } = usePolkadotClient();
   const { mappedAccount } = useMappedAccount();
   const { myMultisigs, myMultisigsQuery, factoryAddress } = useReviveFactory();
-  const defaultFactoryAddress = useFactoryAddress(
-    (state) => state.defaultFactoryAddress
-  );
   const importedNativeWallets = useImportedNativeWallets();
   const workspace = useWorkspaceSurfaces({
     enabled: liveWorkspace.enabled,
@@ -142,7 +136,7 @@ export default function Dashboard() {
   }));
 
   const readyItems: FeedItem[] = readyToExecute.slice(0, 4).map((proposal) => ({
-    badge: proposal.rail === "native" ? "Native" : "Programmable",
+    badge: proposal.rail === "native" ? "Native" : "Contract",
     description: proposal.actionSummary,
     href: proposal.href,
     id: `${proposal.id}:ready`,
@@ -172,8 +166,8 @@ export default function Dashboard() {
       href: `/wallet/${walletAddress}`,
       id: `programmable:${walletAddress}`,
       label: formatAddress(walletAddress, 6),
-      meta: "Programmable contract wallet",
-      type: "Programmable",
+      meta: "Contract wallet",
+      type: "Contract",
       tone: "default" as const,
     })),
   ].slice(0, 6);
@@ -182,8 +176,8 @@ export default function Dashboard() {
     <div className={workspacePageClassName}>
       <WorkspaceHero
         eyebrow="Overview"
-        title="Start here: what your team needs to do next"
-        description="Home is the shared wallet overview. It tells you whether this account is ready, what is waiting on you, and which native or programmable wallets are active in this workspace."
+        title="Start here: what needs attention"
+        description="Home gives you the quick read: whether this account is ready, what is waiting on you, and which native or contract wallets are active in this workspace."
         actions={
           <>
             <Link to="/import">
@@ -194,7 +188,7 @@ export default function Dashboard() {
                 variant="outline"
                 className={`rounded-full px-5 ${workspaceOutlineButtonClassName}`}
               >
-                Create programmable wallet
+                Create contract wallet
               </Button>
             </Link>
           </>
@@ -202,18 +196,18 @@ export default function Dashboard() {
         aside={
           <div className="space-y-4">
             <WorkspaceBadge tone={liveWorkspace.enabled ? "sky" : "amber"}>
-              {liveWorkspace.enabled ? "Live workspace" : "Live queue paused"}
+              {liveWorkspace.enabled ? "Live updates on" : "Live updates off"}
             </WorkspaceBadge>
             <div className="space-y-3">
               <div className="font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
                 {liveWorkspace.enabled
                   ? `${workspace.needsAction.length} items need attention`
-                  : "Load the live queue when you need it"}
+                  : "Load live updates when you need them"}
               </div>
               <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
                 {liveWorkspace.enabled
                   ? "Keep this page for the quick read: what is blocked, what is ready, and which wallets are already in your workspace."
-                  : "Cross-wallet proposals and activity now load on demand in this beta so the dashboard stays stable instead of refreshing a large shared-wallet graph in the background."}
+                  : "Proposals and activity load on demand in this beta so the dashboard stays calm until you ask for live updates."}
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
@@ -227,7 +221,7 @@ export default function Dashboard() {
               </div>
               <div className="rounded-[20px] border border-black/8 bg-white/75 p-4 dark:border-white/8 dark:bg-white/[0.04]">
                 <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
-                  Ready now
+                  Ready to execute
                 </div>
                 <div className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
                   {liveWorkspace.enabled ? readyToExecute.length : "Paused"}
@@ -238,22 +232,19 @@ export default function Dashboard() {
         }
       />
 
-      <PublicBetaNotice compact />
-
       {!liveWorkspace.enabled ? (
         <WorkspacePanel
-          title="Load live workspace data when you are ready"
-          description="ReviveSafe now keeps cross-wallet queue reads on demand in this beta. That makes the workspace much calmer after connect, especially when the account can see multiple wallets."
+          title="Load live updates"
+          description="Load proposals, activity, and wallet updates when you want them. This keeps the workspace calmer right after connect."
           actions={
             <Button className="rounded-full px-5" onClick={liveWorkspace.enable}>
-              Load live queue
+              Load live updates
             </Button>
           }
         >
           <WorkspaceNotice tone="amber">
-            Home will still show wallet counts and setup status below, but
-            approvals, ready items, and recent activity stay paused until you
-            ask for them.
+            Home will still show wallet counts and setup status below. Approvals,
+            ready items, and recent changes stay paused until you ask for them.
           </WorkspaceNotice>
         </WorkspacePanel>
       ) : null}
@@ -268,34 +259,29 @@ export default function Dashboard() {
 
       <div className="grid gap-4 xl:grid-cols-[1.08fr_0.92fr]">
         <WorkspacePanel
-          title="Can this account act right now?"
-          description="These checks tell you whether this signer and network are ready for wallet work, especially programmable actions."
-          contentClassName="grid gap-4 md:grid-cols-2"
+          title="Is this account ready?"
+          description="These checks show whether this wallet and network are ready for shared-wallet work."
+          contentClassName="grid gap-4 md:grid-cols-3"
         >
           <WorkspaceStatCard
-            label="Connected account"
+            label="Wallet connected"
             value={account?.address ? "Connected" : "Missing"}
-            description={account?.address ?? "Connect a Polkadot wallet to continue."}
+            description={
+              account?.address
+                ? formatAddress(account.address, 6)
+                : "Connect a Polkadot wallet to continue."
+            }
             icon={ShieldCheck}
           />
           <WorkspaceStatCard
-            label="Programmable signer"
+            label="Contract wallet access"
             value={mappedAccount?.isMapped ? "Ready" : "Needs mapping"}
             description={
-              mappedAccount?.mappedH160 ??
-              "Native import works without mapping, but programmable wallet writes do not."
+              mappedAccount?.isMapped
+                ? "This wallet can create, approve, and execute contract wallet work."
+                : "Finish the one-time setup step to use contract wallet actions."
             }
             icon={Waypoints}
-          />
-          <WorkspaceStatCard
-            label="Factory"
-            value={factoryAddress ? "Configured" : "Missing"}
-            description={
-              factoryAddress ??
-              defaultFactoryAddress ??
-              "Deploy or set a factory for contract-wallet flows."
-            }
-            icon={Blocks}
           />
           <WorkspaceStatCard
             label="Connected balance"
@@ -306,30 +292,30 @@ export default function Dashboard() {
                   ? "Loading..."
                   : `${formatTokenBalance(accountBalanceQuery.data ?? 0n, token.decimals)} ${token.symbol}`
             }
-            description={`Native runtime balance on ${chain.name}.`}
+            description={`Wallet balance on ${chain.name}.`}
             icon={Coins}
           />
         </WorkspacePanel>
 
         <WorkspacePanel
-          title="Workspace totals"
-          description="This is the quick count of wallets and work currently visible in this workspace."
+          title="Workspace at a glance"
+          description="A quick count of the wallets and work currently visible in this workspace."
           contentClassName="grid gap-4 md:grid-cols-2"
         >
           <WorkspaceStatCard
-            label="Imported native wallets"
+            label="Native imports"
             value={importedNativeWallets.length.toString()}
-            description="Direct native multisigs imported for the current chain."
+            description="Native multisigs added for the current chain."
             icon={Waypoints}
           />
           <WorkspaceStatCard
-            label="Programmable wallets"
+            label="Contract wallets"
             value={myMultisigsQuery.isLoading ? "..." : myMultisigs.length.toString()}
             description="Contract wallets returned by the active ReviveSafe factory."
             icon={Sparkles}
           />
           <WorkspaceStatCard
-            label="Needs action"
+            label="Needs attention"
             value={
               liveWorkspace.enabled
                 ? workspace.needsAction.length.toString()
@@ -338,22 +324,29 @@ export default function Dashboard() {
             description={
               liveWorkspace.enabled
                 ? "Approvals or executions this connected account can act on now."
-                : "Load the live queue to calculate current approvals and executions."
+                : "Load live updates to calculate current approvals and executions."
             }
             icon={Inbox}
           />
           <WorkspaceStatCard
-            label="Ready to send"
+            label="Ready to execute"
             value={liveWorkspace.enabled ? readyToExecute.length.toString() : "Paused"}
             description={
               liveWorkspace.enabled
                 ? "Cross-wallet proposals that have already met the threshold."
-                : "Ready-to-execute counts are paused until you load live data."
+                : "Ready-to-execute counts stay paused until you load live updates."
             }
             icon={CheckCircle2}
           />
         </WorkspacePanel>
       </div>
+
+      {!factoryAddress ? (
+        <WorkspaceNotice tone="amber">
+          Contract wallet creation is unavailable until a factory is connected
+          for this workspace.
+        </WorkspaceNotice>
+      ) : null}
 
       {liveWorkspace.enabled ? (
         <div className="grid gap-4 xl:grid-cols-3">
@@ -366,7 +359,7 @@ export default function Dashboard() {
             actionLabel="Open Inbox"
           />
           <FeedPanel
-            title="Ready to send"
+            title="Ready to execute"
             items={readyItems}
             emptyMessage="No proposals are ready to execute across this workspace yet."
             loading={workspace.isLoading}
@@ -386,7 +379,7 @@ export default function Dashboard() {
 
       <WorkspacePanel
         title="Wallets you can open from here"
-        description="Native and programmable wallets live in one directory here, but ReviveSafe still stays explicit about the different capabilities each wallet type supports."
+        description="Native multisigs and contract wallets live in one directory here."
         actions={
           <Button asChild variant="outline" className={workspaceOutlineButtonClassName}>
             <Link to="/wallets">
@@ -401,7 +394,7 @@ export default function Dashboard() {
           <WorkspaceEmptyState
             className="md:col-span-2 xl:col-span-3"
             title="No wallets connected"
-            description="Import a native wallet or create a programmable one to start building out this workspace."
+            description="Import a native wallet or create a contract wallet to start building out this workspace."
           />
         ) : (
           walletPreview.map((wallet) => (
@@ -410,7 +403,7 @@ export default function Dashboard() {
               to={wallet.href}
               title={wallet.label}
               meta={wallet.meta}
-              description="Open balances, members, proposals, and recent activity from the same shared workspace."
+              description="Open balances, members, proposals, and recent changes from the same shared workspace."
               badge={<WorkspaceBadge tone={wallet.tone}>{wallet.type}</WorkspaceBadge>}
             />
           ))

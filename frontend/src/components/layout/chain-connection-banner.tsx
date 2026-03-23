@@ -17,7 +17,7 @@ export function ChainConnectionBanner() {
           <div className="font-semibold">Chain connection unavailable</div>
           <p className="mt-1 leading-6">
             ReviveSafe could not connect to {chain.name}. Read and write data may
-            be incomplete until the runtime connection recovers. Check the
+            be incomplete until the network connection recovers. Check the
             selected network, RPC availability, and your wallet, then refresh.
           </p>
           <p className="mt-2 text-xs leading-5 text-amber-800 dark:text-amber-200">

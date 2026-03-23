@@ -45,9 +45,9 @@ export default function TransactionItem({
   const [isExecuting, setIsExecuting] = useState(false);
   const [actionError, setActionError] = useState<string>();
   const writeUnavailableReason = clientLoading
-    ? "Waiting for the active network runtime."
+    ? "Waiting for the selected network."
     : clientError || !client
-      ? "ReviveSafe cannot submit approvals or execution until the network connection recovers."
+      ? "ReviveSafe cannot send approvals or execution until the network connection recovers."
       : undefined;
 
   const decodedAssetTransfer = useMemo(() => {
@@ -80,7 +80,7 @@ export default function TransactionItem({
             {displayValue}
           </div>
           <div className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-            To {formatAddress(tx.destination, 6)}
+            Recipient {formatAddress(tx.destination, 6)}
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export default function TransactionItem({
             </WorkspaceBadge>
           )}
           <div className="text-xs uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-            {tx.confirmations.length} approvals so far
+            {tx.confirmations.length} approvals recorded
           </div>
         </div>
       </div>
@@ -111,10 +111,10 @@ export default function TransactionItem({
         <div className={`mt-4 p-4 ${workspacePanelMutedClassName}`}>
           <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950 dark:text-white">
             <Coins className="h-4 w-4" />
-            Asset Hub token transfer
+            Asset transfer
           </div>
           <div className="mt-2 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
-            Recipient: {formatAddress(decodedAssetTransfer.recipient, 6)} • Asset ID:{" "}
+            Recipient: {formatAddress(decodedAssetTransfer.recipient, 6)} • Asset:{" "}
             {decodedAssetTransfer.assetId}
           </div>
         </div>
@@ -124,7 +124,7 @@ export default function TransactionItem({
         <div className={`mt-4 p-4 ${workspacePanelMutedClassName}`}>
           <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950 dark:text-white">
             <Sparkles className="h-4 w-4" />
-            Custom calldata
+            Extra call data
           </div>
           <div className="mt-3 break-all font-mono text-xs leading-6 text-zinc-600 dark:text-zinc-400">
             {tx.data}

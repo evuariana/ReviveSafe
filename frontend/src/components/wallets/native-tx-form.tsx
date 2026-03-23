@@ -100,7 +100,7 @@ export function NativeProposalForm({
     return (
       <WorkspacePanel
         title="Create native proposal"
-        description="Draft a new proposal for this imported native wallet without leaving its detail view."
+        description="Draft a new action for this imported native wallet."
       >
         <Button className="w-full rounded-full" onClick={() => setIsOpen(true)}>
           <Plus className="h-4 w-4" />
@@ -113,7 +113,7 @@ export function NativeProposalForm({
   return (
     <WorkspacePanel
       title="Create native proposal"
-      description="Native proposals are direct chain pallet calls, so the supported surface stays narrower and more explicit than programmable wallets."
+      description="Supported actions stay intentionally smaller here, so the choices are simple and explicit."
       contentClassName="space-y-5"
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -128,7 +128,7 @@ export function NativeProposalForm({
         >
           <div className="text-sm font-semibold">Native transfer</div>
           <p className="mt-2 text-xs leading-6 opacity-80">
-            Submit a `balances.transferKeepAlive` proposal for this wallet.
+            Send the main network token from this wallet.
           </p>
         </button>
 
@@ -146,7 +146,7 @@ export function NativeProposalForm({
             Asset transfer
           </div>
           <p className="mt-2 text-xs leading-6 opacity-80">
-            Submit a `pallet-assets` transfer proposal for this wallet.
+            Send an Asset Hub token from this wallet.
           </p>
         </button>
       </div>
@@ -160,7 +160,7 @@ export function NativeProposalForm({
           onChange={(event) => setDestination(event.target.value)}
         />
         <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          Use the SS58 address that should receive the funds from this native wallet.
+          Use the regular Polkadot address that should receive funds from this wallet.
         </p>
       </div>
 
@@ -172,7 +172,7 @@ export function NativeProposalForm({
           symbol={token.symbol}
           decimals={token.decimals}
           maxPlanck={nativeWallet.balance}
-          description="ReviveSafe submits this through the native balances pallet."
+          description="Amount to send from this wallet."
         />
       ) : (
         <>
@@ -202,7 +202,7 @@ export function NativeProposalForm({
       )}
 
       <WorkspaceBadge tone="sky">
-        {mode === "native" ? "Native pallet transfer" : "Native asset transfer"}
+        {mode === "native" ? "Native wallet transfer" : "Native wallet asset transfer"}
       </WorkspaceBadge>
 
       {error || actions.error ? (

@@ -27,7 +27,7 @@ export function NativeOperationItem({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <div className="text-xs uppercase tracking-[0.18em] text-zinc-500 dark:text-zinc-400">
-            Imported native proposal
+            Native proposal
           </div>
           <div className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
             {operation.wallet.name || "Imported native proposal"}
@@ -61,14 +61,12 @@ export function NativeOperationItem({
       <div className="mt-4 flex flex-wrap gap-2 text-xs text-zinc-500 dark:text-zinc-400">
         <WorkspaceBadge tone="default">
           <Layers3 className="h-3.5 w-3.5" />
-          {operation.originMethod === "as_multi"
-            ? "Recovered from chain history"
-            : operation.originMethod === "approve_as_multi"
-              ? "Hash-only first approval"
-              : "Imported pending call"}
+          {operation.detailConfidence === "reconstructed"
+            ? "Full details available"
+            : "Limited details available"}
         </WorkspaceBadge>
         <WorkspaceBadge tone="default">
-          Depositor {formatAddress(operation.depositor, 6)}
+          Started by {formatAddress(operation.depositor, 6)}
         </WorkspaceBadge>
       </div>
 

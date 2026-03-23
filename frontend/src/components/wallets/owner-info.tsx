@@ -37,7 +37,7 @@ export default function OwnersInfo({
       <div className={`${workspacePanelMutedClassName} p-4 text-sm text-zinc-700 dark:text-zinc-300`}>
         <div className="flex items-center gap-2 font-semibold text-zinc-950 dark:text-white">
           <Shield className="h-4 w-4" />
-          {required ?? "..."} of {owners?.length ?? "..."} approvals required
+          {required ?? "..."} of {owners?.length ?? "..."} approvals needed
         </div>
         {description ? (
           <p className="mt-3 text-sm leading-7 text-zinc-500 dark:text-zinc-400">

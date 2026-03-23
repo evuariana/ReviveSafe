@@ -4,7 +4,6 @@ import { useAccount } from "@luno-kit/react";
 import { Plus, Trash2 } from "lucide-react";
 
 import { AmountInput } from "@/components/inputs/amount-input";
-import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
 import {
   WorkspaceBadge,
   WorkspaceHero,
@@ -107,31 +106,26 @@ export default function ImportWallet() {
 
   return (
     <div className={workspacePageFrameClassName}>
-      <WorkspaceHero
-        eyebrow="Import wallet"
-        title="Add a native multisig your team already uses"
-        description="Import is manual and verified. Enter the exact direct member list and threshold, and ReviveSafe will derive the native multisig account for this chain before it adds anything to your browser-local workspace on this device."
-        aside={
-          <div className="space-y-4">
-            <WorkspaceBadge tone="sky">Manual verified import</WorkspaceBadge>
-            <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-              This flow supports direct `pallet_multisig` wallets. Proxy wrappers
-              and automatic wallet discovery are intentionally out of scope here.
-            </p>
-          </div>
-        }
-      />
-
-      <PublicBetaNotice compact />
+        <WorkspaceHero
+          eyebrow="Import wallet"
+          title="Add a native multisig your team already uses"
+          description="Import is manual and verified. Enter the signer list and approval rule, and ReviveSafe will derive the native multisig account for this chain before adding it to this browser."
+          aside={
+            <div className="space-y-4">
+              <WorkspaceBadge tone="sky">Manual verified import</WorkspaceBadge>
+              <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
+                This flow supports direct native multisigs only. Proxy wrappers
+                and automatic wallet discovery are intentionally out of scope here.
+              </p>
+            </div>
+          }
+        />
 
       <WorkspacePanel title="1. Add the signer list" contentClassName="space-y-4">
         <WorkspaceNotice>
-          ReviveSafe currently supports direct `pallet_multisig` wallets only.
-          Proxy wrappers and automatic wallet discovery are not part of this pass.
-        </WorkspaceNotice>
-        <WorkspaceNotice tone="amber">
-          Imported native wallets are currently stored in this browser only. If
-          you switch browsers or devices, you will need to import them again.
+          ReviveSafe currently supports direct native multisigs only. Imported
+          native wallets stay in this browser for now, so you will need to
+          import them again on another device.
         </WorkspaceNotice>
 
         {members.map((member, index) => (
@@ -191,7 +185,7 @@ export default function ImportWallet() {
       </WorkspacePanel>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <WorkspacePanel title="2. Confirm the derived wallet" contentClassName="space-y-4">
+        <WorkspacePanel title="2. Confirm the wallet" contentClassName="space-y-4">
           <div className="space-y-2">
             <Label className="text-zinc-700 dark:text-zinc-300">Wallet label</Label>
             <Input
@@ -214,7 +208,7 @@ export default function ImportWallet() {
             }}
             min={1}
             max={Math.max(validMembers.length, 1)}
-            description="Use the exact threshold that created the original native multisig."
+            description="Use the same approval rule as the original wallet."
           />
 
           <div className="space-y-2">
@@ -232,14 +226,14 @@ export default function ImportWallet() {
             />
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               Leave blank to let ReviveSafe derive the wallet address. If you
-              provide an address, it must match the entered members and threshold.
+              enter one, it must match the signer list and approval rule.
             </p>
           </div>
 
           {previewWallet ? (
             <div className={`${workspacePanelMutedClassName} p-4 text-sm text-zinc-700 dark:text-zinc-300`}>
               <div className="font-semibold text-zinc-950 dark:text-white">
-                Derived wallet
+                Wallet preview
               </div>
               <div className="mt-2 break-all font-mono text-xs">
                 {previewWallet.address}
@@ -255,7 +249,7 @@ export default function ImportWallet() {
           )}
         </WorkspacePanel>
 
-        <WorkspacePanel title="3. Preview what ReviveSafe can recover" contentClassName="space-y-4">
+        <WorkspacePanel title="3. Preview what ReviveSafe can load" contentClassName="space-y-4">
           <div className={`${workspacePanelMutedClassName} p-4 text-sm text-zinc-700 dark:text-zinc-300`}>
             <div className="font-semibold text-zinc-950 dark:text-white">
               Connected account
@@ -282,15 +276,14 @@ export default function ImportWallet() {
                     : previewOperationsQuery.data?.length ?? 0}
                 </div>
                 <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-                  ReviveSafe will recover pending native proposals where chain data
-                  is available. Some imported items may still expose only a call hash.
+                  ReviveSafe will show pending native proposals where chain data
+                  is available. Some items may still only expose a call hash.
                 </p>
               </div>
             ) : (
               <WorkspaceNotice>
-                Load the on-chain preview only when you need it. This beta now
-                keeps native recovery on demand so the import flow stays stable
-                while you edit members and threshold.
+                Load the on-chain preview only when you need it. This keeps the
+                import flow stable while you edit members and the approval rule.
               </WorkspaceNotice>
             )
           ) : null}

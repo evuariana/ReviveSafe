@@ -304,7 +304,7 @@ export default function Deploy() {
       {clientError && (
         <div className="rounded-[24px] border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
           Contract deployments and write calls are unavailable until ReviveSafe
-          reconnects to the active network runtime.
+          reconnects to the selected network.
         </div>
       )}
 

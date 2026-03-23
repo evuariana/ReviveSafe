@@ -41,15 +41,15 @@ export function MappingGate({ children }: { children: ReactNode }) {
       <div className="space-y-6">
         <div className="rounded-[28px] border border-amber-200 bg-amber-50 p-6 text-amber-950 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-100">
           <div className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">
-            Mapping check unavailable
+            Setup check unavailable
           </div>
           <h2 className="mt-3 text-2xl font-semibold tracking-tight">
-            ReviveSafe could not verify this account's mapping yet
+            ReviveSafe could not verify this setup yet
           </h2>
           <p className="mt-3 text-sm leading-7 text-amber-900/80 dark:text-amber-100/80">
-            We could not confirm whether this account already has a usable Revive
-            mapping on the active network. Retry the check before submitting a new
-            activation transaction.
+            We could not confirm whether this account already finished the setup
+            step on the selected network. Retry the check before submitting a
+            new setup transaction.
           </p>
           <div className="mt-5 flex flex-wrap gap-3">
             <Button
@@ -77,26 +77,26 @@ export function MappingGate({ children }: { children: ReactNode }) {
         <div className="max-w-2xl space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-300">
             <Waypoints className="h-3.5 w-3.5" />
-            Activation required
+            Setup required
           </div>
 
           <div className="space-y-3">
             <h2 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-              Activate your ReviveSafe address
+              Finish one setup step
             </h2>
             <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-              Before this account can create wallets, approve proposals, or run
-              contract actions, Asset Hub needs one activation transaction.
-              ReviveSafe will use the mapped H160 address below for every
-              wallet action.
+              Before this account can create a contract wallet or approve
+              contract-wallet work, Asset Hub needs one setup transaction.
+              ReviveSafe will then use the contract wallet address below for
+              shared-wallet actions.
             </p>
           </div>
 
           <div className="flex flex-wrap gap-3">
             {[
               "Create wallets",
-              "Approve proposals",
-              "Run contract actions",
+              "Approve work",
+              "Execute actions",
             ].map((label) => (
               <div
                 key={label}
@@ -113,11 +113,11 @@ export function MappingGate({ children }: { children: ReactNode }) {
             One step left
           </div>
           <div className="mt-3 text-xl font-semibold text-zinc-950 dark:text-white">
-            Submit `revive.map_account()`
+            Confirm the setup transaction
           </div>
           <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-            Confirm one transaction in your wallet. This runs once per account
-            and unlocks the rest of the workspace.
+            Confirm one transaction in your wallet. You only do this once per
+            account, and then the rest of the workspace unlocks.
           </p>
 
           <Button
@@ -128,25 +128,25 @@ export function MappingGate({ children }: { children: ReactNode }) {
             {isMapping ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Activating wallet...
+                Finishing setup...
               </>
             ) : clientLoading ? (
               "Waiting for network..."
             ) : clientError || !client ? (
               "Network connection required"
             ) : (
-              "Activate wallet"
+              "Finish setup"
             )}
           </Button>
 
           <p className="mt-3 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
-            No funds move here. This only prepares the on-chain identity
-            ReviveSafe uses for shared wallet actions.
+            No funds move here. This just prepares the account ReviveSafe uses
+            for contract-wallet actions.
           </p>
           {clientError && (
             <p className="mt-3 text-xs leading-6 text-amber-700 dark:text-amber-300">
-              ReviveSafe cannot reach the active runtime right now. Reconnect to
-              the selected network and try again.
+              ReviveSafe cannot reach the selected network right now. Reconnect
+              and try again.
             </p>
           )}
         </div>
@@ -157,7 +157,7 @@ export function MappingGate({ children }: { children: ReactNode }) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                Connected SS58
+                Connected wallet
               </div>
               <div className="mt-2 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
                 Your extension account
@@ -182,10 +182,10 @@ export function MappingGate({ children }: { children: ReactNode }) {
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                ReviveSafe address
+                Contract wallet address
               </div>
               <div className="mt-2 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
-                The H160 address used across the app
+                The address ReviveSafe uses for contract-wallet actions
               </div>
             </div>
             <Button

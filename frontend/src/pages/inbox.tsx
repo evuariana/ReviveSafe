@@ -29,7 +29,7 @@ export default function InboxPage() {
         aside={
           <div className="space-y-4">
             <WorkspaceBadge tone={liveWorkspace.enabled ? "amber" : "sky"}>
-              {liveWorkspace.enabled ? "Needs attention" : "On-demand queue"}
+              {liveWorkspace.enabled ? "Needs attention" : "Live updates off"}
             </WorkspaceBadge>
             <div className="font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
               {liveWorkspace.enabled
@@ -39,7 +39,7 @@ export default function InboxPage() {
             <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
               {liveWorkspace.enabled
                 ? "Inbox is intentionally current-state oriented. Historical browsing stays in Activity so this page can remain easy to scan."
-                : "To keep the workspace stable, Inbox now loads its cross-wallet action queue on demand instead of rehydrating it automatically after every connect."}
+                : "Inbox stays paused until you ask for it so the workspace stays calm right after connect."}
             </p>
           </div>
         }
@@ -47,8 +47,8 @@ export default function InboxPage() {
 
       {!liveWorkspace.enabled ? (
         <WorkspacePanel
-          title="Load Inbox data"
-          description="When you load Inbox, ReviveSafe will recover approvals waiting on you, recent updates, and wallet notices for this connected account."
+          title="Load Inbox"
+          description="When you load Inbox, ReviveSafe will pull approvals waiting on you, recent updates, and wallet notices for this connected account."
           actions={
             <Button className="rounded-full px-5" onClick={liveWorkspace.enable}>
               Load Inbox
@@ -56,8 +56,7 @@ export default function InboxPage() {
           }
         >
           <WorkspaceNotice tone="amber">
-            This beta no longer keeps the entire shared-wallet queue running in
-            the background after connect.
+            Live updates stay off until you ask for them.
           </WorkspaceNotice>
         </WorkspacePanel>
       ) : null}

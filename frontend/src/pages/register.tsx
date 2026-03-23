@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { isAddress, type Address } from "viem";
 
 import { reviveWalletAbi } from "@/config/contracts";
-import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
 import {
   WorkspaceBadge,
   WorkspaceHero,
@@ -113,13 +112,13 @@ export default function RegisterMultisig() {
     }
 
     if (!isAddress(multisigAddress)) {
-      setSubmitError("Enter a valid H160 contract address.");
+      setSubmitError("Enter a valid contract wallet address.");
       return;
     }
 
     if (clientLoading || !client || clientError) {
       setSubmitError(
-        "The active network is not ready for contract writes yet. Reconnect and try again."
+        "The selected network is not ready for contract wallet actions yet. Reconnect and try again."
       );
       return;
     }
@@ -155,19 +154,17 @@ export default function RegisterMultisig() {
         <WorkspaceHero
           eyebrow="Add contract wallet"
           title="Add an existing contract wallet to this workspace"
-          description="Register an already deployed contract wallet so your team can review balances, approvals, and proposal history from the same app."
+          description="Add an existing contract wallet so your team can review balances, approvals, and recent changes from the same app."
           aside={
             <div className="space-y-4">
               <WorkspaceBadge>Compatible contract wallet</WorkspaceBadge>
               <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
                 This does not redeploy or change the wallet. It only adds a
-                compatible ReviveSafe contract wallet into the workspace.
+                compatible contract wallet into the workspace.
               </p>
             </div>
           }
         />
-
-        <PublicBetaNotice compact />
 
         <WorkspacePanel title="Wallet address" contentClassName="space-y-4">
           {!isFactoryAvailable ? (
@@ -194,8 +191,8 @@ export default function RegisterMultisig() {
             />
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
               This does not redeploy or change the wallet. It only adds it to
-              your ReviveSafe workspace. The connected mapped account must
-              already be an owner for the wallet to show up in `Wallets`.
+              your ReviveSafe workspace. The connected contract-wallet account
+              must already be one of the owners.
             </p>
           </div>
 
@@ -215,9 +212,8 @@ export default function RegisterMultisig() {
                 </>
               ) : (
                 <span className="text-amber-800 dark:text-amber-200">
-                  This wallet looks compatible, but the connected mapped account
-                  is not one of its owners. Switch to an owner account before
-                  adding it here.
+                  This wallet looks compatible, but the connected account is not
+                  one of its owners. Switch to an owner account before adding it here.
                 </span>
               )}
             </div>
@@ -228,8 +224,8 @@ export default function RegisterMultisig() {
           ) : null}
           {clientError ? (
             <WorkspaceNotice tone="amber">
-              Contract writes are unavailable until ReviveSafe reconnects to the
-              active network runtime.
+              Contract wallet actions are unavailable until ReviveSafe reconnects
+              to the selected network.
             </WorkspaceNotice>
           ) : null}
 
