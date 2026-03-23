@@ -1,137 +1,97 @@
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAccount } from "@luno-kit/react";
 import {
   ArrowRight,
   Blocks,
   CheckCircle2,
-  Clock3,
   Coins,
+  Inbox,
   ShieldCheck,
+  Sparkles,
   Waypoints,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { PublicBetaNotice } from "@/components/layout/public-beta-notice";
+import {
+  WorkspaceBadge,
+  WorkspaceEmptyState,
+  WorkspaceHero,
+  WorkspaceLinkCard,
+  WorkspaceNotice,
+  WorkspacePanel,
+  WorkspaceStatCard,
+  workspaceOutlineButtonClassName,
+} from "@/components/layout/workspace-surfaces";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useChainToken } from "@/hooks/useChainToken";
 import { useFactoryAddress } from "@/hooks/useFactoryAddress";
-import { useHubAssets } from "@/hooks/useHubAssets";
+import { useImportedNativeWallets } from "@/hooks/useNativeMultisig";
 import { useMappedAccount } from "@/hooks/useMappedAccount";
 import { usePolkadotClient } from "@/hooks/usePolkadotClient";
 import { useReviveFactory } from "@/hooks/useReviveFactory";
-import {
-  type WorkspaceProposalItem,
-  useWorkspaceQueues,
-} from "@/hooks/useWorkspaceQueues";
+import { useWorkspaceSurfaces } from "@/hooks/useWorkspaceSurfaces";
 import { formatTokenBalance } from "@/lib/currency";
-import { decodeAssetTransferCall, findHubAssetById } from "@/lib/precompiles";
 import { formatAddress } from "@/lib/utils";
-import type { ChainTokenInfo, HubAsset } from "@/types/revive";
 
-function describeTransaction(
-  proposal: WorkspaceProposalItem,
-  assets: HubAsset[],
-  token: ChainTokenInfo
-) {
-  const decodedAssetTransfer = decodeAssetTransferCall(
-    proposal.transaction.destination,
-    proposal.transaction.data
-  );
-
-  if (decodedAssetTransfer) {
-    const asset = findHubAssetById(assets, decodedAssetTransfer.assetId);
-    const assetSymbol = asset?.symbol || `#${decodedAssetTransfer.assetId}`;
-
-    return `Transfer ${formatTokenBalance(
-      decodedAssetTransfer.amount,
-      asset?.decimals ?? 0
-    )} ${assetSymbol} to ${formatAddress(decodedAssetTransfer.recipient, 6)}`;
-  }
-
-  if (proposal.transaction.data !== "0x") {
-    if (proposal.transaction.value > 0n) {
-      return `Send ${formatTokenBalance(
-        proposal.transaction.value,
-        token.decimals
-      )} ${token.symbol} and execute calldata`;
-    }
-
-    return `Contract call to ${formatAddress(proposal.transaction.destination, 6)}`;
-  }
-
-  return `Send ${formatTokenBalance(
-    proposal.transaction.value,
-    token.decimals
-  )} ${token.symbol} to ${formatAddress(proposal.transaction.destination, 6)}`;
+interface FeedItem {
+  badge?: string;
+  description: string;
+  href: string;
+  id: string;
+  meta: string;
+  title: string;
+  tone?: "amber" | "default" | "emerald" | "sky";
 }
 
-function ProposalQueueSection({
-  title,
-  items,
+function FeedPanel({
+  actionHref,
+  actionLabel,
   emptyMessage,
+  items,
   loading,
-  error,
-  assets,
-  token,
+  title,
 }: {
-  title: string;
-  items: WorkspaceProposalItem[];
+  actionHref: string;
+  actionLabel: string;
   emptyMessage: string;
+  items: FeedItem[];
   loading: boolean;
-  error?: string;
-  assets: HubAsset[];
-  token: ChainTokenInfo;
+  title: string;
 }) {
   return (
-    <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
-      <CardHeader>
-        <CardTitle className="text-lg text-zinc-950 dark:text-white">{title}</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {error ? (
-          <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-            {error}
-          </div>
-        ) : loading ? (
-          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
-            Loading live proposal data...
-          </div>
-        ) : items.length === 0 ? (
-          <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
-            {emptyMessage}
-          </div>
-        ) : (
-          items.slice(0, 4).map((proposal) => (
-            <Link
-              key={`${proposal.walletAddress}-${proposal.transaction.id}`}
-              to={`/wallet/${proposal.walletAddress}`}
-              className="block rounded-2xl border border-zinc-200 bg-zinc-50 p-4 transition-colors hover:bg-zinc-100 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="text-sm font-semibold text-zinc-950 dark:text-white">
-                    Proposal #{proposal.transaction.id}
-                  </div>
-                  <div className="mt-1 text-xs font-mono text-zinc-500">
-                    Wallet {formatAddress(proposal.walletAddress, 6)}
-                  </div>
-                  <div className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-                    {describeTransaction(proposal, assets, token)}
-                  </div>
-                </div>
-                <div className="text-right text-xs text-zinc-500">
-                  <div className="font-semibold text-zinc-950 dark:text-white">
-                    {proposal.transaction.confirmations.length}/{proposal.required}
-                  </div>
-                  <div>approvals</div>
-                </div>
-              </div>
-            </Link>
-          ))
-        )}
-      </CardContent>
-    </Card>
+    <WorkspacePanel
+      className="h-full"
+      title={title}
+      actions={
+        <Button asChild variant="outline" className={workspaceOutlineButtonClassName}>
+          <Link to={actionHref}>{actionLabel}</Link>
+        </Button>
+      }
+      contentClassName="space-y-3"
+    >
+      {loading ? (
+        <WorkspaceNotice>Loading workspace data...</WorkspaceNotice>
+      ) : items.length === 0 ? (
+        <WorkspaceEmptyState title="Nothing here yet" description={emptyMessage} />
+      ) : (
+        items.map((item) => (
+          <WorkspaceLinkCard
+            key={item.id}
+            to={item.href}
+            title={item.title}
+            meta={item.meta}
+            description={item.description}
+            badge={
+              item.badge ? (
+                <WorkspaceBadge tone={item.tone}>{item.badge}</WorkspaceBadge>
+              ) : undefined
+            }
+          />
+        ))
+      )}
+    </WorkspacePanel>
   );
 }
 
@@ -144,12 +104,11 @@ export default function Dashboard() {
   const defaultFactoryAddress = useFactoryAddress(
     (state) => state.defaultFactoryAddress
   );
-  const assetsQuery = useHubAssets();
-  const assets = assetsQuery.data ?? [];
-  const workspaceQueues = useWorkspaceQueues(myMultisigs, mappedAccount?.mappedH160);
+  const importedNativeWallets = useImportedNativeWallets();
+  const workspace = useWorkspaceSurfaces();
 
   const accountBalanceQuery = useQuery({
-    queryKey: ["connected-account-balance", account?.address],
+    queryKey: ["connected-account-balance", chain.key, account?.address],
     enabled: !!account?.address && !!client,
     queryFn: async () => {
       const response = await client?.query.system.account(account?.address ?? "");
@@ -157,317 +116,253 @@ export default function Dashboard() {
     },
   });
 
+  const readyToExecute = useMemo(
+    () =>
+      workspace.proposals.filter(
+        (proposal) => proposal.state === "ready_to_execute"
+      ),
+    [workspace.proposals]
+  );
+
+  const needsActionItems: FeedItem[] = workspace.needsAction.slice(0, 4).map((proposal) => ({
+    badge: proposal.state === "ready_to_execute" ? "Ready" : "Approval",
+    description: proposal.actionSummary,
+    href: proposal.href,
+    id: proposal.id,
+    meta: `${proposal.walletTypeLabel} wallet • ${proposal.walletLabel}`,
+    title: proposal.title,
+    tone: proposal.state === "ready_to_execute" ? "emerald" : "amber",
+  }));
+
+  const readyItems: FeedItem[] = readyToExecute.slice(0, 4).map((proposal) => ({
+    badge: proposal.rail === "native" ? "Native" : "Programmable",
+    description: proposal.actionSummary,
+    href: proposal.href,
+    id: `${proposal.id}:ready`,
+    meta: `${proposal.approvalProgress} approvals • ${proposal.walletLabel}`,
+    title: proposal.title,
+    tone: proposal.rail === "native" ? "sky" : "default",
+  }));
+
+  const activityItems: FeedItem[] = workspace.activity.slice(0, 5).map((activity) => ({
+    description: activity.description,
+    href: activity.href,
+    id: activity.id,
+    meta: activity.walletLabel,
+    title: activity.title,
+  }));
+
+  const walletPreview = [
+    ...importedNativeWallets.map((wallet) => ({
+      href: `/wallet/${wallet.address}`,
+      id: `native:${wallet.accountIdHex}`,
+      label: wallet.name || formatAddress(wallet.address, 6),
+      meta: `${wallet.threshold} of ${wallet.members.length} approvals`,
+      type: "Native",
+      tone: "sky" as const,
+    })),
+    ...myMultisigs.map((walletAddress) => ({
+      href: `/wallet/${walletAddress}`,
+      id: `programmable:${walletAddress}`,
+      label: formatAddress(walletAddress, 6),
+      meta: "Programmable contract wallet",
+      type: "Programmable",
+      tone: "default" as const,
+    })),
+  ].slice(0, 6);
+
   return (
-    <div className="space-y-6">
-      <div>
-        <div className="text-xs font-semibold uppercase tracking-[0.26em] text-zinc-500">
-          Overview
-        </div>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950 dark:text-white">
-          Wallet workspace overview
-        </h1>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-400">
-          Check whether this account is ready, how many wallets are connected,
-          which factory is active, and which assets are already loaded from
-          Asset Hub.
-        </p>
-      </div>
+    <div className="space-y-8">
+      <WorkspaceHero
+        eyebrow="Overview"
+        title="Shared wallet workspace overview"
+        description="Home is the cross-wallet summary. Use it to see what needs attention now, which proposals are ready, and which native or programmable wallets are active in this workspace."
+        actions={
+          <>
+            <Link to="/import">
+              <Button className="rounded-full px-5">Import native wallet</Button>
+            </Link>
+            <Link to="/create">
+              <Button
+                variant="outline"
+                className={`rounded-full px-5 ${workspaceOutlineButtonClassName}`}
+              >
+                Create programmable wallet
+              </Button>
+            </Link>
+          </>
+        }
+        aside={
+          <div className="space-y-4">
+            <WorkspaceBadge tone="sky">Live workspace</WorkspaceBadge>
+            <div className="space-y-3">
+              <div className="font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
+                {workspace.needsAction.length} items need attention
+              </div>
+              <p className="text-sm leading-7 text-zinc-600 dark:text-zinc-400">
+                Cross-wallet queues stay together here, while native import remains
+                manual and verified instead of auto-discovered.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+              <div className="rounded-[20px] border border-black/8 bg-white/75 p-4 dark:border-white/8 dark:bg-white/[0.04]">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+                  Native wallets
+                </div>
+                <div className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
+                  {importedNativeWallets.length}
+                </div>
+              </div>
+              <div className="rounded-[20px] border border-black/8 bg-white/75 p-4 dark:border-white/8 dark:bg-white/[0.04]">
+                <div className="text-[11px] font-semibold uppercase tracking-[0.24em] text-zinc-500 dark:text-zinc-400">
+                  Ready now
+                </div>
+                <div className="mt-2 text-2xl font-semibold text-zinc-950 dark:text-white">
+                  {readyToExecute.length}
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      />
 
       <PublicBetaNotice compact />
 
-      <div className="grid gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
-          <CardHeader className="border-b border-zinc-200 pb-5 dark:border-white/8">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <CardTitle className="text-2xl font-semibold text-zinc-950 dark:text-white">
-                  Workspace status
-                </CardTitle>
-                <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                  The essentials for creating wallets, opening approvals, and
-                  moving assets from this account.
-                </p>
-              </div>
-              <Button
-                asChild
-                variant="outline"
-                className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
-              >
-                <Link to="/create">
-                  Create wallet
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="grid gap-4 pt-6 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                  Account
-                </div>
-                <Waypoints className="h-4 w-4 text-zinc-400" />
-              </div>
-              <div className="mt-3 text-lg font-semibold text-zinc-950 dark:text-white">
-                {mappedAccount?.isMapped ? "Active" : "Needs setup"}
-              </div>
-              <div className="mt-2 break-all font-mono text-xs text-zinc-500">
-                {mappedAccount?.mappedH160 ?? "Connect a wallet"}
-              </div>
-            </div>
+      {(myMultisigsQuery.error || clientError) && (
+        <WorkspaceNotice tone="amber">
+          {(myMultisigsQuery.error as Error | null)?.message ||
+            clientError ||
+            "Some workspace reads are currently unavailable."}
+        </WorkspaceNotice>
+      )}
 
-            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                  Factory
-                </div>
-                <Blocks className="h-4 w-4 text-zinc-400" />
-              </div>
-              <div className="mt-3 text-lg font-semibold text-zinc-950 dark:text-white">
-                {factoryAddress ? "Configured" : "Missing"}
-              </div>
-              <div className="mt-2 break-all font-mono text-xs text-zinc-500">
-                {factoryAddress ?? defaultFactoryAddress ?? "Deploy or set a factory"}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                  Wallets
-                </div>
-                <ShieldCheck className="h-4 w-4 text-zinc-400" />
-              </div>
-              <div className="mt-3 text-3xl font-semibold text-zinc-950 dark:text-white">
-                {myMultisigsQuery.isLoading ? "..." : myMultisigs.length}
-              </div>
-              <div className="mt-2 text-xs text-zinc-500">
-                Wallets this account can access right now.
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
-              <div className="flex items-center justify-between">
-                <div className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
-                  Balance
-                </div>
-                <Coins className="h-4 w-4 text-zinc-400" />
-              </div>
-              <div className="mt-3 text-2xl font-semibold text-zinc-950 dark:text-white">
-                {clientError && !clientLoading
-                  ? "Unavailable"
-                  : accountBalanceQuery.isLoading
-                  ? "Loading..."
-                  : `${formatTokenBalance(accountBalanceQuery.data ?? 0n, token.decimals)} ${token.symbol}`}
-              </div>
-              <div className="mt-2 text-xs text-zinc-500">
-                {clientError && !clientLoading
-                  ? "Reconnect to the active runtime to refresh the native balance."
-                  : `Native runtime balance on ${chain.name}.`}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
-          <CardHeader>
-            <CardTitle className="text-lg text-zinc-950 dark:text-white">
-              Asset coverage
-            </CardTitle>
-            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-              Assets loaded from Asset Hub for balance checks and token proposal
-              flows.
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {clientError && !clientLoading ? (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-                Asset metadata is unavailable until ReviveSafe reconnects to the
-                active runtime.
-              </div>
-            ) : assetsQuery.error ? (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-                Asset metadata could not be loaded from the active network.
-              </div>
-            ) : assetsQuery.isLoading ? (
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
-                Asset metadata is still loading from the network.
-              </div>
-            ) : assets.length === 0 ? (
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
-                No Asset Hub metadata is available on the active network yet.
-              </div>
-            ) : (
-              assets.slice(0, 5).map((asset) => (
-                <div
-                  key={asset.id}
-                  className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 dark:border-white/10 dark:bg-white/[0.03]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-sm font-semibold text-zinc-950 dark:text-white">
-                        {asset.symbol || asset.name}
-                      </div>
-                      <div className="mt-1 text-xs text-zinc-500">
-                        {asset.name} • #{asset.id}
-                      </div>
-                    </div>
-                    <div className="font-mono text-[11px] text-zinc-500">
-                      {asset.precompileAddress}
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      <WorkspacePanel
+        title="Workspace status"
+        description="Native import is manual and verified. Programmable contract-wallet writes still require account mapping and an active factory."
+        contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+      >
+        <WorkspaceStatCard
+          label="Connected account"
+          value={account?.address ? "Connected" : "Missing"}
+          description={account?.address ?? "Connect a Polkadot wallet to continue."}
+          icon={ShieldCheck}
+        />
+        <WorkspaceStatCard
+          label="Programmable signer"
+          value={mappedAccount?.isMapped ? "Ready" : "Needs mapping"}
+          description={
+            mappedAccount?.mappedH160 ??
+            "Native import works without mapping, but programmable wallet writes do not."
+          }
+          icon={Waypoints}
+        />
+        <WorkspaceStatCard
+          label="Factory"
+          value={factoryAddress ? "Configured" : "Missing"}
+          description={
+            factoryAddress ??
+            defaultFactoryAddress ??
+            "Deploy or set a factory for contract-wallet flows."
+          }
+          icon={Blocks}
+        />
+        <WorkspaceStatCard
+          label="Imported native wallets"
+          value={importedNativeWallets.length.toString()}
+          description="Direct native multisigs imported for the current chain."
+          icon={Waypoints}
+        />
+        <WorkspaceStatCard
+          label="Programmable wallets"
+          value={myMultisigsQuery.isLoading ? "..." : myMultisigs.length.toString()}
+          description="Contract wallets returned by the active ReviveSafe factory."
+          icon={Sparkles}
+        />
+        <WorkspaceStatCard
+          label="Connected balance"
+          value={
+            clientError && !clientLoading
+              ? "Unavailable"
+              : accountBalanceQuery.isLoading
+                ? "Loading..."
+                : `${formatTokenBalance(accountBalanceQuery.data ?? 0n, token.decimals)} ${token.symbol}`
+          }
+          description={`Native runtime balance on ${chain.name}.`}
+          icon={Coins}
+        />
+        <WorkspaceStatCard
+          label="Needs action"
+          value={workspace.needsAction.length.toString()}
+          description="Approvals or executions this connected account can act on now."
+          icon={Inbox}
+        />
+        <WorkspaceStatCard
+          label="Ready to execute"
+          value={readyToExecute.length.toString()}
+          description="Cross-wallet proposals that have already met the threshold."
+          icon={CheckCircle2}
+        />
+      </WorkspacePanel>
 
       <div className="grid gap-4 xl:grid-cols-3">
-        <ProposalQueueSection
-          title="Needs your approval"
-          items={workspaceQueues.needsApproval}
-          emptyMessage="Nothing is waiting on this account right now."
-          loading={myMultisigsQuery.isLoading || workspaceQueues.isLoading}
-          error={
-            (myMultisigsQuery.error instanceof Error && myMultisigsQuery.error.message) ||
-            workspaceQueues.error
-          }
-          assets={assets}
-          token={token}
+        <FeedPanel
+          title="Needs attention"
+          items={needsActionItems}
+          emptyMessage="Nothing is waiting on this connected account right now."
+          loading={workspace.isLoading}
+          actionHref="/inbox"
+          actionLabel="Open Inbox"
         />
-        <ProposalQueueSection
+        <FeedPanel
           title="Ready to execute"
-          items={workspaceQueues.readyToExecute}
-          emptyMessage="No approved proposals are ready for this account to execute."
-          loading={myMultisigsQuery.isLoading || workspaceQueues.isLoading}
-          error={
-            (myMultisigsQuery.error instanceof Error && myMultisigsQuery.error.message) ||
-            workspaceQueues.error
-          }
-          assets={assets}
-          token={token}
+          items={readyItems}
+          emptyMessage="No proposals are ready to execute across this workspace yet."
+          loading={workspace.isLoading}
+          actionHref="/proposals"
+          actionLabel="Open Proposals"
         />
-        <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg text-zinc-950 dark:text-white">
-              <CheckCircle2 className="h-5 w-5" />
-              Executed proposals
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {((myMultisigsQuery.error instanceof Error &&
-              myMultisigsQuery.error.message) ||
-              workspaceQueues.error) ? (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-                {(myMultisigsQuery.error instanceof Error &&
-                  myMultisigsQuery.error.message) ||
-                  workspaceQueues.error}
-              </div>
-            ) : workspaceQueues.isLoading && workspaceQueues.recentActivity.length === 0 ? (
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
-                Loading executed proposals...
-              </div>
-            ) : workspaceQueues.recentActivity.length === 0 ? (
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400">
-                No executed proposals have been detected across your wallets yet.
-              </div>
-            ) : (
-              workspaceQueues.recentActivity.map((entry) => (
-                <Link
-                  key={`activity-${entry.walletAddress}-${entry.transaction.id}`}
-                  to={`/wallet/${entry.walletAddress}`}
-                  className="block rounded-2xl border border-zinc-200 bg-zinc-50 p-4 transition-colors hover:bg-zinc-100 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]"
-                >
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="flex items-center gap-2 text-sm font-semibold text-zinc-950 dark:text-white">
-                        <Clock3 className="h-4 w-4" />
-                        Proposal #{entry.transaction.id} executed
-                      </div>
-                      <div className="mt-1 text-xs font-mono text-zinc-500">
-                        Wallet {formatAddress(entry.walletAddress, 6)}
-                      </div>
-                      <div className="mt-3 text-sm text-zinc-600 dark:text-zinc-400">
-                        {describeTransaction(
-                          {
-                            walletAddress: entry.walletAddress,
-                            owners: [],
-                            required: entry.transaction.confirmations.length,
-                            transaction: entry.transaction,
-                            needsApproval: false,
-                            readyToExecute: false,
-                          },
-                          assets,
-                          token
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))
-            )}
-          </CardContent>
-        </Card>
+        <FeedPanel
+          title="Recent activity"
+          items={activityItems}
+          emptyMessage="No activity has been recorded in this workspace yet."
+          loading={workspace.isLoading}
+          actionHref="/activity"
+          actionLabel="Open Activity"
+        />
       </div>
 
-      <Card className="rounded-[28px] border-zinc-200 bg-white shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0a0a0a] dark:shadow-[0_0_40px_rgba(255,255,255,0.03)]">
-        <CardHeader className="flex flex-row items-center justify-between border-b border-zinc-200 pb-5 dark:border-white/8">
-          <div>
-            <CardTitle className="text-xl text-zinc-950 dark:text-white">
-              Team wallets
-            </CardTitle>
-            <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-              Open a wallet to review owners, balances, and the proposal queue.
-            </p>
-          </div>
-          <Button
-            asChild
-            variant="outline"
-            className="rounded-full border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950 dark:border-white/10 dark:bg-transparent dark:text-zinc-200 dark:hover:bg-white/[0.06] dark:hover:text-white"
-          >
-            <Link to="/wallets">View all wallets</Link>
+      <WorkspacePanel
+        title="Wallet preview"
+        description="Imported native multisigs and programmable contract wallets share the same workspace, but they still expose different capabilities."
+        actions={
+          <Button asChild variant="outline" className={workspaceOutlineButtonClassName}>
+            <Link to="/wallets">
+              View all wallets
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </Button>
-        </CardHeader>
-        <CardContent className="grid gap-4 pt-6 md:grid-cols-2">
-          {myMultisigsQuery.error ? (
-            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-sm text-rose-700 md:col-span-2">
-              {(myMultisigsQuery.error as Error).message}
-            </div>
-          ) : myMultisigsQuery.isLoading ? (
-            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/10 dark:bg-white/[0.03] dark:text-zinc-400 md:col-span-2">
-              Loading wallets from the active factory...
-            </div>
-          ) : myMultisigs.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-500 dark:border-white/12 dark:bg-white/[0.03] dark:text-zinc-400 md:col-span-2">
-              No wallets yet. Create one or add an existing contract wallet to
-              start working from this workspace.
-            </div>
-          ) : (
-            myMultisigs.slice(0, 4).map((multisigAddress) => (
-              <Link
-                key={multisigAddress}
-                to={`/wallet/${multisigAddress}`}
-                className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5 transition-colors hover:bg-zinc-100 dark:border-white/10 dark:bg-white/[0.03] dark:hover:bg-white/[0.05]"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <div className="font-mono text-sm text-zinc-950 dark:text-white">
-                      {multisigAddress}
-                    </div>
-                    <div className="mt-2 text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-                      Shared wallet
-                    </div>
-                  </div>
-                  <div className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">
-                    Open
-                  </div>
-                </div>
-              </Link>
-            ))
-          )}
-        </CardContent>
-      </Card>
+        }
+        contentClassName="grid gap-4 md:grid-cols-2 xl:grid-cols-3"
+      >
+        {walletPreview.length === 0 ? (
+          <WorkspaceEmptyState
+            className="md:col-span-2 xl:col-span-3"
+            title="No wallets connected"
+            description="Import a native wallet or create a programmable one to start building out this workspace."
+          />
+        ) : (
+          walletPreview.map((wallet) => (
+            <WorkspaceLinkCard
+              key={wallet.id}
+              to={wallet.href}
+              title={wallet.label}
+              meta={wallet.meta}
+              description="Open balances, members, proposals, and recent activity from the same shared workspace."
+              badge={<WorkspaceBadge tone={wallet.tone}>{wallet.type}</WorkspaceBadge>}
+            />
+          ))
+        )}
+      </WorkspacePanel>
     </div>
   );
 }

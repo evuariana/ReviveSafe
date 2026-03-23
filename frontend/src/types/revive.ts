@@ -93,3 +93,32 @@ export interface DeployedContractResult {
   extrinsicHash?: Hex;
 }
 
+export interface ImportedNativeWalletRecord {
+  address: string;
+  accountIdHex: Hex;
+  chainKey: SupportedHubChain;
+  importedAt: number;
+  members: string[];
+  memberAccountIds: Hex[];
+  name?: string;
+  ss58Prefix: number;
+  threshold: number;
+}
+
+export type NativeWorkspaceEventKind =
+  | "wallet_imported"
+  | "proposal_submitted"
+  | "proposal_approved"
+  | "proposal_executed";
+
+export interface NativeWorkspaceEvent {
+  id: string;
+  chainKey: SupportedHubChain;
+  createdAt: number;
+  description: string;
+  extrinsicHash?: Hex;
+  kind: NativeWorkspaceEventKind;
+  title: string;
+  walletAccountIdHex: Hex;
+  walletAddress: string;
+}

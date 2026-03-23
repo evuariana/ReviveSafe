@@ -9,6 +9,7 @@ Updated: March 22, 2026
 Reason:
 
 - The programmable contract-wallet flow is real and materially hardened.
+- Direct native multisig import is now real with a truthful manual model.
 - Truthful beta copy, support links, trust/security docs, and a lightweight
   observability stub now exist in-repo.
 - Public beta is still blocked by environment-specific rollout work:
@@ -24,18 +25,22 @@ ReviveSafe truly supports today:
 - mapped-address activation with `revive.map_account()`
 - factory-backed wallet creation
 - adding existing compatible contract wallets to the workspace
+- manual import of direct native `pallet_multisig` wallets from exact members
+  plus threshold
 - wallet detail reads for owners, balances, pending proposals, and recent
   executed activity
 - proposal submission, approval, ready-to-execute state, and execution
 - native token transfers and supported Asset Hub asset transfers
+- top-level Inbox, Proposals, and Activity pages
+- cross-wallet proposal and activity views across imported native and
+  programmable wallets
 
 ReviveSafe does **not** truly support today:
 
 - native wallet creation
-- native wallet import
+- automatic native wallet discovery
 - proxy wallet flows
 - native-to-programmable upgrade flows
-- dedicated Inbox, Activity, or Proposals pages
 - modules, rules, policies, settings, or richer governance flows as end-user
   product surfaces
 
@@ -70,11 +75,10 @@ These still block a serious public beta:
 
 ## Post-Launch Items
 
-- native wallet create and import
-- proxy wallet support
-- dedicated Inbox, Proposals, and Activity surfaces
+- native wallet creation
+- proxy wallet flows
 - richer governance proposals, rules, modules, and settings
-- broader asset discovery and bundle-size optimization
+- broader native history/indexing, asset discovery, and bundle-size optimization
 
 ## Required Setup And Env Vars
 
@@ -104,16 +108,19 @@ Optional:
 Supported flow today:
 
 1. Connect a supported wallet.
-2. Activate the account with `revive.map_account()`.
+2. Import a direct native multisig by entering the exact members and threshold,
+   or activate the account with `revive.map_account()` for programmable flows.
 3. Create a programmable contract wallet from the active factory.
 4. Add an existing compatible contract wallet if the connected mapped account
    is already an owner.
-5. Open the wallet and inspect balances, owners, pending proposals, and recent
-   executed activity.
-6. Submit a native token transfer, Asset Hub asset transfer, or calldata
+5. Open top-level Inbox, Proposals, and Activity to review cross-wallet work.
+6. Open a wallet and inspect balances, owners or members, pending proposals,
+   and recent activity.
+7. Submit a native token transfer, Asset Hub asset transfer, or calldata
    proposal.
-7. Approve a pending proposal as an owner.
-8. Execute a ready proposal as an eligible owner.
+8. Approve a pending proposal as an owner or direct native member.
+9. Execute a ready proposal as an eligible owner or direct native member when
+   the underlying call details are available.
 
 Recommended default network:
 
@@ -124,10 +131,14 @@ coverage have been verified there.
 
 ## Known Limitations
 
-- The implementation is still programmable-only even though the long-term
-  product model includes native and programmable rails.
+- Native import is manual and limited to direct multisigs; there is no
+  automatic wallet discovery.
+- Imported native proposals may be hash-only if the original call cannot be
+  recovered from chain history.
+- Imported native execution is currently limited to supported balances and
+  `pallet-assets` transfers when full call detail is recoverable.
 - Add-wallet supports only compatible ReviveSafe contract wallets.
-- Owners still act through mapped H160 addresses under the hood.
+- Programmable owners still act through mapped H160 addresses under the hood.
 - Asset discovery remains metadata-driven and capped for UI practicality.
 - The deploy console is still present because factory setup remains an operator
   concern.
@@ -139,11 +150,14 @@ Every launch surface should disclose:
 - this is a beta
 - which chain is in scope
 - which wallet connections are supported
-- that the live beta is for programmable contract wallets
+- that the live beta supports programmable contract wallets plus manual import
+  of direct native multisigs
 - that no audit is linked in the repo today and the contracts should be treated
   as unaudited
+- that native import is manual and does not auto-discover wallets
+- that proxy import is not live
 - that add-wallet only supports compatible contract wallets
-- that mapped-address activation is required before write flows
+- that mapped-address activation is required for programmable wallet writes
 
 Reference copy lives in
 [the trust and security doc](./revivesafe-trust-and-security.md).
@@ -154,12 +168,16 @@ Reference copy lives in
 - verify chain switching between Paseo Asset Hub and Polkadot Asset Hub
 - verify runtime connection failure banners by simulating a bad WS endpoint
 - verify mapping gate success and failure states
+- verify direct native multisig import from the exact member set and threshold
 - verify create-wallet success on the target factory
 - verify SS58 owner input resolves correctly to mapped H160
 - verify add-wallet success for an owner account
 - verify incompatible contract wallet rejection in add-wallet flow
 - verify native token transfer proposal submission
 - verify Asset Hub asset transfer proposal submission
+- verify top-level Inbox, Proposals, and Activity surfaces reflect live wallet state
+- verify imported native approvals can be approved by hash
+- verify imported native execution only appears when full supported call detail is available
 - verify proposal approval by a second owner
 - verify ready-to-execute appears only after threshold is met
 - verify execution succeeds and recent activity updates
@@ -184,7 +202,7 @@ Latest verification run in this repo:
   Passed. 6 tests passed in about 72s. Ganache fell back from native `uws`
   bindings to a pure Node.js implementation, which affected performance only.
 - `pnpm --filter frontend lint`
-  Passed cleanly after fixing two React hook dependency warnings.
+  Passed cleanly after the workflow expansion and copy-truthfulness updates.
 - `pnpm --filter frontend build`
   Passed. Vite still emitted existing browser-compatibility warnings from
   `@parity/resolc` and `solc`, plus large chunk warnings for the operator
@@ -193,11 +211,11 @@ Latest verification run in this repo:
 ## Recommended Next Milestone After Beta
 
 The next milestone should be a **public-beta-ready programmable wallet
-release**, not a premature scope expansion.
+release with truthful limited native import**, not a premature scope expansion.
 
 That means:
 
 - lock a verified default chain and factory
 - automate smoke coverage for the live environment
 - operate with real support and observability
-- then revisit native wallet import and the broader two-rail product model
+- then deepen native indexing, proxy support, and the broader two-rail product model

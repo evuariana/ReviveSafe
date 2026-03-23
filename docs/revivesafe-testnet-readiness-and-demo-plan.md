@@ -81,17 +81,17 @@ has a real execution-policy hook for future stricter rules.
 
 ### Highest priority remaining demo gaps
 
-1. Native rail is still not real
-   The approved product says ReviveSafe is one product across native and programmable wallets. The truthful demo scope today is programmable only.
+1. Native rail is only partially real
+   The app now supports manual import of direct native multisigs, but native
+   create, proxy flows, and fully indexed history are still missing.
 
-2. Inbox is still missing as a dedicated product surface
-   The dashboard now shows action queues, but there is still no top-level Inbox page matching the approved product.
+2. Wallet configuration depth is still shallow
+   Modules, rules, policies, lifecycle, and upgrade relationships are product
+   concepts in docs, not real app flows yet.
 
-3. Activity is wallet-scoped and dashboard-scoped, not yet a full product-level history surface
-   Good enough for the demo, but still behind the approved IA.
-
-4. Wallet configuration depth is still shallow
-   Modules, rules, policies, lifecycle, and upgrade relationships are product concepts in docs, not real app flows yet.
+3. Native history remains partial without indexing
+   Imported native proposals can be recovered from chain state, but hash-only
+   proposals still limit how much detail the UI can show.
 
 ### Medium priority risks
 
@@ -384,4 +384,4 @@ Additional note:
 - Asset Hub token transfer through the deterministic ERC-20 precompile path
 - Dashboard action queues and wallet recent activity updating after execution
 - Honest scope communication
-  Programmable path is live today; native wallet import is still upcoming
+  Programmable path is live today; native wallet import is real but manual and limited

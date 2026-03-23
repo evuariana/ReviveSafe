@@ -1,8 +1,8 @@
 # ReviveSafe
 
-ReviveSafe is a programmable contract-wallet beta for Asset Hub. It keeps the
-core Solidity multisig flow, but now routes the app through a Dedot and
-LunoKit-first runtime model:
+ReviveSafe is a shared-wallet beta for Asset Hub. Today it combines
+programmable contract wallets with manual import of direct native multisigs,
+while routing the app through a Dedot and LunoKit-first runtime model:
 
 - Solidity contracts compile to PolkaVM bytecode with `resolc`
 - The frontend signs through `pallet_revive` extrinsics, not wagmi/RainbowKit
@@ -16,17 +16,29 @@ The truthful product scope in this repo today is:
 
 - programmable contract wallet creation through the factory flow
 - adding existing compatible contract wallets to the workspace
+- manual import of direct native `pallet_multisig` wallets by exact member set
+  and threshold
 - proposal submission, approval, ready-to-execute state, and execution
 - native token transfers and Asset Hub asset transfers through deterministic precompiles
-- dashboard queueing for approvals, execution, and recent wallet activity
+- top-level Inbox, Proposals, and Activity workspace surfaces
+- cross-wallet queueing for approvals, execution, and recent wallet activity
+- native pending-proposal reads, approval by hash, and execution of supported
+  imported calls when full call detail is recoverable
 
 Not live yet in the current beta:
 
 - native multisig or proxy wallet creation
-- native wallet import
+- automatic native wallet discovery
+- proxy wallet import
 - native-to-programmable upgrade flows
-- top-level Inbox, Activity, or Proposals product surfaces
 - wallet rules, modules, policies, or settings as first-class end-user flows
+
+Important native-import limits:
+
+- import is manual and verified, not automatic
+- the current native path is for direct multisigs only, not proxy wrappers
+- imported native proposals are only fully explainable or executable when the
+  original call can be recovered from chain history
 
 ## Launch Docs
 
@@ -42,10 +54,11 @@ Not live yet in the current beta:
 - Switched the contract build flow from the old remote `@parity/revive` helper to local `@parity/resolc`
 - Removed wagmi and RainbowKit from the frontend
 - Added RelayCode-style LunoKit connect and chain selection controls
-- Added a blocking `map_account` setup gate so every write path uses a mapped H160
+- Limited `map_account` gating to programmable wallet flows that actually need a mapped H160
 - Rebuilt create, register, wallet detail, and proposal flows on top of `pallet_revive.call`
 - Added a deploy console for `instantiateWithCode`, artifact upload, and post-deploy write calls
 - Replaced stale config assumptions with explicit Paseo Asset Hub and Polkadot Asset Hub envs
+- Added manual native multisig import, native wallet detail pages, and top-level Inbox/Proposals/Activity surfaces
 
 ## Stack
 
@@ -144,6 +157,8 @@ Optional deploy args can be passed through `CONSTRUCTOR_ARGS` as a JSON array.
 
 - Contract writes now go through Revive extrinsics signed by LunoKit wallets.
 - Read-only contract hydration still uses the ETH RPC path by design.
+- Native wallet import derives the multisig account from the exact member set
+  and threshold; it does not try to auto-discover all wallets for a signer.
 - The deploy console can compile bundled or pasted Solidity, but the browser `resolc` chunk is large; treat it as an operator setup tool, not a primary end-user workflow.
 - The current beta supports Talisman, SubWallet, and Polkadot.js through LunoKit.
 - The safest default network for beta testing is Paseo Asset Hub unless your factory and balances are already verified on Polkadot Asset Hub.

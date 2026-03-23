@@ -5,8 +5,8 @@ Updated: March 22, 2026
 ## Purpose
 
 This runbook is for operating the live ReviveSafe beta as it exists today:
-programmable contract wallets on Paseo Asset Hub and, if explicitly verified,
-Polkadot Asset Hub.
+programmable contract wallets plus manual import of direct native multisigs on
+Paseo Asset Hub and, if explicitly verified, Polkadot Asset Hub.
 
 Complete every `TBD` item before inviting external users. Public beta should
 not start until this file is fully filled in for the target environment.
@@ -38,19 +38,22 @@ not start until this file is fully filled in for the target environment.
 The live beta supports:
 
 - connect with Talisman, SubWallet, or Polkadot.js through LunoKit
-- activate the account with `revive.map_account()`
+- import a direct native multisig from the exact member set and threshold
+- activate the account with `revive.map_account()` for programmable writes
 - create a programmable contract wallet from the factory
 - add an existing compatible contract wallet when the connected mapped account
   is already an owner
-- open wallet detail, inspect owners and balances, and review pending or recent
-  executed proposals
+- open top-level Inbox, Proposals, and Activity views
+- open wallet detail, inspect owners or members and balances, and review
+  pending or recent executed proposals
 - submit native token transfers, calldata proposals, and supported Asset Hub
   asset transfers
-- approve pending proposals as an owner
-- execute ready proposals as an eligible owner
+- approve pending proposals as an owner or direct native member
+- execute ready proposals as an eligible owner or direct native member when the
+  underlying imported call is supported and recoverable
 
-Do not promise native multisig import, proxy support, Inbox, Activity,
-Proposals, upgrade flows, or richer rules/modules/settings in the live beta.
+Do not promise automatic native wallet discovery, proxy support, native wallet
+creation, upgrade flows, or richer rules/modules/settings in the live beta.
 
 ## Pre-Launch Go/No-Go
 
@@ -67,15 +70,17 @@ Proposals, upgrade flows, or richer rules/modules/settings in the live beta.
 ## Smoke Test Before Each Release Window
 
 1. Connect with a supported wallet.
-2. Verify the mapping gate shows the expected mapped H160.
-3. Run `Activate wallet` if the account is unmapped.
-4. Confirm the dashboard shows the correct chain and factory status.
-5. Create a wallet from the active factory.
-6. Add a known compatible contract wallet.
-7. Submit a native transfer or calldata proposal.
-8. Approve from a second owner account.
-9. Execute from an eligible owner account.
-10. Verify recent activity updates and explorer links resolve.
+2. Import a seeded direct native multisig using the exact members and threshold.
+3. Verify the mapping gate shows the expected mapped H160 for programmable
+   flows.
+4. Run `Activate wallet` if the account is unmapped.
+5. Confirm the dashboard shows the correct chain and factory status.
+6. Create a wallet from the active factory.
+7. Add a known compatible contract wallet.
+8. Submit a native transfer or calldata proposal.
+9. Approve from a second owner account.
+10. Execute from an eligible owner account.
+11. Verify Inbox, Proposals, Activity, and explorer links resolve.
 
 ## Incident Playbooks
 

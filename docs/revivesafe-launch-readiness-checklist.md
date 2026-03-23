@@ -4,28 +4,31 @@ Updated: March 22, 2026
 
 ## Current Truthful Product Scope
 
-ReviveSafe currently supports a **programmable contract-wallet beta** on Paseo
-Asset Hub and Polkadot Asset Hub.
+ReviveSafe currently supports a **shared-wallet beta** on Paseo Asset Hub and
+Polkadot Asset Hub, with programmable contract wallets plus manual import of
+direct native multisigs.
 
 Live in code today:
 
 - LunoKit wallet connection with Talisman, SubWallet, and Polkadot.js
-- `revive.map_account()` activation gating before write paths
+- `revive.map_account()` activation gating before programmable write paths
 - factory-backed programmable wallet creation
 - adding existing compatible contract wallets to the workspace
+- manual import of direct native multisig wallets from exact members and
+  threshold
 - wallet detail reads, balances, owners, and recent activity
 - proposal submission, approval, ready-to-execute state, and execution
 - native token transfers and supported Asset Hub asset transfers
-- dashboard queues for `Needs your approval`, `Ready to execute`, and recent
-  executed proposals
+- top-level Inbox, Proposals, and Activity pages
+- cross-wallet queues for `Needs your approval`, `Ready to execute`, and recent
+  executed activity
 
 Not live today:
 
 - native wallet creation
-- native wallet import
+- automatic native wallet discovery
 - proxy wallet flows
 - native-to-programmable upgrade flows
-- top-level Inbox, Proposals, or Activity pages
 - member management, modules, rules, policies, or settings as first-class
   product flows
 
@@ -53,9 +56,10 @@ These are still the real blockers for a serious public beta:
 
 1. Public-facing scope must stay narrow everywhere you publish it.
    The deployed landing page, docs site, screenshots, and announcements must
-   describe ReviveSafe as a programmable contract-wallet beta. Do not claim
-   live native wallet import, proxy support, Inbox, upgrade flows, or richer
-   rules/modules unless those surfaces are actually shipped.
+   describe ReviveSafe as a shared-wallet beta with manual direct-native import
+   plus programmable contract wallets. Do not claim proxy support, automatic
+   discovery, upgrade flows, or richer rules/modules unless those surfaces are
+   actually shipped.
 
 2. Ship an operator runbook for the target beta environment.
    Include the active factory address, target chain, funded owner accounts,
@@ -81,10 +85,9 @@ These are still the real blockers for a serious public beta:
 
 ## Can Wait Until Post-Launch
 
-- native wallet create and import
+- native wallet creation
 - proxy wallet support
 - native-to-programmable upgrade flows
-- dedicated Inbox, Proposals, and Activity surfaces
 - member management and richer wallet governance flows
 - modules, rules, policies, and settings product depth
 - broader asset discovery beyond the current metadata-driven cap
@@ -119,26 +122,28 @@ Recommended runtime assumptions:
 Supported user flows today:
 
 1. Connect a supported wallet.
-2. Activate the account with `revive.map_account()`.
+2. Import a direct native multisig from the exact members and threshold, or
+   activate the account with `revive.map_account()` for programmable flows.
 3. Create a programmable contract wallet from the factory.
 4. Add an existing compatible contract wallet if the connected mapped account
    is already an owner.
-5. Open the wallet and inspect owners, balances, pending proposals, and recent
-   executed activity.
-6. Submit a proposal:
+5. Open top-level Inbox, Proposals, and Activity to review cross-wallet work.
+6. Open a wallet and inspect owners or members, balances, pending proposals,
+   and recent executed activity.
+7. Submit a proposal:
    - native token transfer
    - custom calldata transaction
    - Asset Hub asset transfer through the deterministic ERC-20 precompile path
-7. Approve a pending proposal as an owner.
-8. Execute a ready proposal as an eligible owner.
+8. Approve a pending proposal as an owner or direct native member.
+9. Execute a ready proposal as an eligible owner or direct native member when
+   the imported call is supported and recoverable.
 
 ## Known Limitations
 
-- ReviveSafe is not yet a true two-rail product in implementation.
-- Native wallet import is still not truly ready.
-- Some public-facing design surfaces still describe future-state IA and wallet
-  types beyond the shipped beta, so release materials must be curated
-  carefully.
+- Native import is manual and limited to direct multisigs; there is no
+  automatic wallet discovery.
+- Imported native proposals may still be hash-only if the original call cannot
+  be recovered from chain history.
 - Only compatible ReviveSafe contract wallets should be treated as supported in
   the add-wallet flow.
 - Owners still act through mapped H160 addresses under the hood, even though
@@ -156,10 +161,12 @@ Before launch, make sure every user-facing surface says:
 - this is a beta
 - which network it is for
 - which wallets are supported
-- that the live beta is for programmable contract wallets
+- that the live beta supports programmable contract wallets plus manual import
+  of direct native multisigs
 - whether contracts are audited or unaudited
-- that only owners can approve and execute proposals
+- that only owners or direct native members can approve and execute proposals
 - that compatibility checks apply when adding an existing contract wallet
+- that proxy import and automatic discovery are not live
 
 Recommended trust additions:
 
@@ -176,6 +183,7 @@ Core pre-release checks:
 - verify chain switching between Paseo Asset Hub and Polkadot Asset Hub
 - verify runtime-connection failure banners by simulating a bad WS endpoint
 - verify mapping gate success and failure states
+- verify direct native multisig import from the exact member set and threshold
 - verify create-wallet success on the target factory
 - verify duplicate-owner validation in create flow
 - verify SS58 owner input resolves correctly to mapped H160
@@ -184,6 +192,8 @@ Core pre-release checks:
 - verify incompatible contract wallet rejection in the add-wallet flow
 - verify native token transfer proposal submission
 - verify Asset Hub asset transfer proposal submission
+- verify top-level Inbox, Proposals, and Activity surfaces reflect live state
+- verify imported native approvals can be approved by hash
 - verify proposal approval by a second owner
 - verify ready-to-execute state appears only after threshold is met
 - verify execution succeeds and the proposal moves into executed activity
@@ -214,6 +224,7 @@ Reason:
 
 - The core programmable contract-wallet flow is real and no longer just demo
   logic.
+- Direct native multisig import is now real, but still intentionally limited.
 - The product is still too narrow and too operationally dependent on manual
   setup to position as a broad public shared-wallet launch.
 - A public beta becomes reasonable after the launch blockers above are closed,
