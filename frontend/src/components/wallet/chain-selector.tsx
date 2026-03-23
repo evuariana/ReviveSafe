@@ -25,10 +25,10 @@ export function ChainSelector() {
       <Button
         variant="outline"
         size="sm"
-        className="h-11 min-w-[172px] justify-between rounded-full border-zinc-200 bg-white/90 px-4 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-200 dark:hover:bg-white/[0.08]"
+        className="h-11 min-w-[172px] max-w-full justify-between rounded-full border-zinc-200 bg-white/90 px-4 text-xs font-medium text-zinc-700 shadow-sm backdrop-blur hover:bg-white dark:border-white/10 dark:bg-white/[0.04] dark:text-zinc-200 dark:hover:bg-white/[0.08]"
         onClick={() => setOpen((value) => !value)}
       >
-        <span className="flex items-center gap-2">
+        <span className="flex min-w-0 items-center gap-2">
           {currentChain?.chainIconUrl && (
             <img
               src={currentChain.chainIconUrl}
@@ -36,7 +36,7 @@ export function ChainSelector() {
               className="h-4 w-4 rounded-full"
             />
           )}
-          <span>{currentChain?.name ?? "Select chain"}</span>
+          <span className="truncate">{currentChain?.name ?? "Select chain"}</span>
         </span>
         <ChevronDown className="h-3.5 w-3.5 opacity-60" />
       </Button>

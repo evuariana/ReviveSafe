@@ -103,8 +103,8 @@ function WorkspaceSessionGate({
   pageName: string;
 }) {
   return (
-    <section className="grid gap-6 xl:grid-cols-[minmax(0,1.18fr)_minmax(320px,400px)] 2xl:grid-cols-[minmax(0,1.24fr)_minmax(360px,440px)] 2xl:gap-8">
-      <div className={`${workspacePanelMutedClassName} p-6 md:p-8`}>
+    <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] 2xl:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] 2xl:gap-8">
+      <div className={`${workspacePanelMutedClassName} min-w-0 p-6 md:p-8`}>
         <WorkspaceBadge tone={isRestoring ? "sky" : "amber"}>
           {isRestoring ? "Restoring session" : "Connect wallet"}
         </WorkspaceBadge>
@@ -131,7 +131,7 @@ function WorkspaceSessionGate({
           </Link>
         </div>
 
-        <div className="mt-8 grid gap-3 md:grid-cols-3">
+        <div className="mt-8 grid gap-3 lg:grid-cols-3">
           {[
             {
               label: "1. Connect",
@@ -161,7 +161,7 @@ function WorkspaceSessionGate({
         </div>
       </div>
 
-      <div className={`${workspacePanelMutedClassName} p-5 md:p-6`}>
+      <div className={`${workspacePanelMutedClassName} min-w-0 p-5 md:p-6`}>
         <div className="flex items-center gap-2 font-semibold text-zinc-950 dark:text-white">
           <LifeBuoy className="h-4 w-4" />
           Before you continue
@@ -202,13 +202,13 @@ export default function DashboardLayout() {
     pageDescriptions[pagePath] ?? pageDescriptions["/dashboard"];
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-zinc-50 text-zinc-950 transition-colors duration-500 dark:bg-[#050505] dark:text-zinc-50">
+    <div className="relative min-h-screen overflow-x-hidden bg-zinc-50 text-zinc-950 transition-colors duration-500 dark:bg-[#050505] dark:text-zinc-50">
       <div className="pointer-events-none absolute inset-0 bg-grid-pattern opacity-60 [mask-image:radial-gradient(ellipse_at_top,black,transparent_78%)] dark:opacity-50" />
       <div className="pointer-events-none absolute left-1/2 top-0 h-[460px] w-[960px] -translate-x-1/2 rounded-full bg-black/[0.04] blur-[110px] dark:bg-white/[0.03]" />
       <div className="pointer-events-none absolute right-[-120px] top-[220px] h-[320px] w-[320px] rounded-full bg-black/[0.03] blur-[120px] dark:bg-white/[0.02]" />
 
-      <div className="relative mx-auto w-full max-w-[1880px] px-4 py-4 sm:px-6 sm:py-6 xl:px-8 2xl:max-w-[2048px] 2xl:px-10">
-        <div className="grid gap-4 lg:grid-cols-[minmax(270px,308px)_minmax(0,1fr)] lg:gap-6 2xl:grid-cols-[minmax(300px,340px)_minmax(0,1fr)] 2xl:gap-8">
+      <div className="relative w-full px-[clamp(0.875rem,1.4vw,1.5rem)] py-[clamp(0.875rem,1.2vw,1.5rem)] sm:px-[clamp(1rem,1.8vw,2rem)] xl:px-[clamp(1.25rem,2vw,2.75rem)] 2xl:px-[clamp(1.5rem,2.6vw,4rem)]">
+        <div className="grid items-start gap-4 xl:grid-cols-[clamp(272px,18vw,340px)_minmax(0,1fr)] xl:gap-6 2xl:grid-cols-[clamp(292px,16vw,360px)_minmax(0,1fr)] 2xl:gap-8">
           <aside
             className={`${workspacePanelClassName} p-5 backdrop-blur lg:sticky lg:top-6 lg:max-h-[calc(100dvh-3rem)] lg:overflow-y-auto xl:p-6`}
           >
@@ -303,11 +303,11 @@ export default function DashboardLayout() {
 
           <div className="min-w-0 flex-1">
             <div
-              className={`relative mb-6 flex flex-col gap-4 p-4 backdrop-blur sm:flex-row sm:items-center sm:justify-between xl:p-5 2xl:p-6 ${workspacePanelClassName}`}
+              className={`relative mb-6 flex flex-col gap-4 p-4 backdrop-blur lg:flex-row lg:items-start lg:justify-between xl:items-center xl:p-5 2xl:p-6 ${workspacePanelClassName}`}
             >
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(15,23,42,0.06),transparent_32%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.06),transparent_24%)]" />
 
-              <div className="relative z-10">
+              <div className="relative z-10 min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
                   <div className="text-xs font-semibold uppercase tracking-[0.26em] text-zinc-500">
                     Workspace
@@ -319,12 +319,12 @@ export default function DashboardLayout() {
                 <div className="mt-3 font-display text-2xl font-medium tracking-tight text-zinc-950 dark:text-white">
                   {currentPageTitle}
                 </div>
-                <div className="mt-2 max-w-2xl text-sm leading-7 text-zinc-600 dark:text-zinc-400">
+                <div className="mt-2 max-w-3xl text-sm leading-7 text-zinc-600 dark:text-zinc-400">
                   {routeDescription}
                 </div>
               </div>
 
-              <div className="relative z-10 flex flex-wrap items-center gap-3">
+              <div className="relative z-10 flex w-full flex-wrap items-center justify-start gap-3 lg:w-auto lg:shrink-0 lg:justify-end">
                 <ChainSelector />
                 <button
                   type="button"
